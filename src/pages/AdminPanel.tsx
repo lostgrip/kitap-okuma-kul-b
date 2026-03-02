@@ -197,7 +197,7 @@ const AdminPanel = () => {
             <h2 className="font-serif font-semibold text-sm text-muted-foreground uppercase tracking-wide">
               Grup Üyeleri ({members.length})
             </h2>
-            {members.map((member: GroupMember & { user_roles: UserRole[] }) => {
+            {members.map((member: any) => {
               const memberRoles = member.user_roles || [];
               const isMemberAdmin = memberRoles.some((r: UserRole) => r.role === 'admin');
               const isCurrentUser = member.user_id === user?.id;

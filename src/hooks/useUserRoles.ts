@@ -48,12 +48,23 @@ export const useGroupMembers = () => {
   return useQuery({
     queryKey: ['group_members'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('*, user_roles(role)');
+        .select('*');
 
-      if (error) throw error;
-      return data;
+      if (profilesError) throw profilesError;
+
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('*');
+
+      if (rolesError) throw rolesError;
+
+      // Merge roles into profiles
+      return (profilesData || []).map(profile => ({
+        ...profile,
+        user_roles: (rolesData || []).filter(r => r.user_id === profile.user_id) as UserRole[],
+      }));
     },
   });
 };
