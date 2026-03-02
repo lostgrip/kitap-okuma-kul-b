@@ -1,0 +1,4 @@
+project_id = "bqtlgoovkavocwgradjt"
+
+[functions.search-books]
+verify_jwt = false
