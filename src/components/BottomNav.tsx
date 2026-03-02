@@ -8,9 +8,9 @@ interface BottomNavProps {
 
 const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   const tabs = [
-    { id: 'current' as const, label: 'Current Read', icon: BookOpen },
-    { id: 'library' as const, label: 'Library', icon: Library },
-    { id: 'feed' as const, label: 'Social', icon: MessageCircle },
+    { id: 'current' as const, label: 'Okunan', icon: BookOpen },
+    { id: 'library' as const, label: 'Kütüphane', icon: Library },
+    { id: 'feed' as const, label: 'Sosyal', icon: MessageCircle },
   ];
 
   return (
