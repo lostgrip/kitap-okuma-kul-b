@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { ThumbsUp, ThumbsDown, BookOpen, Loader2, Crown, Trophy } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, BookOpen, Loader2, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBookVotes, useAddBookVote, useRemoveBookVote } from '@/hooks/useBookVotes';
 import { useBooks } from '@/hooks/useBooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useIsAdmin } from '@/hooks/useUserRoles';
-import { useAddClubSchedule } from '@/hooks/useClubSchedule';
 import { toast } from 'sonner';
 
 const BookVotingSection = () => {
@@ -17,7 +16,6 @@ const BookVotingSection = () => {
     const { data: isAdmin } = useIsAdmin(user?.id);
     const addVote = useAddBookVote();
     const removeVote = useRemoveBookVote();
-    const addClubSchedule = useAddClubSchedule();
 
     const userProfile = profiles.find(p => p.user_id === user?.id);
 
@@ -62,25 +60,6 @@ const BookVotingSection = () => {
         }
     };
 
-    const handleMakeClubBook = async (bookId: string) => {
-        if (!user) return;
-        const effectiveGroupCode = userProfile?.group_code || 'ZENHUB';
-        try {
-            await addClubSchedule.mutateAsync({
-                book_id: bookId,
-                group_code: effectiveGroupCode,
-                start_date: new Date().toISOString().split('T')[0],
-                end_date: null,
-                status: 'active',
-                notes: 'Anket sonucunda kulüp kitabı olarak seçildi.',
-                created_by: user.id
-            });
-            toast.success('Kitap, Kulüp Ortak Kitabı olarak ayarlandı! 🌱');
-        } catch {
-            toast.error('Kulüp kitabı ayarlanırken hata oluştu');
-        }
-    };
-
     return (
         <div className="bg-card rounded-2xl p-5 shadow-card mb-6">
             <h3 className="font-serif font-semibold text-base mb-1 flex items-center gap-2">
@@ -117,18 +96,6 @@ const BookVotingSection = () => {
                             >
                                 {hasVoted ? <ThumbsDown className="w-4 h-4" /> : <ThumbsUp className="w-4 h-4" />}
                             </button>
-                            {isAdmin && (
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={() => handleMakeClubBook(book.id)}
-                                    disabled={addClubSchedule.isPending}
-                                    className="w-8 h-8 rounded-lg ml-1 hover:bg-forest hover:text-white hover:border-forest"
-                                    title="Kulüp Kitabı Yap"
-                                >
-                                    <Trophy className="w-4 h-4" />
-                                </Button>
-                            )}
                         </div>
                     </div>
                 ))}
