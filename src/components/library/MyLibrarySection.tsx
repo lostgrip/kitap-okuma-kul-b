@@ -24,6 +24,7 @@ import { Label } from '@/components/ui/label';
 import { useBookLists, useCreateBookList, useBookListItems, BookList } from '@/hooks/useBookLists';
 import { Book, useBooks, useDeleteBook } from '@/hooks/useBooks';
 import { useRemoveBookFromList } from '@/hooks/useBookListActions';
+import { useClubSchedule } from '@/hooks/useClubSchedule';
 import { useAuth } from '@/contexts/AuthContext';
 import BookCard from '@/components/BookCard';
 import { cn } from '@/lib/utils';
@@ -230,6 +231,7 @@ const ListBooksView = ({ listId, books, searchQuery }: ListBooksViewProps) => {
   const { data: items = [], isLoading } = useBookListItems(listId);
   const removeFromList = useRemoveBookFromList();
   const deleteBook = useDeleteBook();
+  const { data: schedule = [] } = useClubSchedule();
 
   const listBooks = books.filter(book =>
     items.some(item => item.book_id === book.id)
@@ -239,6 +241,8 @@ const ListBooksView = ({ listId, books, searchQuery }: ListBooksViewProps) => {
     book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     book.author.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const activeClubBookIds = schedule.filter(s => s.status === 'active').map(s => s.book_id);
 
   if (isLoading) {
     return (
@@ -274,6 +278,7 @@ const ListBooksView = ({ listId, books, searchQuery }: ListBooksViewProps) => {
                 cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
               }}
               size="md"
+              isClubBook={activeClubBookIds.includes(book.id)}
               className="bg-card p-3 rounded-xl shadow-soft"
             />
             {/* Remove from list */}

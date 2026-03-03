@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, BookOpen, Loader2, Leaf } from 'lucide-react';
+import { TrendingUp, BookOpen, Loader2, Leaf, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ProgressBar from './ProgressBar';
@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useGoals } from '@/hooks/useGoals';
 import { useReadingLog, useAddReadingLog } from '@/hooks/useReadingLog';
 import { useUserBooks } from '@/hooks/useUserBooks';
+import { useClubSchedule } from '@/hooks/useClubSchedule';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -27,6 +28,7 @@ const CurrentReadTab = () => {
   const upsertProgress = useUpsertProgress();
   const deleteProgress = useDeleteProgress();
   const addReadingLog = useAddReadingLog();
+  const { data: schedule = [] } = useClubSchedule();
 
   const [inputPage, setInputPage] = useState('');
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
@@ -80,6 +82,7 @@ const CurrentReadTab = () => {
   if (!displayBook) return null;
 
   const totalPages = displayBook.page_count;
+  const isClubBook = schedule.some(s => s.book_id === displayBook.id && s.status === 'active');
 
   const handleUpdateProgress = async () => {
     const newPage = parseInt(inputPage);
@@ -129,7 +132,14 @@ const CurrentReadTab = () => {
       {/* Header */}
       <div className="mb-6 text-center">
         <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mb-2">Şu Anda Okunan</p>
-        <h1 className="text-2xl font-serif font-bold text-foreground leading-tight">{displayBook.title}</h1>
+        <div className="flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-serif font-bold text-foreground leading-tight">{displayBook.title}</h1>
+          {isClubBook && (
+            <span title="Kulüp Ortak Kitabı">
+              <Crown className="w-5 h-5 text-amber-500 flex-shrink-0" />
+            </span>
+          )}
+        </div>
         <p className="text-muted-foreground mt-1 text-sm">{displayBook.author}</p>
       </div>
 

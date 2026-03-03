@@ -35,6 +35,7 @@ import MyLibrarySection from './library/MyLibrarySection';
 import { useBooks, useAddBook, useDeleteBook } from '@/hooks/useBooks';
 import { useBookLists } from '@/hooks/useBookLists';
 import { useAddBookToDefaultList, useAddBookToCustomList } from '@/hooks/useBookListActions';
+import { useClubSchedule } from '@/hooks/useClubSchedule';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useIsAdmin } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
@@ -46,6 +47,7 @@ const LibraryTab = () => {
   const { data: books = [], isLoading } = useBooks();
   const { data: userLists = [] } = useBookLists(user?.id);
   const { data: isAdmin } = useIsAdmin(user?.id);
+  const { data: schedule = [] } = useClubSchedule();
   const addBook = useAddBook();
   const deleteBook = useDeleteBook();
   const addToDefaultList = useAddBookToDefaultList();
@@ -75,6 +77,10 @@ const LibraryTab = () => {
       book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       book.author.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const activeClubBookIds = useMemo(() => {
+    return schedule.filter(s => s.status === 'active').map(s => s.book_id);
+  }, [schedule]);
 
   const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -253,6 +259,7 @@ const LibraryTab = () => {
                     cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
                   }}
                   size="md"
+                  isClubBook={activeClubBookIds.includes(book.id)}
                   className="bg-card p-3 rounded-xl shadow-soft"
                 />
                 {/* Admin or owner can delete */}

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BookCardProps {
@@ -13,10 +14,11 @@ interface BookCardProps {
   size?: 'sm' | 'md' | 'lg';
   showOwner?: boolean;
   ownerName?: string;
+  isClubBook?: boolean;
   className?: string;
 }
 
-const BookCard = ({ book, size = 'md', showOwner = false, ownerName, className }: BookCardProps) => {
+const BookCard = ({ book, size = 'md', showOwner = false, ownerName, isClubBook = false, className }: BookCardProps) => {
   const navigate = useNavigate();
 
   const sizes = {
@@ -38,7 +40,7 @@ const BookCard = ({ book, size = 'md', showOwner = false, ownerName, className }
     >
       <div
         className={cn(
-          'rounded-lg overflow-hidden shadow-card bg-muted border-2 border-border',
+          'relative rounded-lg overflow-hidden shadow-card bg-muted border-2 border-border',
           sizes[size]
         )}
       >
@@ -47,6 +49,11 @@ const BookCard = ({ book, size = 'md', showOwner = false, ownerName, className }
           alt={book.title}
           className="w-full h-full object-cover"
         />
+        {isClubBook && (
+          <div className="absolute top-2 left-2 bg-amber-500 text-white p-1 rounded-md shadow-sm backdrop-blur-md bg-opacity-90">
+            <Crown className="w-3.5 h-3.5" />
+          </div>
+        )}
       </div>
       <div className="mt-2">
         <h4
