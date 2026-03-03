@@ -390,7 +390,7 @@ const CommunityListCard = ({ list, isSelected, onClick }: CommunityListCardProps
 
 interface CollectionBooksViewProps {
   listId: string;
-  books: Book[];
+  books: { id: string; title: string; author: string; cover_url: string | null; page_count: number; genre: string | null; description: string | null; added_by: string | null; club_status: string | null; epub_url: string | null; created_at: string; updated_at: string; }[];
   searchQuery: string;
 }
 

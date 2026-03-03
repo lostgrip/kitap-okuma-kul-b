@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 
 export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+    const err = error as Error | undefined;
     return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
             <div className="bg-destructive/10 p-4 rounded-full mb-6">
@@ -16,8 +17,8 @@ export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
             {/* Dev mode error details (optional but helpful) */}
             {process.env.NODE_ENV === 'development' && (
                 <div className="bg-muted p-4 rounded-md overflow-auto w-full max-w-lg mb-6 text-left text-xs font-mono">
-                    <p className="font-bold text-destructive mb-2">{error.message}</p>
-                    <pre className="text-muted-foreground whitespace-pre-wrap">{error.stack}</pre>
+                    <p className="font-bold text-destructive mb-2">{err?.message}</p>
+                    <pre className="text-muted-foreground whitespace-pre-wrap">{err?.stack}</pre>
                 </div>
             )}
 
