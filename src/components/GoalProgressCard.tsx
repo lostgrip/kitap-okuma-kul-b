@@ -27,7 +27,7 @@ const GoalProgressCard = ({ logs, goals, totalPagesThisWeek, completedBooksThisM
         <div className="bg-card rounded-2xl p-5 shadow-card mb-6">
             <h3 className="font-serif font-semibold text-base mb-4 flex items-center gap-2">
                 <Target className="w-5 h-5 text-primary" />
-                Hedefler & Streak
+                Hedefler & Seri
             </h3>
 
             <div className="grid grid-cols-3 gap-3 mb-4">
@@ -35,7 +35,7 @@ const GoalProgressCard = ({ logs, goals, totalPagesThisWeek, completedBooksThisM
                 <div className="flex flex-col items-center justify-center p-3 bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-xl border border-orange-200/30 dark:border-orange-800/30">
                     <Flame className={cn('w-6 h-6 mb-1', streak > 0 ? 'text-orange-500' : 'text-muted-foreground')} />
                     <span className="text-2xl font-bold">{streak}</span>
-                    <span className="text-xs text-muted-foreground mt-0.5">gün streak</span>
+                    <span className="text-xs text-muted-foreground mt-0.5">gün seri</span>
                 </div>
 
                 {/* Weekly pages */}
@@ -80,7 +80,7 @@ const GoalProgressCard = ({ logs, goals, totalPagesThisWeek, completedBooksThisM
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                            className={cn('h-full rounded-full transition-all duration-500', monthlyBookPct >= 100 ? 'bg-green-500' : 'bg-amber')}
+                            className={cn('h-full rounded-full transition-all duration-500', monthlyBookPct >= 100 ? 'bg-green-500' : 'bg-amber-400')}
                             style={{ width: `${monthlyBookPct}%` }}
                         />
                     </div>

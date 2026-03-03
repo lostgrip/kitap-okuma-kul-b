@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Avatar from './Avatar';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { tr } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface FeedPostData {
@@ -33,7 +34,7 @@ const FeedPost = ({ post, userCurrentPage }: FeedPostProps) => {
   const isSpoiler = post.page_reference !== null && post.page_reference > userCurrentPage;
   const showBlur = isSpoiler && !isRevealed;
 
-  const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
+  const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: tr });
   const isCurrentUser = post.user_id === user?.id;
 
   return (

@@ -17,7 +17,7 @@ const ProgressBar = ({
   className,
   animated = true,
 }: ProgressBarProps) => {
-  const percentage = Math.min(Math.round((current / total) * 100), 100);
+  const percentage = total > 0 ? Math.min(Math.round((current / total) * 100), 100) : 0;
 
   const heights = {
     sm: 'h-1.5',
@@ -30,7 +30,7 @@ const ProgressBar = ({
       {showLabel && (
         <div className="flex justify-between items-center mb-1.5">
           <span className="text-sm text-muted-foreground">
-            Page {current} of {total}
+            Sayfa {current} / {total}
           </span>
           <span className="text-sm font-semibold text-primary">{percentage}%</span>
         </div>

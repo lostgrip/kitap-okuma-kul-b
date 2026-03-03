@@ -369,7 +369,7 @@ const BookDetail = () => {
               {bookProgress.slice(0, 5).map((progress) => {
                 const profile = getProfile(progress.user_id);
                 if (!profile) return null;
-                const percentage = Math.round((progress.current_page / book.page_count) * 100);
+                const percentage = book.page_count > 0 ? Math.round((progress.current_page / book.page_count) * 100) : 0;
                 return (
                   <div
                     key={progress.id}

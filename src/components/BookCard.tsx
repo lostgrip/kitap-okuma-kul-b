@@ -32,7 +32,7 @@ const BookCard = ({ book, size = 'md', showOwner = false, ownerName, className }
   };
 
   return (
-    <button 
+    <button
       onClick={() => navigate(`/book/${book.id}`)}
       className={cn('flex flex-col text-left hover:opacity-90 transition-opacity', className)}
     >
@@ -60,7 +60,7 @@ const BookCard = ({ book, size = 'md', showOwner = false, ownerName, className }
         <p
           className={cn(
             'text-muted-foreground mt-0.5',
-            size === 'sm' ? 'text-xs' : 'text-xs'
+            size === 'sm' ? 'text-[10px]' : 'text-xs'
           )}
         >
           {book.author}
