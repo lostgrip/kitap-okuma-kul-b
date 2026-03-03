@@ -125,9 +125,9 @@ const BookDetail = () => {
   const currentStatus = userBook?.status as keyof typeof statusConfig | undefined;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 max-w-md mx-auto relative shadow-2xl">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between max-w-md mx-auto">
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2">
           <ArrowLeft className="w-4 h-4" />
           Geri

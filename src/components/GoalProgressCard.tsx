@@ -1,4 +1,4 @@
-import { Flame, Target, TrendingUp } from 'lucide-react';
+import { Leaf, Target, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ReadingLogEntry, computeStreak } from '@/hooks/useReadingLog';
 import { Goal } from '@/types';
@@ -26,16 +26,16 @@ const GoalProgressCard = ({ logs, goals, totalPagesThisWeek, completedBooksThisM
     return (
         <div className="bg-card rounded-2xl p-5 shadow-card mb-6">
             <h3 className="font-serif font-semibold text-base mb-4 flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" />
-                Hedefler & Seri
+                <Leaf className="w-5 h-5 text-primary" />
+                Okuma Alışkanlığı
             </h3>
 
             <div className="grid grid-cols-3 gap-3 mb-4">
-                {/* Streak */}
-                <div className="flex flex-col items-center justify-center p-3 bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-xl border border-orange-200/30 dark:border-orange-800/30">
-                    <Flame className={cn('w-6 h-6 mb-1', streak > 0 ? 'text-orange-500' : 'text-muted-foreground')} />
+                {/* Consistency */}
+                <div className="flex flex-col items-center justify-center p-3 bg-gradient-to-br from-forest-light/10 to-forest/10 rounded-xl border border-forest/20">
+                    <Leaf className={cn('w-6 h-6 mb-1', streak > 0 ? 'text-forest' : 'text-muted-foreground')} />
                     <span className="text-2xl font-bold">{streak}</span>
-                    <span className="text-xs text-muted-foreground mt-0.5">gün seri</span>
+                    <span className="text-xs text-muted-foreground mt-0.5">günlük akış</span>
                 </div>
 
                 {/* Weekly pages */}

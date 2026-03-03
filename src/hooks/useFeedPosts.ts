@@ -10,6 +10,7 @@ export interface FeedPost {
   image_url: string | null;
   created_at: string;
   updated_at: string;
+  feed_post_likes?: { user_id: string }[];
 }
 
 export interface NewFeedPost {
@@ -24,12 +25,26 @@ export const useFeedPosts = () => {
   return useQuery({
     queryKey: ['feed_posts'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feed_posts')
-        .select('*')
+        .select(`
+          *,
+          feed_post_likes ( user_id )
+        `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        // Fallback if the relation doesn't exist yet on the remote database
+        if (error.code === 'PGRST200') {
+          const { data: fallbackData, error: fallbackError } = await (supabase as any)
+            .from('feed_posts')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (fallbackError) throw fallbackError;
+          return fallbackData as FeedPost[];
+        }
+        throw error;
+      }
       return data as FeedPost[];
     },
   });
@@ -70,6 +85,42 @@ export const useDeleteFeedPost = () => {
         .from('feed_posts')
         .delete()
         .eq('id', postId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feed_posts'] });
+    },
+  });
+};
+
+export const useLikePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ postId, userId }: { postId: string; userId: string }) => {
+      const { error } = await (supabase as any)
+        .from('feed_post_likes')
+        .insert({ post_id: postId, user_id: userId });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feed_posts'] });
+    },
+  });
+};
+
+export const useUnlikePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ postId, userId }: { postId: string; userId: string }) => {
+      const { error } = await (supabase as any)
+        .from('feed_post_likes')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', userId);
 
       if (error) throw error;
     },

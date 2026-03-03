@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Quote, MessageCircle, Heart, Eye, EyeOff } from 'lucide-react';
+import { Quote, MessageCircle, Heart, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Avatar from './Avatar';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLikePost, useUnlikePost, useDeleteFeedPost } from '@/hooks/useFeedPosts';
 
 interface FeedPostData {
   id: string;
@@ -19,6 +20,7 @@ interface FeedPostData {
   userName?: string;
   userAvatar?: string;
   bookTitle?: string;
+  feed_post_likes?: { user_id: string }[];
 }
 
 interface FeedPostProps {
@@ -29,7 +31,13 @@ interface FeedPostProps {
 const FeedPost = ({ post, userCurrentPage }: FeedPostProps) => {
   const { user } = useAuth();
   const [isRevealed, setIsRevealed] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+
+  const likeMutation = useLikePost();
+  const unlikeMutation = useUnlikePost();
+  const deleteMutation = useDeleteFeedPost();
+
+  const isLiked = post.feed_post_likes?.some(like => like.user_id === user?.id) || false;
+  const likeCount = post.feed_post_likes?.length || 0;
 
   const isSpoiler = post.page_reference !== null && post.page_reference > userCurrentPage;
   const showBlur = isSpoiler && !isRevealed;
@@ -56,6 +64,17 @@ const FeedPost = ({ post, userCurrentPage }: FeedPostProps) => {
           <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
             <Quote className="w-4 h-4 text-primary" />
           </div>
+        )}
+        {isCurrentUser && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => deleteMutation.mutate(post.id)}
+            disabled={deleteMutation.isPending}
+            className="w-8 h-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
         )}
       </div>
 
@@ -99,14 +118,22 @@ const FeedPost = ({ post, userCurrentPage }: FeedPostProps) => {
       {/* Actions */}
       <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border">
         <button
-          onClick={() => setIsLiked(!isLiked)}
+          onClick={() => {
+            if (!user) return;
+            if (isLiked) {
+              unlikeMutation.mutate({ postId: post.id, userId: user.id });
+            } else {
+              likeMutation.mutate({ postId: post.id, userId: user.id });
+            }
+          }}
+          disabled={likeMutation.isPending || unlikeMutation.isPending}
           className={cn(
             'flex items-center gap-1.5 text-sm transition-colors',
             isLiked ? 'text-terracotta' : 'text-muted-foreground hover:text-terracotta'
           )}
         >
           <Heart className={cn('w-4 h-4', isLiked && 'fill-current')} />
-          <span>{isLiked ? 'Beğenildi' : 'Beğen'}</span>
+          <span>{likeCount > 0 ? likeCount : 'Beğen'}</span>
         </button>
         <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
           <MessageCircle className="w-4 h-4" />

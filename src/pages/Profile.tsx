@@ -231,25 +231,21 @@ const Profile = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="goals" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="goals" className="text-xs">
+          <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 rounded-xl">
+            <TabsTrigger value="goals" className="text-xs rounded-lg">
               <Target className="h-4 w-4 mr-1" />
-              Hedefler
+              Alışkanlıklar
             </TabsTrigger>
-            <TabsTrigger value="stats" className="text-xs">
+            <TabsTrigger value="stats" className="text-xs rounded-lg">
               <BarChart3 className="h-4 w-4 mr-1" />
               İstatistik
-            </TabsTrigger>
-            <TabsTrigger value="feedback" className="text-xs">
-              <MessageSquare className="h-4 w-4 mr-1" />
-              İletişim
             </TabsTrigger>
           </TabsList>
 
           {/* Goals Tab */}
           <TabsContent value="goals" className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="font-serif font-semibold">Okuma Hedeflerim</h3>
+              <h3 className="font-serif font-semibold">Günlük Okuma Alışkanlığım</h3>
               {user && (
                 <Dialog open={goalDialogOpen} onOpenChange={setGoalDialogOpen}>
                   <DialogTrigger asChild>
@@ -380,102 +376,8 @@ const Profile = () => {
             )}
           </TabsContent>
 
-          {/* Feedback Tab */}
-          <TabsContent value="feedback" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Öneri ve Şikayet</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Geri Bildirim Türü</Label>
-                  <Controller
-                    name="feedback_type"
-                    control={feedbackForm.control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="suggestion">Öneri</SelectItem>
-                          <SelectItem value="complaint">Şikayet</SelectItem>
-                          <SelectItem value="question">Soru</SelectItem>
-                          <SelectItem value="other">Diğer</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {feedbackForm.formState.errors.feedback_type && (
-                    <p className="text-xs text-destructive mt-1">{feedbackForm.formState.errors.feedback_type.message}</p>
-                  )}
-                </div>
 
-                {!user && (
-                  <div>
-                    <Label>E-posta (Opsiyonel)</Label>
-                    <Input
-                      type="email"
-                      placeholder="Yanıt almak için e-posta adresiniz"
-                      {...feedbackForm.register('email')}
-                      className="mt-1"
-                    />
-                    {feedbackForm.formState.errors.email && (
-                      <p className="text-xs text-destructive mt-1">{feedbackForm.formState.errors.email.message}</p>
-                    )}
-                  </div>
-                )}
 
-                <div>
-                  <Label>Konu *</Label>
-                  <Input
-                    placeholder="Konu başlığı"
-                    {...feedbackForm.register('subject')}
-                    className="mt-1"
-                  />
-                  {feedbackForm.formState.errors.subject && (
-                    <p className="text-xs text-destructive mt-1">{feedbackForm.formState.errors.subject.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label>Mesaj *</Label>
-                  <Textarea
-                    placeholder="Mesajınızı yazın..."
-                    {...feedbackForm.register('message')}
-                    className="mt-1 min-h-[120px]"
-                  />
-                  {feedbackForm.formState.errors.message && (
-                    <p className="text-xs text-destructive mt-1">{feedbackForm.formState.errors.message.message}</p>
-                  )}
-                </div>
-
-                <Button
-                  onClick={feedbackForm.handleSubmit(onFeedbackSubmit)}
-                  className="w-full"
-                  disabled={submitFeedback.isPending}
-                >
-                  {submitFeedback.isPending ? 'Gönderiliyor...' : 'Gönder'}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Privacy Info */}
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-start gap-3">
-                  <Shield className="h-5 w-5 text-primary mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Gizlilik Politikası</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Kişisel verileriniz güvenle saklanır ve üçüncü taraflarla paylaşılmaz.
-                      Okuma verileriniz yalnızca size özel istatistikler için kullanılır.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
 
         {/* Sign Out Button */}

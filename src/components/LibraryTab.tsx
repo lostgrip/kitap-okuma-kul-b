@@ -32,7 +32,6 @@ import { Label } from '@/components/ui/label';
 import BookCard from './BookCard';
 import CombinedBookSearchDialog from './CombinedBookSearchDialog';
 import MyLibrarySection from './library/MyLibrarySection';
-import ClubCollectionsSection from './library/ClubCollectionsSection';
 import { useBooks, useAddBook, useDeleteBook } from '@/hooks/useBooks';
 import { useBookLists } from '@/hooks/useBookLists';
 import { useAddBookToDefaultList, useAddBookToCustomList } from '@/hooks/useBookListActions';
@@ -53,7 +52,7 @@ const LibraryTab = () => {
   const addToCustomList = useAddBookToCustomList();
   const { upload, isUploading } = useFileUpload();
 
-  const [activeSubTab, setActiveSubTab] = useState<'my' | 'club' | 'all'>('my');
+  const [activeSubTab, setActiveSubTab] = useState<'my' | 'all'>('my');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
@@ -208,8 +207,7 @@ const LibraryTab = () => {
       <div className="flex gap-2 mb-5 overflow-x-auto">
         {[
           { id: 'my' as const, label: 'Kütüphanem', icon: BookOpen },
-          { id: 'club' as const, label: 'Kulüp Koleksiyonları', icon: Users },
-          { id: 'all' as const, label: 'Tüm Kitaplar', icon: null },
+          { id: 'all' as const, label: 'Tüm Kitaplar', icon: BookText },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -241,7 +239,6 @@ const LibraryTab = () => {
 
       {/* Content based on tab */}
       {activeSubTab === 'my' && <MyLibrarySection searchQuery={searchQuery} />}
-      {activeSubTab === 'club' && <ClubCollectionsSection searchQuery={searchQuery} />}
       {activeSubTab === 'all' && (
         <>
           <div className="grid grid-cols-2 gap-4">

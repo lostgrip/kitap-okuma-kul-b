@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { ThumbsUp, ThumbsDown, BookOpen, Loader2, Crown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, BookOpen, Loader2, Crown, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBookVotes, useAddBookVote, useRemoveBookVote } from '@/hooks/useBookVotes';
 import { useBooks } from '@/hooks/useBooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfiles } from '@/hooks/useProfiles';
+import { useIsAdmin } from '@/hooks/useUserRoles';
+import { useAddClubSchedule } from '@/hooks/useClubSchedule';
 import { toast } from 'sonner';
 
 const BookVotingSection = () => {
@@ -12,8 +14,10 @@ const BookVotingSection = () => {
     const { data: votes = [] } = useBookVotes();
     const { data: books = [] } = useBooks();
     const { data: profiles = [] } = useProfiles();
+    const { data: isAdmin } = useIsAdmin(user?.id);
     const addVote = useAddBookVote();
     const removeVote = useRemoveBookVote();
+    const addClubSchedule = useAddClubSchedule();
 
     const userProfile = profiles.find(p => p.user_id === user?.id);
 
@@ -32,10 +36,15 @@ const BookVotingSection = () => {
         .slice(0, 6);
 
     const handleVote = async (bookId: string, hasVoted: boolean) => {
-        if (!user || !userProfile?.group_code) {
+        if (!user) {
             toast.error('Oy kullanmak için giriş yapmalısınız');
             return;
         }
+
+        // Define an effective group code. If regular user doesn't have one, fallback to 'ZENHUBE', though users without groups shouldn't vote in a multi-tenant app.
+        // For Zen App, we treat everyone essentially as general members if no group is strictly enforced.
+        const effectiveGroupCode = userProfile?.group_code || 'ZENHUB';
+
         try {
             if (hasVoted) {
                 await removeVote.mutateAsync({ book_id: bookId, user_id: user.id });
@@ -44,12 +53,31 @@ const BookVotingSection = () => {
                 await addVote.mutateAsync({
                     book_id: bookId,
                     user_id: user.id,
-                    group_code: userProfile.group_code,
+                    group_code: effectiveGroupCode,
                 });
                 toast.success('Oy kullanıldı!');
             }
         } catch {
             toast.error('İşlem sırasında hata oluştu');
+        }
+    };
+
+    const handleMakeClubBook = async (bookId: string) => {
+        if (!user) return;
+        const effectiveGroupCode = userProfile?.group_code || 'ZENHUB';
+        try {
+            await addClubSchedule.mutateAsync({
+                book_id: bookId,
+                group_code: effectiveGroupCode,
+                start_date: new Date().toISOString().split('T')[0],
+                end_date: null,
+                status: 'active',
+                notes: 'Anket sonucunda kulüp kitabı olarak seçildi.',
+                created_by: user.id
+            });
+            toast.success('Kitap, Kulüp Ortak Kitabı olarak ayarlandı! 🌱');
+        } catch {
+            toast.error('Kulüp kitabı ayarlanırken hata oluştu');
         }
     };
 
@@ -83,12 +111,24 @@ const BookVotingSection = () => {
                                 onClick={() => handleVote(book.id, hasVoted)}
                                 disabled={addVote.isPending || removeVote.isPending}
                                 className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all ${hasVoted
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'bg-muted text-muted-foreground hover:bg-accent'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-muted text-muted-foreground hover:bg-accent'
                                     }`}
                             >
                                 {hasVoted ? <ThumbsDown className="w-4 h-4" /> : <ThumbsUp className="w-4 h-4" />}
                             </button>
+                            {isAdmin && (
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handleMakeClubBook(book.id)}
+                                    disabled={addClubSchedule.isPending}
+                                    className="w-8 h-8 rounded-lg ml-1 hover:bg-forest hover:text-white hover:border-forest"
+                                    title="Kulüp Kitabı Yap"
+                                >
+                                    <Trophy className="w-4 h-4" />
+                                </Button>
+                            )}
                         </div>
                     </div>
                 ))}
