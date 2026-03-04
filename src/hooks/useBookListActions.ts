@@ -21,8 +21,8 @@ export const useAddBookToDefaultList = () => {
       if (!targetList) throw new Error(`Default list "${listType}" not found`);
 
       // Remove from other default lists first (a book can only be in one status)
-      const defaultLists = lists.filter(l => l.is_default && !l.is_community);
-      for (const dl of defaultLists) {
+      const otherDefaultLists = lists.filter(l => l.is_default && !l.is_community && l.id !== targetList.id);
+      for (const dl of otherDefaultLists) {
         await supabase
           .from('book_list_items')
           .delete()
@@ -30,12 +30,20 @@ export const useAddBookToDefaultList = () => {
           .eq('book_id', bookId);
       }
 
-      // Add to target list
-      const { error: itemError } = await supabase
+      // Add to target list using upsert safely (checking if it already exists could also work, but upsert is cleaner if we had a unique id. Since we don't know the item id, we might violate uniqueness if we just insert. We will do a safe insert by first checking)
+      const { data: existing } = await supabase
         .from('book_list_items')
-        .insert({ list_id: targetList.id, book_id: bookId });
+        .select('id')
+        .eq('list_id', targetList.id)
+        .eq('book_id', bookId)
+        .single();
 
-      if (itemError) throw itemError;
+      if (!existing) {
+        const { error: itemError } = await supabase
+          .from('book_list_items')
+          .insert({ list_id: targetList.id, book_id: bookId });
+        if (itemError) console.error("Error inserting into book_list_items:", itemError);
+      }
 
       // Also sync user_books table
       const statusMap: Record<string, string> = {
