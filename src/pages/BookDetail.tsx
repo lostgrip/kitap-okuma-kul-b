@@ -26,9 +26,10 @@ import {
 } from '@/components/ui/dialog';
 import { useBook } from '@/hooks/useBooks';
 import { useBookReviews, useCreateBookReview, useBookAverageRating, useUserBookReview } from '@/hooks/useBookReviews';
-import { useUserBookByBookId, useUpsertUserBook } from '@/hooks/useUserBooks';
+import { useUserBookByBookId } from '@/hooks/useUserBooks';
 import { useBookProgress } from '@/hooks/useProgress';
 import { useClubSchedule, useAddClubSchedule, useDeleteClubSchedule } from '@/hooks/useClubSchedule';
+import { useAddBookToDefaultList } from '@/hooks/useBookListActions';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useIsAdmin } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,7 +62,7 @@ const BookDetail = () => {
   const { data: bookProgress = [] } = useBookProgress(bookId || '');
   const { data: schedule = [] } = useClubSchedule();
   const { data: profiles = [] } = useProfiles();
-  const upsertUserBook = useUpsertUserBook();
+  const addToDefaultList = useAddBookToDefaultList();
   const addClubSchedule = useAddClubSchedule();
   const deleteClubSchedule = useDeleteClubSchedule();
 
@@ -107,7 +108,7 @@ const BookDetail = () => {
   const handleShelfChange = async (status: 'want_to_read' | 'reading' | 'read' | 'dnf') => {
     if (!user || !bookId) { toast.error('Giriş yapmalısınız'); return; }
     try {
-      await upsertUserBook.mutateAsync({ user_id: user.id, book_id: bookId, status });
+      await addToDefaultList.mutateAsync({ bookId, listType: status });
       toast.success(`Kitap "${statusConfig[status].label}" listesine eklendi!`);
     } catch {
       toast.error('Bir hata oluştu');

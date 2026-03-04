@@ -48,6 +48,9 @@ const BookCard = ({ book, size = 'md', showOwner = false, ownerName, isClubBook 
           src={book.cover_url}
           alt={book.title}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop';
+          }}
         />
         {isClubBook && (
           <div className="absolute top-2 left-2 bg-amber-500 text-white p-1 rounded-md shadow-sm backdrop-blur-md bg-opacity-90">

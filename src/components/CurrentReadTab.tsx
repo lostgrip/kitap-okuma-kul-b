@@ -170,6 +170,9 @@ const CurrentReadTab = () => {
             src={displayBook.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
             alt={displayBook.title}
             className="w-full h-auto object-cover aspect-[2/3]"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop';
+            }}
           />
         </div>
       </div>
