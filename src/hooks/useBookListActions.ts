@@ -100,6 +100,13 @@ export const useRemoveBookFromList = () => {
 
   return useMutation({
     mutationFn: async ({ listId, bookId }: { listId: string; bookId: string }) => {
+      // Find list type first to know if we need to sync user_books
+      const { data: list } = await supabase
+        .from('book_lists')
+        .select('is_default, list_type')
+        .eq('id', listId)
+        .single();
+
       const { error } = await supabase
         .from('book_list_items')
         .delete()
@@ -107,6 +114,28 @@ export const useRemoveBookFromList = () => {
         .eq('book_id', bookId);
 
       if (error) throw error;
+
+      // If it was a default list, we must clear the legacy tables to sync fully
+      if (list && list.is_default) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          // Delete from user_books entirely since it was removed
+          await supabase
+            .from('user_books')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('book_id', bookId);
+
+          // If it was the 'reading' list, also clear reading_progress so it doesn't ghost on the home page
+          if (list.list_type === 'reading') {
+            await supabase
+              .from('reading_progress')
+              .delete()
+              .eq('user_id', user.id)
+              .eq('book_id', bookId);
+          }
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['book_list_items'] });

@@ -120,20 +120,32 @@ export const useUpsertProgress = () => {
         .eq('is_community', false);
 
       if (userLists) {
-        // Remove from all default lists
-        for (const list of userLists) {
+        const targetList = userLists.find(l => l.list_type === listType);
+
+        // Remove from OTHER default lists
+        const otherLists = userLists.filter(l => !targetList || l.id !== targetList.id);
+        for (const list of otherLists) {
           await supabase
             .from('book_list_items')
             .delete()
             .eq('list_id', list.id)
             .eq('book_id', progress.book_id);
         }
-        // Add to correct list
-        const targetList = userLists.find(l => l.list_type === listType);
+
+        // Safely add to correct list
         if (targetList) {
-          await supabase
+          const { data: existing } = await supabase
             .from('book_list_items')
-            .insert({ list_id: targetList.id, book_id: progress.book_id });
+            .select('id')
+            .eq('list_id', targetList.id)
+            .eq('book_id', progress.book_id)
+            .maybeSingle();
+
+          if (!existing) {
+            await supabase
+              .from('book_list_items')
+              .insert({ list_id: targetList.id, book_id: progress.book_id });
+          }
         }
       }
 

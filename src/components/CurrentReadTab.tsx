@@ -64,10 +64,22 @@ const CurrentReadTab = () => {
               .eq('book_id', ub.book_id)
               .maybeSingle();
 
+            // If the book is completely missing from the target list, it means the user deleted it.
+            // We must clear the ghost data from user_books and reading_progress.
             if (!existing) {
               await supabase
-                .from('book_list_items')
-                .insert({ list_id: targetList.id, book_id: ub.book_id });
+                .from('user_books')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('book_id', ub.book_id);
+
+              if (ub.status === 'reading') {
+                await supabase
+                  .from('reading_progress')
+                  .delete()
+                  .eq('user_id', user.id)
+                  .eq('book_id', ub.book_id);
+              }
             }
           }
         }
