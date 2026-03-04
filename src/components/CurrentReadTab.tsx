@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TrendingUp, BookOpen, Loader2, Leaf, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import { useClubSchedule } from '@/hooks/useClubSchedule';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useAddBookToDefaultList } from '@/hooks/useBookListActions';
 
 const CurrentReadTab = () => {
   const { user } = useAuth();
@@ -29,9 +30,52 @@ const CurrentReadTab = () => {
   const deleteProgress = useDeleteProgress();
   const addReadingLog = useAddReadingLog();
   const { data: schedule = [] } = useClubSchedule();
+  const addToDefaultList = useAddBookToDefaultList();
 
   const [inputPage, setInputPage] = useState('');
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+
+  // Auto-sync legacy reading data to default book lists
+  useEffect(() => {
+    const autoSyncLists = async () => {
+      if (!user) return;
+
+      const { data: lists } = await supabase
+        .from('book_lists')
+        .select('id, list_type')
+        .eq('user_id', user.id)
+        .eq('is_default', true);
+
+      if (!lists || lists.length === 0) return;
+
+      const { data: uBooks } = await supabase
+        .from('user_books')
+        .select('book_id, status')
+        .eq('user_id', user.id);
+
+      if (uBooks && uBooks.length > 0) {
+        for (const ub of uBooks) {
+          const targetList = lists.find(l => l.list_type === ub.status);
+          if (targetList) {
+            const { data: existing } = await supabase
+              .from('book_list_items')
+              .select('id')
+              .eq('list_id', targetList.id)
+              .eq('book_id', ub.book_id)
+              .maybeSingle();
+
+            if (!existing) {
+              await supabase
+                .from('book_list_items')
+                .insert({ list_id: targetList.id, book_id: ub.book_id });
+            }
+          }
+        }
+      }
+    };
+
+    autoSyncLists();
+  }, [user]);
 
   // Get user's own reading books from both progress logs and simple bookshelf status
   const userReadingBookIds = Array.from(new Set([
@@ -98,12 +142,23 @@ const CurrentReadTab = () => {
     }
 
     try {
+      const newStatus = (totalPages > 0 && newPage >= totalPages) ? 'completed' : 'reading';
       await upsertProgress.mutateAsync({
         user_id: user.id,
         book_id: displayBook.id,
         current_page: newPage,
-        status: (totalPages > 0 && newPage >= totalPages) ? 'completed' : 'reading',
+        status: newStatus,
       });
+
+      // Sync with library list
+      try {
+        await addToDefaultList.mutateAsync({
+          bookId: displayBook.id,
+          listType: newStatus === 'completed' ? 'read' : 'reading'
+        });
+      } catch (e) {
+        console.error("List sync error:", e);
+      }
 
       const pagesRead = newPage - userCurrentPage;
       if (pagesRead > 0) {
