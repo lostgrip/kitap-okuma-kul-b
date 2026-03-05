@@ -295,7 +295,14 @@ const CurrentReadTab = () => {
                     user_id: user.id,
                     book_id: displayBook.id,
                   });
-                  toast.success('Kitap akıştan çıkarıldı 🌱');
+                  // Automatically move to DNF list
+                  try {
+                    await addToDefaultList.mutateAsync({
+                      bookId: displayBook.id,
+                      listType: 'dnf',
+                    });
+                  } catch { /* non-blocking */ }
+                  toast.success('Kitap "Yarıda Bıraktım" listesine taşındı 🌱');
                   if (selectedBookId === displayBook.id) setSelectedBookId(null);
                 } catch {
                   toast.error('Hata oluştu');
