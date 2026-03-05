@@ -90,10 +90,14 @@ const CurrentReadTab = () => {
     autoSyncLists();
   }, [user]);
 
-  // Get user's own reading books from both progress logs and simple bookshelf status
+  // Get active club book IDs — these always appear in Currently Reading for everyone
+  const activeClubBookIds = schedule.filter(s => s.status === 'active').map(s => s.book_id);
+
+  // Merge user's personal reading books + active club books
   const userReadingBookIds = Array.from(new Set([
     ...allProgress.filter(p => p.user_id === user?.id && p.status === 'reading').map(p => p.book_id),
-    ...userBooks.filter(b => b.status === 'reading').map(b => b.book_id)
+    ...userBooks.filter(b => b.status === 'reading').map(b => b.book_id),
+    ...activeClubBookIds,
   ]));
 
   const userReadingBooks = books.filter(b => userReadingBookIds.includes(b.id));
