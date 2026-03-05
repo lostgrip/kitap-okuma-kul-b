@@ -143,6 +143,41 @@ export type Database = {
         }
         Relationships: []
       }
+      book_notes: {
+        Row: {
+          book_id: string
+          created_at: string | null
+          id: string
+          note_text: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string | null
+          id?: string
+          note_text?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string | null
+          id?: string
+          note_text?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_notes_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       book_reviews: {
         Row: {
           book_id: string
