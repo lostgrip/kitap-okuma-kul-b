@@ -39,14 +39,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', userId)
-      .single();
-    
-    if (!error && data) {
-      setProfile(data);
+      .maybeSingle();
+
+    if (!profileError && profileData) {
+      setProfile(profileData);
+
+      // Auto-backfill default lists if they are missing (for legacy users)
+      const { data: lists } = await supabase
+        .from('book_lists')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('is_default', true)
+        .limit(1);
+
+      if (!lists || lists.length === 0) {
+        const defaultLists = [
+          { user_id: userId, group_code: profileData.group_code, name: 'Okumak İstiyorum', is_default: true, list_type: 'want_to_read' },
+          { user_id: userId, group_code: profileData.group_code, name: 'Okuyorum', is_default: true, list_type: 'reading' },
+          { user_id: userId, group_code: profileData.group_code, name: 'Okudum', is_default: true, list_type: 'read' },
+          { user_id: userId, group_code: profileData.group_code, name: 'Yarıda Bıraktım', is_default: true, list_type: 'dnf' }
+        ];
+        await supabase.from('book_lists').insert(defaultLists);
+      }
     }
   };
 
@@ -56,14 +74,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           // Defer Supabase call to avoid deadlock
           setTimeout(() => fetchProfile(session.user.id), 0);
         } else {
           setProfile(null);
         }
-        
+
         setLoading(false);
       }
     );

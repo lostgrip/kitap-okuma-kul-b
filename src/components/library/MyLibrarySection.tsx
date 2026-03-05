@@ -38,6 +38,59 @@ const listTypeIcons: Record<string, React.ReactNode> = {
   custom: <List className="w-4 h-4" />,
 };
 
+// ─── VibeBookshelf: mood tags ──────────────────────────────────────────────
+const MOOD_TAGS: { key: string; label: string; emoji: string; classes: string }[] = [
+  { key: 'huzurlu', label: 'Huzurlu', emoji: '🌿', classes: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300' },
+  { key: 'ilham', label: 'İlham Verici', emoji: '✨', classes: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' },
+  { key: 'melankolik', label: 'Melankolik', emoji: '🌧', classes: 'bg-slate-200 text-slate-600 dark:bg-slate-700/50 dark:text-slate-300' },
+  { key: 'surukleyici', label: 'Sürükleyici', emoji: '🌊', classes: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' },
+  { key: 'dusundur', label: 'Düşündürücü', emoji: '💭', classes: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' },
+];
+
+const MOOD_LS_KEY = (bookId: string) => `vibe_mood_${bookId}`;
+
+const BookMoodTag = ({ bookId }: { bookId: string }) => {
+  const initial = typeof window !== 'undefined' ? localStorage.getItem(MOOD_LS_KEY(bookId)) : null;
+  const [mood, setMood] = useState<string | null>(initial);
+
+  const handleMood = (key: string) => {
+    const next = mood === key ? null : key;
+    setMood(next);
+    if (next) localStorage.setItem(MOOD_LS_KEY(bookId), next);
+    else localStorage.removeItem(MOOD_LS_KEY(bookId));
+  };
+
+  const activeMood = MOOD_TAGS.find(m => m.key === mood);
+
+  return (
+    <div className="px-1">
+      {activeMood ? (
+        <button
+          onClick={() => handleMood(activeMood.key)}
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 ${activeMood.classes}`}
+        >
+          <span>{activeMood.emoji}</span>
+          <span>{activeMood.label}</span>
+        </button>
+      ) : (
+        <div className="flex flex-wrap gap-1">
+          {MOOD_TAGS.map(tag => (
+            <button
+              key={tag.key}
+              onClick={() => handleMood(tag.key)}
+              className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors duration-200"
+              title={tag.label}
+            >
+              {tag.emoji}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+// ───────────────────────────────────────────────────────────────────────────
+
 interface MyLibrarySectionProps {
   searchQuery: string;
 }
@@ -268,7 +321,7 @@ const ListBooksView = ({ listId, books, searchQuery }: ListBooksViewProps) => {
         const isOwner = book.added_by === user?.id;
 
         return (
-          <div key={book.id} className="relative">
+          <div key={book.id} className="relative flex flex-col gap-2">
             <BookCard
               book={{
                 id: book.id,
@@ -279,8 +332,12 @@ const ListBooksView = ({ listId, books, searchQuery }: ListBooksViewProps) => {
               }}
               size="md"
               isClubBook={activeClubBookIds.includes(book.id)}
-              className="bg-card p-3 rounded-xl shadow-soft"
+              className="bg-stone-50 dark:bg-stone-900/50 p-3 rounded-2xl shadow-sm hover:-translate-y-0.5 transition-transform duration-500"
             />
+
+            {/* VibeBookshelf: His Etiketi */}
+            <BookMoodTag bookId={book.id} />
+
             {/* Remove from list */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -292,7 +349,7 @@ const ListBooksView = ({ listId, books, searchQuery }: ListBooksViewProps) => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Kitabı Kaldır</AlertDialogTitle>
                   <AlertDialogDescription>
-                    "{book.title}" kitabını bu listeden kaldırmak istediğinize emin misiniz?
+                    &ldquo;{book.title}&rdquo; kitabını bu listeden kaldırmak istediğinize emin misiniz?
                     {isOwner && ' Kitabı tamamen silmek isterseniz "Tamamen Sil" butonunu kullanın.'}
                   </AlertDialogDescription>
                 </AlertDialogHeader>

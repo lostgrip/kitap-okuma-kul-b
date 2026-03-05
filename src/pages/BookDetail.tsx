@@ -37,6 +37,7 @@ import Avatar from '@/components/Avatar';
 import BookEditDialog from '@/components/BookEditDialog';
 import BookDiscussions from '@/components/BookDiscussions';
 import RatingBreakdownChart from '@/components/RatingBreakdownChart';
+import QuietReflectionArea from '@/components/QuietReflectionArea';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import ListManagementDialog from '@/components/ListManagementDialog';
@@ -292,6 +293,9 @@ const BookDetail = () => {
             <p className="text-sm text-muted-foreground italic">Bu kitap için henüz bir özet girilmemiş.</p>
           )}
         </div>
+
+        {/* Personal Note Area */}
+        <QuietReflectionArea bookId={bookId || ''} />
 
         {/* Rating breakdown chart */}
         {avgRating && avgRating.count > 0 && (

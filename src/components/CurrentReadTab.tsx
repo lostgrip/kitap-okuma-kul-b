@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, BookOpen, Loader2, Leaf, Crown } from 'lucide-react';
+import { BookOpen, Loader2, Leaf, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import ProgressBar from './ProgressBar';
 import QuoteOfTheDay from './QuoteOfTheDay';
-import GoalProgressCard from './GoalProgressCard';
+import MindfulProgressCard from './MindfulProgressCard';
 import DailyCheckIns from './DailyCheckIns';
+import ZenReadingSession from './ZenReadingSession';
 import ClubProgress from './ClubProgress';
 import { useBooks } from '@/hooks/useBooks';
 import { useAllProgress, useUpsertProgress, useDeleteProgress } from '@/hooks/useProgress';
@@ -34,6 +34,7 @@ const CurrentReadTab = () => {
 
   const [inputPage, setInputPage] = useState('');
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+  const [isZenMode, setIsZenMode] = useState(false);
 
   // Auto-sync legacy reading data to default book lists
   useEffect(() => {
@@ -244,9 +245,14 @@ const CurrentReadTab = () => {
         </div>
       </div>
 
-      {/* Minimal Progress Bar */}
-      <div className="mb-8 px-4">
-        <ProgressBar current={userCurrentPage} total={totalPages} size="md" className="opacity-80" />
+      {/* Mindful Progress Card */}
+      <div className="mb-8">
+        <MindfulProgressCard
+          bookTitle={displayBook.title}
+          bookCover={displayBook.cover_url}
+          currentPage={userCurrentPage}
+          totalPages={totalPages}
+        />
       </div>
 
       {/* Update Progress Area */}
@@ -299,23 +305,18 @@ const CurrentReadTab = () => {
         )}
       </div>
 
-      {/* Zen Habit Tracking underneath instead of top */}
-      {user && (
-        <div className="opacity-90">
-          <GoalProgressCard
-            logs={logs}
-            goals={goals}
-            totalPagesThisWeek={logs
-              .filter(l => {
-                const d = new Date(l.logged_at);
-                const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-                return d >= weekAgo;
-              })
-              .reduce((sum, l) => sum + l.pages_read, 0)}
-            completedBooksThisMonth={allProgress.filter(p => p.user_id === user?.id && p.status === 'completed').length}
-          />
-        </div>
-      )}
+      {/* Zen Focus Mode link */}
+      <div className="text-center pb-2">
+        <button
+          onClick={() => setIsZenMode(true)}
+          className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-300 tracking-widest font-serif"
+        >
+          ✦ Odak Moduna Gir
+        </button>
+      </div>
+
+      {/* ZenReadingSession overlay */}
+      {isZenMode && <ZenReadingSession onClose={() => setIsZenMode(false)} />}
 
     </div>
   );
