@@ -26,7 +26,7 @@ interface BookEditDialogProps {
 const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
   const { user } = useAuth();
   const updateBook = useUpdateBook();
-  const { upload: uploadCover, isUploading: isCoverUploading, uploadProgress: coverProgress } = useFileUpload();
+  const { upload: uploadCover, isUploading: isCoverUploading } = useFileUpload();
   const { upload: uploadEpub, isUploading: isEpubUploading, uploadProgress: epubProgress } = useFileUpload();
   const [searchOpen, setSearchOpen] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
