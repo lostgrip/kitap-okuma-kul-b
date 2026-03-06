@@ -11,7 +11,7 @@ const EpubReader = () => {
   const { bookId } = useParams<{ bookId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const { data: book, isLoading: bookLoading } = useBook(bookId || '');
   const { data: userBook } = useUserBookByBookId(user?.id || '', bookId || '');
   const upsertUserBook = useUpsertUserBook();
@@ -44,7 +44,7 @@ const EpubReader = () => {
 
   const handleLocationChange = (epubcifi: string) => {
     setLocation(epubcifi);
-    
+
     // Save location to database
     if (user && bookId) {
       upsertUserBook.mutate({
@@ -105,10 +105,9 @@ const EpubReader = () => {
   return (
     <div className="fixed inset-0 bg-background" onClick={handleTap}>
       {/* Header - Hidden when reading */}
-      <div 
-        className={`absolute top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          showUI ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-        }`}
+      <div
+        className={`absolute top-0 left-0 right-0 z-50 transition-all duration-300 ${showUI ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-background/95 backdrop-blur-sm border-b-2 border-border px-4 py-3 flex items-center justify-between">
@@ -132,18 +131,13 @@ const EpubReader = () => {
           location={location || undefined}
           locationChanged={handleLocationChange}
           showToc={showUI}
-          epubOptions={{
-            flow: 'scrolled',
-            manager: 'continuous',
-          }}
         />
       </div>
 
       {/* Bottom Progress Indicator */}
-      <div 
-        className={`absolute bottom-0 left-0 right-0 z-50 transition-all duration-300 ${
-          showUI ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-        }`}
+      <div
+        className={`absolute bottom-0 left-0 right-0 z-50 transition-all duration-300 ${showUI ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-background/95 backdrop-blur-sm border-t-2 border-border px-4 py-3">
