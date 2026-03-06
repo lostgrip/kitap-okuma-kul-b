@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Upload, Image, Search, BookText } from 'lucide-react';
+import { Loader2, Upload, Image, Search, BookText, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -25,11 +26,12 @@ interface BookEditDialogProps {
 const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
   const { user } = useAuth();
   const updateBook = useUpdateBook();
-  const { upload, isUploading } = useFileUpload();
+  const { upload: uploadCover, isUploading: isCoverUploading } = useFileUpload();
+  const { upload: uploadEpub, isUploading: isEpubUploading, uploadProgress: epubProgress } = useFileUpload();
   const [searchOpen, setSearchOpen] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [epubFile, setEpubFile] = useState<File | null>(null);
+  const [epubFileName, setEpubFileName] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: '',
     author: '',
@@ -61,7 +63,7 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
       });
       setCoverPreview(book.cover_url);
       setCoverFile(null);
-      setEpubFile(null);
+      setEpubFileName(null);
     }
   }, [open, book]);
 
@@ -75,10 +77,19 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
     }
   };
 
-  const handleEpubFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Upload EPUB immediately on file selection
+  const handleEpubFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setEpubFile(file);
+    if (!file) return;
+
+    setEpubFileName(file.name);
+
+    const uploadedUrl = await uploadEpub('book-files', file);
+    if (uploadedUrl) {
+      setForm(prev => ({ ...prev, epub_url: uploadedUrl }));
+      toast.success('EPUB dosyası yüklendi! ✅');
+    } else {
+      setEpubFileName(null);
     }
   };
 
@@ -91,7 +102,7 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
       genre: searchBook.genre || '',
       description: searchBook.description || '',
       cover_url: searchBook.cover_url || '',
-      epub_url: form.epub_url, // Preserve existing epub
+      epub_url: form.epub_url,
     });
     setCoverPreview(searchBook.cover_url);
     setCoverFile(null);
@@ -106,16 +117,10 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
 
     try {
       let finalCoverUrl = form.cover_url;
-      let finalEpubUrl = form.epub_url;
 
       if (coverFile && user) {
-        const uploadedCoverUrl = await upload('covers', coverFile, user.id);
+        const uploadedCoverUrl = await uploadCover('covers', coverFile, user.id);
         if (uploadedCoverUrl) finalCoverUrl = uploadedCoverUrl;
-      }
-
-      if (epubFile) {
-        const uploadedEpubUrl = await upload('book-files', epubFile);
-        if (uploadedEpubUrl) finalEpubUrl = uploadedEpubUrl;
       }
 
       const descriptionPayload = form.publisher
@@ -130,7 +135,7 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
         genre: form.genre || null,
         description: descriptionPayload,
         cover_url: finalCoverUrl || null,
-        epub_url: finalEpubUrl || null,
+        epub_url: form.epub_url || null,
       });
 
       toast.success('Kitap güncellendi!');
@@ -140,9 +145,11 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
     }
   };
 
+  const isAnythingUploading = isCoverUploading || isEpubUploading;
+
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={(v) => { if (!isAnythingUploading) onOpenChange(v); }}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif">Kitabı Düzenle</DialogTitle>
@@ -204,20 +211,56 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
             {/* EPUB Upload */}
             <div>
               <Label className="text-sm font-medium">EPUB Dosyası</Label>
-              <div className="mt-1.5 flex items-center gap-3">
-                <div className="flex-1 flex items-center gap-2 px-4 py-2.5 bg-muted rounded-xl border-2 border-transparent">
-                  <BookText className="w-5 h-5 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-foreground truncate select-none flex-1">
-                    {epubFile ? epubFile.name : (form.epub_url ? 'Mevcut Bir Dosya Yüklü' : 'Dosya seçilmedi')}
-                  </span>
-                </div>
-                <label>
-                  <input type="file" accept=".epub" className="hidden" onChange={handleEpubFileChange} />
-                  <div className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl cursor-pointer hover:bg-primary/90 transition-colors text-sm font-medium shrink-0">
-                    <Upload className="w-4 h-4" />
-                    {epubFile || form.epub_url ? 'Değiştir' : 'Yükle'}
+              <div className="mt-1.5 space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 flex items-center gap-2 px-4 py-2.5 bg-muted rounded-xl border-2 border-transparent">
+                    {form.epub_url && !isEpubUploading ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                    ) : (
+                      <BookText className="w-5 h-5 text-muted-foreground shrink-0" />
+                    )}
+                    <span className="text-sm text-foreground truncate select-none flex-1">
+                      {isEpubUploading
+                        ? `Yükleniyor: ${epubFileName || 'dosya'}...`
+                        : epubFileName
+                          ? epubFileName
+                          : form.epub_url
+                            ? 'Mevcut Bir Dosya Yüklü ✓'
+                            : 'Dosya seçilmedi'}
+                    </span>
                   </div>
-                </label>
+                  <label>
+                    <input
+                      type="file"
+                      accept=".epub"
+                      className="hidden"
+                      onChange={handleEpubFileChange}
+                      disabled={isEpubUploading}
+                    />
+                    <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium shrink-0 transition-colors ${
+                      isEpubUploading
+                        ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                        : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    }`}>
+                      <Upload className="w-4 h-4" />
+                      {isEpubUploading ? 'Yükleniyor...' : form.epub_url ? 'Değiştir' : 'Yükle'}
+                    </div>
+                  </label>
+                </div>
+
+                {/* Upload progress bar */}
+                {isEpubUploading && (
+                  <div className="space-y-1">
+                    <Progress value={epubProgress} className="h-2" />
+                    <p className="text-xs text-muted-foreground text-center">
+                      %{epubProgress} — Lütfen bekleyin, büyük dosyalar biraz zaman alabilir
+                    </p>
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground">
+                  Maksimum dosya boyutu: 50 MB
+                </p>
               </div>
             </div>
 
@@ -228,9 +271,11 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
             </div>
 
             <Button onClick={handleSave} className="w-full h-12 rounded-xl font-semibold"
-              disabled={updateBook.isPending || isUploading}>
-              {(updateBook.isPending || isUploading) ? (
+              disabled={updateBook.isPending || isAnythingUploading}>
+              {(updateBook.isPending || isCoverUploading) ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Kaydediliyor...</>
+              ) : isEpubUploading ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />EPUB yükleniyor, bekleyin...</>
               ) : 'Kaydet'}
             </Button>
           </div>
