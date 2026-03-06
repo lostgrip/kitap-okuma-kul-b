@@ -24,7 +24,7 @@ export const useUpsertBookNote = () => {
     return useMutation({
         mutationFn: async ({ userId, bookId, noteText }: { userId: string; bookId: string; noteText: string }) => {
             const { error } = await supabase
-                .from('book_notes' as any)
+                .from('book_notes')
                 .upsert(
                     { user_id: userId, book_id: bookId, note_text: noteText },
                     { onConflict: 'user_id,book_id' }
