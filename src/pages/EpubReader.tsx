@@ -61,8 +61,7 @@ const EpubReader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<ReaderTheme>('light');
   const [fontSize, setFontSize] = useState(18);
-  // No ripple state — we drive it via DOM ref for smooth animation
-  const rippleRef = useRef<HTMLDivElement>(null);
+  const [colAnim, setColAnim] = useState<{ color: string; phase: 'idle' | 'cover' | 'reveal' }>({ color: '', phase: 'idle' });
 
   const renditionRef = useRef<Rendition | null>(null);
   const hideTimeout = useRef<NodeJS.Timeout>();
@@ -86,36 +85,26 @@ const EpubReader = () => {
     if (renditionRef.current) applyRenditionStyles(renditionRef.current, theme, fontSize);
   }, [theme, fontSize]);
 
-  // Ink-ripple theme change via direct DOM (avoids React re-render timing)
+  // Column wipe theme change
+  const COLS = 9;
+  const CENTER = Math.floor(COLS / 2); // 4
+  const STAGGER = 45;  // ms between each column
+  const COL_DUR = 220; // ms per column transition
+  const COVER_DONE = CENTER * STAGGER + COL_DUR; // ~420ms
+
   const handleThemeChange = useCallback((newTheme: ReaderTheme) => {
     if (newTheme === theme) return;
     const t = THEMES.find(x => x.key === newTheme)!;
-    const el = rippleRef.current;
-    if (!el) return;
 
-    // 1. Set color and reset to scale(0) — no transition yet
-    el.style.transition = 'none';
-    el.style.background = t.bg;
-    el.style.transform = 'scale(0)';
-
-    // 2. Force browser reflow to paint the scale(0) state
-    void el.getBoundingClientRect();
-
-    // 3. Now start the expand animation
-    requestAnimationFrame(() => {
-      el.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
-      el.style.transform = 'scale(3)';
-    });
-
-    // 4. Apply theme mid-animation (circle covers screen ~225ms)
-    setTimeout(() => setTheme(newTheme), 225);
-
-    // 5. Shrink back
-    setTimeout(() => {
-      el.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
-      el.style.transform = 'scale(0)';
-    }, 470);
-  }, [theme]);
+    // 1. Cover (center-outward)
+    setColAnim({ color: t.bg, phase: 'cover' });
+    // 2. Apply theme when fully covered
+    setTimeout(() => setTheme(newTheme), COVER_DONE + 30);
+    // 3. Reveal (center-outward again)
+    setTimeout(() => setColAnim(c => ({ ...c, phase: 'reveal' })), COVER_DONE + 80);
+    // 4. Reset
+    setTimeout(() => setColAnim({ color: '', phase: 'idle' }), COVER_DONE + 80 + COVER_DONE + 80);
+  }, [theme, CENTER, STAGGER, COL_DUR, COVER_DONE]);
 
   // Mouse wheel + touch swipe: attach to iframe document via rendition
   // (window-level listeners don't fire inside the epub iframe)
@@ -292,23 +281,36 @@ const EpubReader = () => {
         </div>
       </div>
 
-      {/* ── Ink Ripple — always in DOM, driven by ref ── */}
+      {/* ── Column Wipe Overlay (always in DOM) ── */}
       <div
         style={{
-          position: 'fixed', inset: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 200, pointerEvents: 'none', overflow: 'hidden',
+          position: 'fixed', inset: 0, zIndex: 200, pointerEvents: 'none',
+          display: 'flex', overflow: 'hidden'
         }}
       >
-        <div
-          ref={rippleRef}
-          style={{
-            width: '100vmax', height: '100vmax',
-            borderRadius: '50%',
-            transform: 'scale(0)',
-            transformOrigin: 'center',
-          }}
-        />
+        {Array.from({ length: 9 }, (_, i) => {
+          const dist = Math.abs(i - 4); // distance from center (0–4)
+          const delay = dist * 45;       // center first: low delay
+          const isIdle = colAnim.phase === 'idle';
+          return (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                height: '100%',
+                background: colAnim.color || 'transparent',
+                transform:
+                  isIdle || colAnim.phase === 'reveal'
+                    ? 'scaleY(0)'
+                    : 'scaleY(1)',
+                transformOrigin: 'top center',
+                transition: isIdle
+                  ? 'none'
+                  : `transform ${220}ms cubic-bezier(0.4,0,0.2,1) ${delay}ms`,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );
