@@ -61,6 +61,7 @@ const EpubReader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<ReaderTheme>('light');
   const [fontSize, setFontSize] = useState(18);
+  const [ripple, setRipple] = useState<{ color: string; phase: 'idle' | 'expand' | 'shrink' }>({ color: '', phase: 'idle' });
 
   const renditionRef = useRef<Rendition | null>(null);
   const hideTimeout = useRef<NodeJS.Timeout>();
@@ -83,6 +84,20 @@ const EpubReader = () => {
   useEffect(() => {
     if (renditionRef.current) applyRenditionStyles(renditionRef.current, theme, fontSize);
   }, [theme, fontSize]);
+
+  // Ink-ripple theme change: expand circle → apply theme → shrink
+  const handleThemeChange = useCallback((newTheme: ReaderTheme) => {
+    if (newTheme === theme) return;
+    const t = THEMES.find(x => x.key === newTheme)!;
+    // 1. Expand
+    setRipple({ color: t.bg, phase: 'expand' });
+    // 2. Mid-animation: apply theme (circle fully covers screen)
+    setTimeout(() => setTheme(newTheme), 220);
+    // 3. Shrink (fade out)
+    setTimeout(() => setRipple(r => ({ ...r, phase: 'shrink' })), 420);
+    // 4. Reset
+    setTimeout(() => setRipple({ color: '', phase: 'idle' }), 720);
+  }, [theme]);
 
   // Mouse wheel + touch swipe: attach to iframe document via rendition
   // (window-level listeners don't fire inside the epub iframe)
@@ -194,7 +209,7 @@ const EpubReader = () => {
                 {THEMES.map(t => (
                   <button
                     key={t.key}
-                    onClick={() => setTheme(t.key)}
+                    onClick={() => handleThemeChange(t.key)}
                     className={cn(
                       'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all',
                       theme === t.key ? 'border-primary ring-2 ring-primary/30' : 'border-border'
@@ -255,9 +270,39 @@ const EpubReader = () => {
         )}
       >
         <div className="bg-background/95 backdrop-blur-sm border-t border-border px-4 py-2">
-          <p className="text-xs text-muted-foreground text-center">Dokunarak kontrolleri göster/gizle · Kaydıra sayfa geç</p>
+          <p className="text-xs text-muted-foreground text-center">Dokunarak kontrolleri göster/gizle · Kaydır sayfa geç</p>
         </div>
       </div>
+
+      {/* ── Ink Ripple Overlay ── */}
+      {ripple.phase !== 'idle' && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 200,
+            pointerEvents: 'none',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: '100vmax',
+              height: '100vmax',
+              borderRadius: '50%',
+              background: ripple.color,
+              transform: ripple.phase === 'expand' ? 'scale(2.5)' : 'scale(0)',
+              transition: ripple.phase === 'expand'
+                ? 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transformOrigin: 'center',
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
