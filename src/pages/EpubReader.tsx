@@ -84,35 +84,24 @@ const EpubReader = () => {
     if (renditionRef.current) applyRenditionStyles(renditionRef.current, theme, fontSize);
   }, [theme, fontSize]);
 
-  // Mouse wheel → next/prev page
-  useEffect(() => {
-    const onWheel = (e: WheelEvent) => {
-      if (!renditionRef.current) return;
+  // Mouse wheel + touch swipe: attach to iframe document via rendition
+  // (window-level listeners don't fire inside the epub iframe)
+  const attachScrollListeners = useCallback((doc: Document) => {
+    doc.addEventListener('wheel', (e) => {
       e.preventDefault();
-      if (e.deltaY > 30) renditionRef.current.next();
-      else if (e.deltaY < -30) renditionRef.current.prev();
-    };
-    window.addEventListener('wheel', onWheel, { passive: false });
-    return () => window.removeEventListener('wheel', onWheel);
-  }, []);
+      if (e.deltaY > 30) renditionRef.current?.next();
+      else if (e.deltaY < -30) renditionRef.current?.prev();
+    }, { passive: false });
 
-  // Vertical touch swipe → next/prev page
-  useEffect(() => {
     let startY = 0;
-    const onTouchStart = (e: TouchEvent) => { startY = e.touches[0].clientY; };
-    const onTouchEnd = (e: TouchEvent) => {
+    doc.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+    doc.addEventListener('touchend', (e) => {
       const diff = startY - e.changedTouches[0].clientY;
       if (Math.abs(diff) > 60) {
         if (diff > 0) renditionRef.current?.next();
         else renditionRef.current?.prev();
       }
-    };
-    window.addEventListener('touchstart', onTouchStart);
-    window.addEventListener('touchend', onTouchEnd);
-    return () => {
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchend', onTouchEnd);
-    };
+    }, { passive: true });
   }, []);
 
   const handleLocationChange = (cfi: string) => {
@@ -138,9 +127,13 @@ const EpubReader = () => {
       if (showSettings) { setShowSettings(false); return; }
       setShowUI(v => !v);
     });
+    // Attach scroll/swipe listeners to the iframe document after each render
+    rendition.on('rendered', (_section: unknown, view: { document: Document }) => {
+      if (view?.document) attachScrollListeners(view.document);
+    });
     applyRenditionStyles(rendition, theme, fontSize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [attachScrollListeners]);
 
   const currentTheme = THEMES.find(t => t.key === theme)!;
 
