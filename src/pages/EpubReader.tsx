@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ReactReader, ReactReaderStyle } from 'react-reader';
+import { ReactReader } from 'react-reader';
+import type { Rendition } from 'epubjs';
 import { ArrowLeft, Settings, Loader2, BookOpen, Type, Sun, Moon, Coffee } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBook } from '@/hooks/useBooks';
@@ -10,26 +11,31 @@ import { cn } from '@/lib/utils';
 
 type ReaderTheme = 'light' | 'dark' | 'sepia';
 
-const THEMES: { key: ReaderTheme; label: string; icon: React.ReactNode; bg: string; fg: string }[] = [
-  { key: 'light', label: 'Açık', icon: <Sun className="w-4 h-4" />, bg: '#ffffff', fg: '#1a1a1a' },
-  { key: 'sepia', label: 'Sepia', icon: <Coffee className="w-4 h-4" />, bg: '#f4ecd8', fg: '#5b4636' },
-  { key: 'dark', label: 'Koyu', icon: <Moon className="w-4 h-4" />, bg: '#1a1a2e', fg: '#e0e0e0' },
+const THEMES: { key: ReaderTheme; label: string; icon: React.ReactNode; bg: string; fg: string; link: string }[] = [
+  { key: 'light', label: 'Açık', icon: <Sun className="w-4 h-4" />, bg: '#ffffff', fg: '#1a1a1a', link: '#1a56db' },
+  { key: 'sepia', label: 'Sepia', icon: <Coffee className="w-4 h-4" />, bg: '#f4ecd8', fg: '#5b4636', link: '#8b5e3c' },
+  { key: 'dark', label: 'Koyu', icon: <Moon className="w-4 h-4" />, bg: '#1a1a2e', fg: '#d4d4d4', link: '#7eb8f7' },
 ];
 
-const FONT_SIZES = [14, 16, 18, 20, 22, 24];
-
-const getReaderStyle = (theme: ReaderTheme, fontSize: number) => ({
-  ...ReactReaderStyle,
-  readerArea: {
-    ...ReactReaderStyle.readerArea,
-    background: THEMES.find(t => t.key === theme)?.bg || '#ffffff',
-    transition: 'background 0.3s',
-  },
-  containerExpanded: {
-    ...ReactReaderStyle.containerExpanded,
-    background: THEMES.find(t => t.key === theme)?.bg || '#ffffff',
-  },
-});
+function applyRenditionStyles(rendition: Rendition, theme: ReaderTheme, fontSize: number) {
+  const t = THEMES.find(x => x.key === theme)!;
+  rendition.themes.default({
+    body: {
+      'font-size': `${fontSize}px !important`,
+      'color': `${t.fg} !important`,
+      'background': `${t.bg} !important`,
+      'line-height': '1.7 !important',
+      'padding': '0 8px !important',
+    },
+    p: { 'color': `${t.fg} !important`, 'font-size': `${fontSize}px !important` },
+    h1: { 'color': `${t.fg} !important` },
+    h2: { 'color': `${t.fg} !important` },
+    h3: { 'color': `${t.fg} !important` },
+    a: { 'color': `${t.link} !important` },
+    '*': { 'background': `${t.bg} !important` },
+  });
+  rendition.themes.select('__default');
+}
 
 const EpubReader = () => {
   const { bookId } = useParams<{ bookId: string }>();
@@ -45,42 +51,47 @@ const EpubReader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<ReaderTheme>('light');
   const [fontSize, setFontSize] = useState(18);
-  const hideUITimeout = useRef<NodeJS.Timeout>();
+  const renditionRef = useRef<Rendition | null>(null);
+  const hideTimeout = useRef<NodeJS.Timeout>();
 
-  // Load saved location
+  // Load saved cfi location
   useEffect(() => {
-    if (userBook?.last_location) {
-      setLocation(userBook.last_location);
-    }
+    if (userBook?.last_location) setLocation(userBook.last_location);
   }, [userBook]);
 
-  // Auto-hide UI after 3 seconds (not when settings open)
+  // Auto-hide UI (pause when settings open)
   useEffect(() => {
+    clearTimeout(hideTimeout.current);
     if (showUI && !showSettings) {
-      hideUITimeout.current = setTimeout(() => {
-        setShowUI(false);
-      }, 3000);
+      hideTimeout.current = setTimeout(() => setShowUI(false), 3500);
     }
-    return () => { if (hideUITimeout.current) clearTimeout(hideUITimeout.current); };
+    return () => clearTimeout(hideTimeout.current);
   }, [showUI, showSettings]);
 
-  const handleLocationChange = (epubcifi: string) => {
-    setLocation(epubcifi);
+  // Re-apply styles whenever theme or fontSize changes
+  useEffect(() => {
+    if (renditionRef.current) {
+      applyRenditionStyles(renditionRef.current, theme, fontSize);
+    }
+  }, [theme, fontSize]);
+
+  const handleLocationChange = (cfi: string) => {
+    setLocation(cfi);
     if (user && bookId) {
       upsertUserBook.mutate({
         user_id: user.id,
         book_id: bookId,
         status: 'reading',
-        last_location: epubcifi,
+        last_location: cfi,
         started_at: userBook?.started_at || new Date().toISOString(),
       });
     }
   };
 
-  const handleTap = () => {
-    if (showSettings) { setShowSettings(false); return; }
-    setShowUI(!showUI);
-  };
+  const toggleUI = useCallback(() => {
+    setShowSettings(false);
+    setShowUI(v => !v);
+  }, []);
 
   const handleBack = () => {
     if (user && bookId && location) {
@@ -88,6 +99,15 @@ const EpubReader = () => {
     }
     navigate(-1);
   };
+
+  const getRendition = useCallback((rendition: Rendition) => {
+    renditionRef.current = rendition;
+    // Tap inside the epub iframe → toggle UI
+    rendition.on('click', toggleUI);
+    // Apply initial styles
+    applyRenditionStyles(rendition, theme, fontSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally run once on mount
 
   const currentTheme = THEMES.find(t => t.key === theme)!;
 
@@ -120,35 +140,31 @@ const EpubReader = () => {
   }
 
   return (
-    <div className="fixed inset-0" style={{ background: currentTheme.bg }} onClick={handleTap}>
-      {/* Header */}
+    <div className="fixed inset-0 transition-colors duration-300" style={{ background: currentTheme.bg }}>
+      {/* ── Header ─────────────────────────────────────────────── */}
       <div
-        className={`absolute top-0 left-0 right-0 z-50 transition-all duration-300 ${showUI ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}
-        onClick={(e) => e.stopPropagation()}
+        className={cn(
+          'absolute top-0 left-0 right-0 z-50 transition-all duration-300',
+          showUI ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
+        )}
       >
         <div className="bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3 flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Geri
+            <ArrowLeft className="w-4 h-4" /> Geri
           </Button>
-          <div className="text-center flex-1 mx-4">
-            <p className="font-serif font-medium text-sm truncate">{book.title}</p>
-          </div>
+          <p className="font-serif font-medium text-sm truncate flex-1 mx-4 text-center">{book.title}</p>
           <Button
             variant="ghost"
             size="icon"
-            onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); setShowUI(true); }}
+            onClick={() => { setShowSettings(s => !s); setShowUI(true); }}
           >
             <Settings className={cn('w-4 h-4 transition-transform duration-200', showSettings && 'rotate-45')} />
           </Button>
         </div>
 
-        {/* Settings Panel */}
+        {/* Settings panel */}
         {showSettings && (
-          <div
-            className="bg-background/98 backdrop-blur-md border-b border-border px-4 py-4 space-y-4"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="bg-background/98 backdrop-blur-md border-b border-border px-4 py-4 space-y-4">
             {/* Theme */}
             <div>
               <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wide">Tema</p>
@@ -159,12 +175,11 @@ const EpubReader = () => {
                     onClick={() => setTheme(t.key)}
                     className={cn(
                       'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all',
-                      theme === t.key ? 'border-primary' : 'border-border'
+                      theme === t.key ? 'border-primary ring-2 ring-primary/30' : 'border-border'
                     )}
                     style={{ background: t.bg, color: t.fg }}
                   >
-                    {t.icon}
-                    {t.label}
+                    {t.icon} {t.label}
                   </button>
                 ))}
               </div>
@@ -173,17 +188,28 @@ const EpubReader = () => {
             {/* Font Size */}
             <div>
               <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wide flex items-center gap-1">
-                <Type className="w-3 h-3" /> Yazı Boyutu
+                <Type className="w-3 h-3" /> Yazı Boyutu — {fontSize}px
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setFontSize(s => Math.max(FONT_SIZES[0], s - 2))}
-                  className="w-9 h-9 rounded-xl bg-muted font-bold text-lg flex items-center justify-center hover:bg-accent transition-colors"
+                  onClick={() => setFontSize(s => Math.max(12, s - 2))}
+                  className="w-10 h-10 rounded-xl bg-muted font-bold text-xl flex items-center justify-center hover:bg-accent transition-colors select-none"
                 >−</button>
-                <span className="flex-1 text-center font-medium text-sm">{fontSize}px</span>
+                <div className="flex-1 flex gap-1">
+                  {[12, 14, 16, 18, 20, 22, 24].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setFontSize(s)}
+                      className={cn(
+                        'flex-1 h-2 rounded-full transition-all',
+                        fontSize >= s ? 'bg-primary' : 'bg-muted'
+                      )}
+                    />
+                  ))}
+                </div>
                 <button
-                  onClick={() => setFontSize(s => Math.min(FONT_SIZES[FONT_SIZES.length - 1], s + 2))}
-                  className="w-9 h-9 rounded-xl bg-muted font-bold text-lg flex items-center justify-center hover:bg-accent transition-colors"
+                  onClick={() => setFontSize(s => Math.min(24, s + 2))}
+                  className="w-10 h-10 rounded-xl bg-muted font-bold text-xl flex items-center justify-center hover:bg-accent transition-colors select-none"
                 >+</button>
               </div>
             </div>
@@ -191,7 +217,7 @@ const EpubReader = () => {
         )}
       </div>
 
-      {/* ePub Reader */}
+      {/* ── ePub Reader ────────────────────────────────────────── */}
       <div className="h-full">
         <ReactReader
           url={book.epub_url!}
@@ -199,27 +225,19 @@ const EpubReader = () => {
           locationChanged={handleLocationChange}
           showToc={showUI && !showSettings}
           epubOptions={{ spread: 'none' }}
-          readerStyles={getReaderStyle(theme, fontSize)}
-          epubInitOptions={{ openAs: 'epub' }}
-          getRendition={(rendition) => {
-            rendition.themes.default({
-              body: {
-                'font-size': `${fontSize}px !important`,
-                'color': `${currentTheme.fg} !important`,
-                'background': `${currentTheme.bg} !important`,
-              }
-            });
-          }}
+          getRendition={getRendition}
         />
       </div>
 
-      {/* Bottom bar */}
+      {/* ── Bottom bar ─────────────────────────────────────────── */}
       <div
-        className={`absolute bottom-0 left-0 right-0 z-50 transition-all duration-300 ${showUI ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}
-        onClick={(e) => e.stopPropagation()}
+        className={cn(
+          'absolute bottom-0 left-0 right-0 z-50 transition-all duration-300',
+          showUI ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
+        )}
       >
         <div className="bg-background/95 backdrop-blur-sm border-t border-border px-4 py-3">
-          <p className="text-xs text-muted-foreground text-center">Dokunarak kontrolleri göster/gizle</p>
+          <p className="text-xs text-muted-foreground text-center">Ekrana dokun → kontrolleri göster/gizle</p>
         </div>
       </div>
     </div>
