@@ -61,7 +61,8 @@ const EpubReader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<ReaderTheme>('light');
   const [fontSize, setFontSize] = useState(18);
-  const [ripple, setRipple] = useState<{ color: string; phase: 'idle' | 'expand' | 'shrink' }>({ color: '', phase: 'idle' });
+  // No ripple state — we drive it via DOM ref for smooth animation
+  const rippleRef = useRef<HTMLDivElement>(null);
 
   const renditionRef = useRef<Rendition | null>(null);
   const hideTimeout = useRef<NodeJS.Timeout>();
@@ -85,18 +86,35 @@ const EpubReader = () => {
     if (renditionRef.current) applyRenditionStyles(renditionRef.current, theme, fontSize);
   }, [theme, fontSize]);
 
-  // Ink-ripple theme change: expand circle → apply theme → shrink
+  // Ink-ripple theme change via direct DOM (avoids React re-render timing)
   const handleThemeChange = useCallback((newTheme: ReaderTheme) => {
     if (newTheme === theme) return;
     const t = THEMES.find(x => x.key === newTheme)!;
-    // 1. Expand
-    setRipple({ color: t.bg, phase: 'expand' });
-    // 2. Mid-animation: apply theme (circle fully covers screen)
-    setTimeout(() => setTheme(newTheme), 220);
-    // 3. Shrink (fade out)
-    setTimeout(() => setRipple(r => ({ ...r, phase: 'shrink' })), 420);
-    // 4. Reset
-    setTimeout(() => setRipple({ color: '', phase: 'idle' }), 720);
+    const el = rippleRef.current;
+    if (!el) return;
+
+    // 1. Set color and reset to scale(0) — no transition yet
+    el.style.transition = 'none';
+    el.style.background = t.bg;
+    el.style.transform = 'scale(0)';
+
+    // 2. Force browser reflow to paint the scale(0) state
+    void el.getBoundingClientRect();
+
+    // 3. Now start the expand animation
+    requestAnimationFrame(() => {
+      el.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
+      el.style.transform = 'scale(3)';
+    });
+
+    // 4. Apply theme mid-animation (circle covers screen ~225ms)
+    setTimeout(() => setTheme(newTheme), 225);
+
+    // 5. Shrink back
+    setTimeout(() => {
+      el.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+      el.style.transform = 'scale(0)';
+    }, 470);
   }, [theme]);
 
   // Mouse wheel + touch swipe: attach to iframe document via rendition
@@ -274,35 +292,24 @@ const EpubReader = () => {
         </div>
       </div>
 
-      {/* ── Ink Ripple Overlay ── */}
-      {ripple.phase !== 'idle' && (
+      {/* ── Ink Ripple — always in DOM, driven by ref ── */}
+      <div
+        style={{
+          position: 'fixed', inset: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 200, pointerEvents: 'none', overflow: 'hidden',
+        }}
+      >
         <div
+          ref={rippleRef}
           style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 200,
-            pointerEvents: 'none',
-            overflow: 'hidden',
+            width: '100vmax', height: '100vmax',
+            borderRadius: '50%',
+            transform: 'scale(0)',
+            transformOrigin: 'center',
           }}
-        >
-          <div
-            style={{
-              width: '100vmax',
-              height: '100vmax',
-              borderRadius: '50%',
-              background: ripple.color,
-              transform: ripple.phase === 'expand' ? 'scale(2.5)' : 'scale(0)',
-              transition: ripple.phase === 'expand'
-                ? 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              transformOrigin: 'center',
-            }}
-          />
-        </div>
-      )}
+        />
+      </div>
     </div>
   );
 };
