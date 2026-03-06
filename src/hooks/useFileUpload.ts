@@ -32,11 +32,8 @@ export const useFileUpload = () => {
       let fileName: string;
       if (bucket === 'book-files') {
         const groupCode = await getGroupCode();
-        if (!groupCode) {
-          toast.error('Grup kodu bulunamadı');
-          return null;
-        }
-        fileName = `${groupCode}/${crypto.randomUUID()}.${ext}`;
+        const prefix = groupCode || 'general';
+        fileName = `${prefix}/${crypto.randomUUID()}.${ext}`;
       } else {
         fileName = `${folder || 'uploads'}/${crypto.randomUUID()}.${ext}`;
       }
