@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen, Loader2, Leaf, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ import { useAddBookToDefaultList } from '@/hooks/useBookListActions';
 
 const CurrentReadTab = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data: books = [], isLoading: booksLoading } = useBooks();
   const { data: allProgress = [], isLoading: progressLoading } = useAllProgress();
   const { data: goals = [] } = useGoals(user?.id);
@@ -204,14 +206,17 @@ const CurrentReadTab = () => {
       {/* Header */}
       <div className="mb-6 text-center">
         <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mb-2">Şu Anda Okunan</p>
-        <div className="flex items-center justify-center gap-2">
-          <h1 className="text-2xl font-serif font-bold text-foreground leading-tight">{displayBook.title}</h1>
+        <button
+          onClick={() => navigate(`/book/${displayBook.id}`)}
+          className="flex items-center justify-center gap-2 group mx-auto"
+        >
+          <h1 className="text-2xl font-serif font-bold text-foreground leading-tight group-hover:text-primary transition-colors">{displayBook.title}</h1>
           {isClubBook && (
             <span title="Kulüp Ortak Kitabı">
               <Crown className="w-5 h-5 text-amber-500 flex-shrink-0" />
             </span>
           )}
-        </div>
+        </button>
         <p className="text-muted-foreground mt-1 text-sm">{displayBook.author}</p>
       </div>
 
@@ -237,7 +242,10 @@ const CurrentReadTab = () => {
 
       {/* Book Cover Container */}
       <div className="flex justify-center mb-8">
-        <div className="w-40 rounded-xl overflow-hidden shadow-card transition-transform hover:scale-[1.02]">
+        <button
+          onClick={() => navigate(`/book/${displayBook.id}`)}
+          className="w-40 rounded-xl overflow-hidden shadow-card transition-transform hover:scale-[1.02] active:scale-[0.98]"
+        >
           <img
             src={displayBook.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
             alt={displayBook.title}
@@ -246,7 +254,7 @@ const CurrentReadTab = () => {
               (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop';
             }}
           />
-        </div>
+        </button>
       </div>
 
       {/* Mindful Progress Card */}

@@ -131,6 +131,9 @@ const EpubReader = () => {
           location={location || undefined}
           locationChanged={handleLocationChange}
           showToc={showUI}
+          epubOptions={{
+            spread: 'none',
+          }}
         />
       </div>
 
