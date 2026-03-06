@@ -61,7 +61,7 @@ const EpubReader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<ReaderTheme>('light');
   const [fontSize, setFontSize] = useState(18);
-  const [colAnim, setColAnim] = useState<{ color: string; phase: 'idle' | 'cover' | 'reveal' }>({ color: '', phase: 'idle' });
+  const [fadeOverlay, setFadeOverlay] = useState<{ color: string; opacity: number }>({ color: '', opacity: 0 });
 
   const renditionRef = useRef<Rendition | null>(null);
   const hideTimeout = useRef<NodeJS.Timeout>();
@@ -85,26 +85,18 @@ const EpubReader = () => {
     if (renditionRef.current) applyRenditionStyles(renditionRef.current, theme, fontSize);
   }, [theme, fontSize]);
 
-  // Column wipe theme change
-  const COLS = 9;
-  const CENTER = Math.floor(COLS / 2); // 4
-  const STAGGER = 45;  // ms between each column
-  const COL_DUR = 220; // ms per column transition
-  const COVER_DONE = CENTER * STAGGER + COL_DUR; // ~420ms
-
+  // iOS-style crossfade theme transition
   const handleThemeChange = useCallback((newTheme: ReaderTheme) => {
     if (newTheme === theme) return;
     const t = THEMES.find(x => x.key === newTheme)!;
 
-    // 1. Cover (center-outward)
-    setColAnim({ color: t.bg, phase: 'cover' });
-    // 2. Apply theme when fully covered
-    setTimeout(() => setTheme(newTheme), COVER_DONE + 30);
-    // 3. Reveal (center-outward again)
-    setTimeout(() => setColAnim(c => ({ ...c, phase: 'reveal' })), COVER_DONE + 80);
-    // 4. Reset
-    setTimeout(() => setColAnim({ color: '', phase: 'idle' }), COVER_DONE + 80 + COVER_DONE + 80);
-  }, [theme, CENTER, STAGGER, COL_DUR, COVER_DONE]);
+    // 1. Fade overlay in
+    setFadeOverlay({ color: t.bg, opacity: 1 });
+    // 2. Apply theme at peak opacity
+    setTimeout(() => setTheme(newTheme), 200);
+    // 3. Fade out
+    setTimeout(() => setFadeOverlay(f => ({ ...f, opacity: 0 })), 220);
+  }, [theme]);
 
   // Mouse wheel + touch swipe: attach to iframe document via rendition
   // (window-level listeners don't fire inside the epub iframe)
@@ -281,37 +273,22 @@ const EpubReader = () => {
         </div>
       </div>
 
-      {/* ── Column Wipe Overlay (always in DOM) ── */}
+
+      {/* ── iOS-style Fade Overlay ── */}
       <div
         style={{
-          position: 'fixed', inset: 0, zIndex: 200, pointerEvents: 'none',
-          display: 'flex', overflow: 'hidden'
+          position: 'fixed',
+          inset: 0,
+          zIndex: 200,
+          pointerEvents: 'none',
+          background: fadeOverlay.color || 'transparent',
+          opacity: fadeOverlay.opacity,
+          transition: fadeOverlay.opacity === 1
+            ? 'opacity 0.18s ease-in'
+            : 'opacity 0.32s ease-out',
         }}
-      >
-        {Array.from({ length: 9 }, (_, i) => {
-          const dist = Math.abs(i - 4); // distance from center (0–4)
-          const delay = dist * 45;       // center first: low delay
-          const isIdle = colAnim.phase === 'idle';
-          return (
-            <div
-              key={i}
-              style={{
-                flex: 1,
-                height: '100%',
-                background: colAnim.color || 'transparent',
-                transform:
-                  isIdle || colAnim.phase === 'reveal'
-                    ? 'scaleY(0)'
-                    : 'scaleY(1)',
-                transformOrigin: 'top center',
-                transition: isIdle
-                  ? 'none'
-                  : `transform ${220}ms cubic-bezier(0.4,0,0.2,1) ${delay}ms`,
-              }}
-            />
-          );
-        })}
-      </div>
+      />
+
     </div>
   );
 };
