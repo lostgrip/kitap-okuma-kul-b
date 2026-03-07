@@ -1,6 +1,8 @@
+import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getOptimizedCoverUrl } from '@/lib/imageUtils';
 
 interface BookCardProps {
   book: {
@@ -18,7 +20,9 @@ interface BookCardProps {
   className?: string;
 }
 
-const BookCard = ({ book, size = 'md', showOwner = false, ownerName, isClubBook = false, className }: BookCardProps) => {
+const COVER_WIDTHS: Record<string, number> = { sm: 120, md: 200, lg: 280 };
+
+const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClubBook = false, className }: BookCardProps) => {
   const navigate = useNavigate();
 
   const sizes = {
@@ -45,11 +49,13 @@ const BookCard = ({ book, size = 'md', showOwner = false, ownerName, isClubBook 
         )}
       >
         <img
-          src={book.cover_url}
+          src={getOptimizedCoverUrl(book.cover_url, { width: COVER_WIDTHS[size] })}
           alt={book.title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop';
+            (e.target as HTMLImageElement).src = getOptimizedCoverUrl(null);
           }}
         />
         {isClubBook && (
@@ -83,6 +89,9 @@ const BookCard = ({ book, size = 'md', showOwner = false, ownerName, isClubBook 
       </div>
     </button>
   );
-};
+});
+
+BookCard.displayName = 'BookCard';
 
 export default BookCard;
+

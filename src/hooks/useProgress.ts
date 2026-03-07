@@ -7,6 +7,7 @@ export interface ReadingProgress {
   book_id: string;
   current_page: number;
   status: 'reading' | 'completed' | 'paused' | 'want_to_read';
+  last_location: string | null;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
@@ -18,6 +19,7 @@ export interface NewProgress {
   book_id: string;
   current_page?: number;
   status?: 'reading' | 'completed' | 'paused' | 'want_to_read';
+  last_location?: string;
 }
 
 export const useAllProgress = () => {
@@ -77,7 +79,7 @@ export const useUpsertProgress = () => {
         .select('current_page')
         .eq('user_id', progress.user_id)
         .eq('book_id', progress.book_id)
-        .single();
+        .maybeSingle();
       const prevPage = existing?.current_page || 0;
 
       const { data, error } = await supabase
@@ -96,75 +98,26 @@ export const useUpsertProgress = () => {
 
       if (error) throw error;
 
-      // Auto-sync with user_books and book_list_items
-      const bookStatus = progress.status === 'completed' ? 'read' : 'reading';
-
-      // Update user_books
-      await supabase
-        .from('user_books')
-        .upsert({
-          user_id: progress.user_id,
-          book_id: progress.book_id,
-          status: bookStatus,
-          started_at: new Date().toISOString(),
-          completed_at: progress.status === 'completed' ? new Date().toISOString() : undefined,
-        }, { onConflict: 'user_id,book_id' });
-
-      // Find user's default lists and move book to correct list
-      const listType = progress.status === 'completed' ? 'read' : 'reading';
-      const { data: userLists } = await supabase
-        .from('book_lists')
-        .select('id, list_type')
-        .eq('user_id', progress.user_id)
-        .eq('is_default', true)
-        .eq('is_community', false);
-
-      if (userLists) {
-        const targetList = userLists.find(l => l.list_type === listType);
-
-        // Remove from OTHER default lists
-        const otherLists = userLists.filter(l => !targetList || l.id !== targetList.id);
-        for (const list of otherLists) {
-          await supabase
-            .from('book_list_items')
-            .delete()
-            .eq('list_id', list.id)
-            .eq('book_id', progress.book_id);
-        }
-
-        // Safely add to correct list
-        if (targetList) {
-          const { data: existing } = await supabase
-            .from('book_list_items')
-            .select('id')
-            .eq('list_id', targetList.id)
-            .eq('book_id', progress.book_id)
-            .maybeSingle();
-
-          if (!existing) {
-            await supabase
-              .from('book_list_items')
-              .insert({ list_id: targetList.id, book_id: progress.book_id });
-          }
-        }
-      }
+      // Note: List syncing (book_list_items) is now handled by a database trigger 
+      // on the reading_progress table. No need for manual frontend syncing.
 
       // Insert reading_log entry for journal/streak tracking
       const pagesRead = Math.max(0, progress.current_page - prevPage);
-      await supabase.from('reading_log').insert({
-        user_id: progress.user_id,
-        book_id: progress.book_id,
-        pages_read: pagesRead,
-        current_page: progress.current_page,
-        logged_at: new Date().toISOString(),
-      });
+      if (pagesRead > 0) {
+        await supabase.from('reading_log').insert({
+          user_id: progress.user_id,
+          book_id: progress.book_id,
+          pages_read: pagesRead,
+          current_page: progress.current_page,
+          logged_at: new Date().toISOString(),
+        });
+      }
 
       return data as ReadingProgress;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reading_progress'] });
       queryClient.invalidateQueries({ queryKey: ['book_list_items'] });
-      queryClient.invalidateQueries({ queryKey: ['user_books'] });
       queryClient.invalidateQueries({ queryKey: ['reading_log'] });
     },
   });
@@ -192,6 +145,7 @@ export const useUpdateProgress = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reading_progress'] });
+      queryClient.invalidateQueries({ queryKey: ['book_list_items'] });
     },
   });
 };
@@ -201,35 +155,9 @@ export const useDeleteProgress = () => {
 
   return useMutation({
     mutationFn: async ({ user_id, book_id }: { user_id: string; book_id: string }) => {
-      // 1. Differentiate by checking default lists and clearing user_books/list_items first.
-
-      // Delete from user_books
-      await supabase
-        .from('user_books')
-        .delete()
-        .eq('user_id', user_id)
-        .eq('book_id', book_id);
-
-      // Find user's default lists 
-      const { data: userLists } = await supabase
-        .from('book_lists')
-        .select('id')
-        .eq('user_id', user_id)
-        .eq('is_default', true)
-        .eq('is_community', false);
-
-      if (userLists) {
-        // Remove from all default lists
-        for (const list of userLists) {
-          await supabase
-            .from('book_list_items')
-            .delete()
-            .eq('list_id', list.id)
-            .eq('book_id', book_id);
-        }
-      }
-
-      // Finally drop the reading wrapper entirely
+      // Finally drop the reading progress record. 
+      // Database cascades or list hooks should handle cleanup if needed,
+      // but here we explicitly clear the record.
       const { error } = await supabase
         .from('reading_progress')
         .delete()
@@ -241,7 +169,8 @@ export const useDeleteProgress = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reading_progress'] });
       queryClient.invalidateQueries({ queryKey: ['book_list_items'] });
-      queryClient.invalidateQueries({ queryKey: ['user_books'] });
+      queryClient.invalidateQueries({ queryKey: ['reading_log'] });
     },
   });
 };
+

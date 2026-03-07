@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Hook to add a book to a user's default list by type (want_to_read, reading, read, dnf).
- * Also syncs the user_books table for status tracking.
+ * Now syncs primarily via the reading_progress table; database triggers handle list movement.
  */
 export const useAddBookToDefaultList = () => {
   const queryClient = useQueryClient();
@@ -16,45 +16,18 @@ export const useAddBookToDefaultList = () => {
     mutationFn: async ({ bookId, listType }: { bookId: string; listType: 'want_to_read' | 'reading' | 'read' | 'dnf' }) => {
       if (!user) throw new Error('Not authenticated');
 
-      // Find the user's default list for this type
-      const targetList = lists.find(l => l.is_default && l.list_type === listType && !l.is_community);
-      if (!targetList) throw new Error(`Default list "${listType}" not found`);
-
-      // Remove from other default lists first (a book can only be in one status)
-      const otherDefaultLists = lists.filter(l => l.is_default && !l.is_community && l.id !== targetList.id);
-      for (const dl of otherDefaultLists) {
-        await supabase
-          .from('book_list_items')
-          .delete()
-          .eq('list_id', dl.id)
-          .eq('book_id', bookId);
-      }
-
-      // Add to target list using upsert safely (checking if it already exists could also work, but upsert is cleaner if we had a unique id. Since we don't know the item id, we might violate uniqueness if we just insert. We will do a safe insert by first checking)
-      const { data: existing } = await supabase
-        .from('book_list_items')
-        .select('id')
-        .eq('list_id', targetList.id)
-        .eq('book_id', bookId)
-        .single();
-
-      if (!existing) {
-        const { error: itemError } = await supabase
-          .from('book_list_items')
-          .insert({ list_id: targetList.id, book_id: bookId });
-        if (itemError) console.error("Error inserting into book_list_items:", itemError);
-      }
-
-      // Also sync user_books table
-      const statusMap: Record<string, string> = {
+      const statusMap: Record<string, 'want_to_read' | 'reading' | 'completed' | 'paused'> = {
         want_to_read: 'want_to_read',
         reading: 'reading',
-        read: 'read',
-        dnf: 'dnf',
+        read: 'completed',
+        dnf: 'paused',
       };
 
-      const { error: ubError } = await supabase
-        .from('user_books')
+      // We now drive the state via reading_progress.
+      // The database trigger tr_sync_book_list will handle adding the book 
+      // to the correct list and removing it from others.
+      const { error } = await supabase
+        .from('reading_progress')
         .upsert({
           user_id: user.id,
           book_id: bookId,
@@ -63,11 +36,11 @@ export const useAddBookToDefaultList = () => {
           completed_at: listType === 'read' ? new Date().toISOString() : undefined,
         }, { onConflict: 'user_id,book_id' });
 
-      if (ubError) throw ubError;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['book_list_items'] });
-      queryClient.invalidateQueries({ queryKey: ['user_books'] });
+      queryClient.invalidateQueries({ queryKey: ['reading_progress'] });
     },
   });
 };
@@ -100,7 +73,7 @@ export const useRemoveBookFromList = () => {
 
   return useMutation({
     mutationFn: async ({ listId, bookId }: { listId: string; bookId: string }) => {
-      // Find list type first to know if we need to sync user_books
+      // Find list type first to know if we need to sync progress
       const { data: list } = await supabase
         .from('book_lists')
         .select('is_default, list_type')
@@ -115,34 +88,26 @@ export const useRemoveBookFromList = () => {
 
       if (error) throw error;
 
-      // If it was a default list, we must clear the legacy tables to sync fully
+      // If it was a default list, it means the user is effectively "removing" the book from their tracked reading.
+      // We should clear the reading_progress record to stay in sync.
       if (list && list.is_default) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          // Delete from user_books entirely since it was removed
           await supabase
-            .from('user_books')
+            .from('reading_progress')
             .delete()
             .eq('user_id', user.id)
             .eq('book_id', bookId);
-
-          // If it was the 'reading' list, also clear reading_progress so it doesn't ghost on the home page
-          if (list.list_type === 'reading') {
-            await supabase
-              .from('reading_progress')
-              .delete()
-              .eq('user_id', user.id)
-              .eq('book_id', bookId);
-          }
         }
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['book_list_items'] });
-      queryClient.invalidateQueries({ queryKey: ['user_books'] });
+      queryClient.invalidateQueries({ queryKey: ['reading_progress'] });
     },
   });
 };
+
 
 /**
  * Hook to approve a book into a community list from its shadow pending list.

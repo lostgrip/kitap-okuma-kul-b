@@ -24,7 +24,25 @@ const EditProfile = lazy(() => import("./pages/EditProfile"));
 const MemberProfile = lazy(() => import("./pages/MemberProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Data is considered fresh for 5 minutes — no redundant refetches on tab focus
+      staleTime: 5 * 60 * 1000,
+      // Keep unused data in cache for 10 minutes (fast back-navigation)
+      gcTime: 10 * 60 * 1000,
+      // Don't refetch when user switches browser tabs — prevents jarring UI flickers
+      refetchOnWindowFocus: false,
+      // Retry failed requests 2 times with exponential backoff
+      retry: 2,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    },
+    mutations: {
+      // Show errors once; don't retry mutations which can have side effects
+      retry: 0,
+    },
+  },
+});
 
 // A generic full-page loader for Suspense transitions
 const PageLoadingFallback = () => (

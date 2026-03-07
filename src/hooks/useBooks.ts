@@ -39,6 +39,8 @@ export const useBooks = () => {
       if (error) throw error;
       return data as Book[];
     },
+    // Books rarely change mid-session — keep cached for 10 min
+    staleTime: 10 * 60 * 1000,
   });
 };
 
@@ -56,6 +58,7 @@ export const useBook = (bookId: string) => {
       return data as Book;
     },
     enabled: !!bookId,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -73,7 +76,29 @@ export const useAddBook = () => {
       if (error) throw error;
       return data as Book;
     },
-    onSuccess: () => {
+    // Optimistic update: show book immediately in list
+    onMutate: async (newBook) => {
+      await queryClient.cancelQueries({ queryKey: ['books'] });
+      const previous = queryClient.getQueryData<Book[]>(['books']);
+      const optimistic: Book = {
+        ...newBook,
+        id: `temp-${Date.now()}`,
+        club_status: null,
+        cover_url: newBook.cover_url ?? null,
+        epub_url: newBook.epub_url ?? null,
+        genre: newBook.genre ?? null,
+        description: newBook.description ?? null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData<Book[]>(['books'], (old) => [optimistic, ...(old ?? [])]);
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      // Rollback on failure
+      if (ctx?.previous) queryClient.setQueryData(['books'], ctx.previous);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
     },
   });
