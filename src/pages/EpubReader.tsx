@@ -21,19 +21,27 @@ const THEMES: { key: ReaderTheme; label: string; icon: React.ReactNode; bg: stri
 function applyRenditionStyles(rendition: Rendition, theme: ReaderTheme, fontSize: number) {
   const t = THEMES.find(x => x.key === theme)!;
   rendition.themes.default({
-    html: { background: `${t.bg} !important` },
+    html: {
+      background: `${t.bg} !important`,
+      transition: 'background 0.3s ease !important'
+    },
     body: {
       'font-size': `${fontSize}px !important`,
       color: `${t.fg} !important`,
       background: `${t.bg} !important`,
       'line-height': '1.75 !important',
       padding: '0 6px !important',
+      transition: 'background 0.3s ease, color 0.3s ease !important'
     },
-    p: { color: `${t.fg} !important`, 'font-size': `${fontSize}px !important` },
-    h1: { color: `${t.fg} !important` },
-    h2: { color: `${t.fg} !important` },
-    h3: { color: `${t.fg} !important` },
-    a: { color: `${t.link} !important` },
+    p: {
+      color: `${t.fg} !important`,
+      'font-size': `${fontSize}px !important`,
+      transition: 'color 0.3s ease !important'
+    },
+    h1: { color: `${t.fg} !important`, transition: 'color 0.3s ease !important' },
+    h2: { color: `${t.fg} !important`, transition: 'color 0.3s ease !important' },
+    h3: { color: `${t.fg} !important`, transition: 'color 0.3s ease !important' },
+    a: { color: `${t.link} !important`, transition: 'color 0.3s ease !important' },
   });
 }
 
@@ -61,10 +69,13 @@ const EpubReader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<ReaderTheme>('light');
   const [fontSize, setFontSize] = useState(18);
-  const [fadeOverlay, setFadeOverlay] = useState<{ color: string; opacity: number }>({ color: '', opacity: 0 });
 
   const renditionRef = useRef<Rendition | null>(null);
   const hideTimeout = useRef<NodeJS.Timeout>();
+  // Debounce timer ref for location saves — avoids a DB write on every page flip
+  const saveDebounce = useRef<NodeJS.Timeout>();
+  // Keep a ref of the latest location so handleBack can flush without stale closure
+  const latestLocationRef = useRef<string | null>(null);
 
   // Load saved cfi
   useEffect(() => {
@@ -85,17 +96,10 @@ const EpubReader = () => {
     if (renditionRef.current) applyRenditionStyles(renditionRef.current, theme, fontSize);
   }, [theme, fontSize]);
 
-  // iOS-style crossfade theme transition
+  // Ultra-smooth Apple-style theme change
   const handleThemeChange = useCallback((newTheme: ReaderTheme) => {
     if (newTheme === theme) return;
-    const t = THEMES.find(x => x.key === newTheme)!;
-
-    // 1. Fade overlay in
-    setFadeOverlay({ color: t.bg, opacity: 1 });
-    // 2. Apply theme at peak opacity
-    setTimeout(() => setTheme(newTheme), 200);
-    // 3. Fade out
-    setTimeout(() => setFadeOverlay(f => ({ ...f, opacity: 0 })), 220);
+    setTheme(newTheme);
   }, [theme]);
 
   // Mouse wheel + touch swipe: attach to iframe document via rendition
@@ -118,22 +122,38 @@ const EpubReader = () => {
     }, { passive: true });
   }, []);
 
-  const handleLocationChange = (cfi: string) => {
+  const handleLocationChange = useCallback((cfi: string) => {
     setLocation(cfi);
-    if (user && bookId) {
+    latestLocationRef.current = cfi;
+    if (!user || !bookId) return;
+    // Debounce: only persist after reader is idle for 1.5s
+    clearTimeout(saveDebounce.current);
+    saveDebounce.current = setTimeout(() => {
       upsertUserBook.mutate({
-        user_id: user.id, book_id: bookId, status: 'reading',
+        user_id: user.id,
+        book_id: bookId,
+        status: 'reading',
         last_location: cfi,
         started_at: userBook?.started_at || new Date().toISOString(),
       });
-    }
-  };
+    }, 1500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, bookId, userBook?.started_at]);
 
-  const handleBack = () => {
-    if (user && bookId && location)
-      upsertUserBook.mutate({ user_id: user.id, book_id: bookId, status: 'reading', last_location: location });
+  const handleBack = useCallback(() => {
+    // Flush any pending save immediately before navigating away
+    clearTimeout(saveDebounce.current);
+    if (user && bookId && latestLocationRef.current) {
+      upsertUserBook.mutate({
+        user_id: user.id,
+        book_id: bookId,
+        status: 'reading',
+        last_location: latestLocationRef.current,
+      });
+    }
     navigate(-1);
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, bookId]);
 
   const getRendition = useCallback((rendition: Rendition) => {
     renditionRef.current = rendition;
@@ -274,21 +294,8 @@ const EpubReader = () => {
       </div>
 
 
-      {/* ── iOS-style Fade Overlay ── */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 200,
-          pointerEvents: 'none',
-          background: fadeOverlay.color || 'transparent',
-          opacity: fadeOverlay.opacity,
-          transition: fadeOverlay.opacity === 1
-            ? 'opacity 0.18s ease-in'
-            : 'opacity 0.32s ease-out',
-        }}
-      />
 
+      {/* No more overlays, just pure CSS crossfade inside the iframe and on the container */}
     </div>
   );
 };
