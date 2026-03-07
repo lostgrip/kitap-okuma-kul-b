@@ -7,7 +7,7 @@ export interface UserBook {
   user_id: string;
   book_id: string;
   status: 'want_to_read' | 'reading' | 'completed' | 'paused';
-  last_location: string | null;
+  current_page: number;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;

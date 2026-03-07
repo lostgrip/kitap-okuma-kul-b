@@ -76,7 +76,7 @@ const BookDetail = () => {
   const [reviewText, setReviewText] = useState('');
 
   const userProgressEntry = bookProgress.find(p => p.user_id === user?.id);
-  const hasCompletedBook = userProgressEntry?.status === 'completed' || userBook?.status === 'read';
+  const hasCompletedBook = userProgressEntry?.status === 'completed' || userBook?.status === 'completed';
 
   const getProfile = (userId: string) => profiles.find(p => p.user_id === userId);
   const activeSchedule = schedule.find(s => s.book_id === bookId && s.status === 'active');
