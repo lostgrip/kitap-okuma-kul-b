@@ -9,6 +9,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@/components/ErrorBoundaryFallback";
 import { ThemeProvider } from "next-themes";
 import { Loader2 } from "lucide-react";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 // Lazy load route pages for optimal code-splitting performance
 const Index = lazy(() => import("./pages/Index"));
@@ -58,6 +59,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <PwaInstallPrompt />
           <BrowserRouter>
             <AuthProvider>
               <Suspense fallback={<PageLoadingFallback />}>
