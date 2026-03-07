@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-// UserBook now mirrors reading_progress (user_books was merged into it)
 export interface UserBook {
   id: string;
   user_id: string;
@@ -16,14 +15,12 @@ export interface UserBook {
 
 export const useUserBooks = (userId?: string) => {
   return useQuery({
-    queryKey: ['reading_progress', 'user', userId],
+    queryKey: ['user_books', 'user', userId],
     queryFn: async () => {
-      let query = supabase.from('reading_progress').select('*');
-
+      let query = supabase.from('user_books').select('*');
       if (userId) {
         query = query.eq('user_id', userId);
       }
-
       const { data, error } = await query;
       if (error) throw error;
       return data as UserBook[];
@@ -34,42 +31,37 @@ export const useUserBooks = (userId?: string) => {
 
 export const useUserBookByBookId = (userId: string, bookId: string) => {
   return useQuery({
-    queryKey: ['reading_progress', userId, bookId],
+    queryKey: ['user_books', userId, bookId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('reading_progress')
+        .from('user_books')
         .select('*')
         .eq('user_id', userId)
         .eq('book_id', bookId)
         .maybeSingle();
-
       if (error) throw error;
       return data as UserBook | null;
     },
     enabled: !!userId && !!bookId,
-    // EPUB reader polls this to restore location; keep it fresh
     staleTime: 0,
   });
 };
 
 export const useUpsertUserBook = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (userBook: Partial<UserBook> & { user_id: string; book_id: string }) => {
       const { data, error } = await supabase
-        .from('reading_progress')
+        .from('user_books')
         .upsert(userBook, { onConflict: 'user_id,book_id' })
         .select()
         .single();
-
       if (error) throw error;
       return data as UserBook;
     },
     onSuccess: (_data, variables) => {
-      // Targeted invalidation — only invalidate what changed
       queryClient.invalidateQueries({
-        queryKey: ['reading_progress', variables.user_id, variables.book_id],
+        queryKey: ['user_books', variables.user_id, variables.book_id],
       });
     },
   });
@@ -77,21 +69,19 @@ export const useUpsertUserBook = () => {
 
 export const useUpdateUserBook = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<UserBook> & { id: string }) => {
       const { data, error } = await supabase
-        .from('reading_progress')
+        .from('user_books')
         .update(updates)
         .eq('id', id)
         .select()
         .single();
-
       if (error) throw error;
       return data as UserBook;
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['reading_progress', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['user_books', variables.id] });
     },
   });
 };
