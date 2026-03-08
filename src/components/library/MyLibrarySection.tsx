@@ -100,7 +100,7 @@ interface MyLibrarySectionProps {
 const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
   const { user, profile } = useAuth();
   const { data: allLists = [], isLoading } = useBookLists(user?.id);
-  const { data: books = [] } = useBooks();
+  
   const createList = useCreateBookList();
 
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
