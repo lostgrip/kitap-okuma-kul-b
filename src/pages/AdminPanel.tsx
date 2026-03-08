@@ -6,12 +6,12 @@ import {
   Shield,
   Link2,
   Copy,
-  CheckCircle,
   X,
   Plus,
   Loader2,
+  FolderPlus,
+  Calendar,
   BookOpen,
-  FolderPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,14 +27,15 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsAdmin, useGroupMembers, useAddUserRole, useRemoveUserRole } from '@/hooks/useUserRoles';
 import { useInviteCodes, useCreateInviteCode, useDeactivateInviteCode } from '@/hooks/useInviteCodes';
-import { useCommunityLists, useUpdateBookList, usePendingListProposals } from '@/hooks/useBookLists';
-import { useApproveCommunityListItem, useRejectCommunityListItem } from '@/hooks/useBookListActions';
 import { useGroups, useCreateGroup } from '@/hooks/useGroups';
+import { useClubSchedule, useAddClubSchedule, useUpdateClubSchedule, useDeleteClubSchedule } from '@/hooks/useClubSchedule';
+import { useBooks } from '@/hooks/useBooks';
 import Avatar from '@/components/Avatar';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { GroupMember, UserRole } from '@/types';
+import { UserRole } from '@/types';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -42,27 +43,31 @@ const AdminPanel = () => {
   const { data: isAdmin, isLoading: isAdminLoading } = useIsAdmin(user?.id);
   const { data: members = [], isLoading: membersLoading } = useGroupMembers();
   const { data: inviteCodes = [], isLoading: codesLoading } = useInviteCodes();
-  const { data: communityLists = [] } = useCommunityLists();
   const addRole = useAddUserRole();
   const removeRole = useRemoveUserRole();
   const createInviteCode = useCreateInviteCode();
   const deactivateCode = useDeactivateInviteCode();
-  const updateList = useUpdateBookList();
-  const { data: pendingProposals = [] } = usePendingListProposals();
-  const approveListItem = useApproveCommunityListItem();
-  const rejectListItem = useRejectCommunityListItem();
   const { data: groups = [], isLoading: groupsLoading } = useGroups();
   const createGroup = useCreateGroup();
+  const { data: schedule = [], isLoading: scheduleLoading } = useClubSchedule();
+  const addSchedule = useAddClubSchedule();
+  const updateSchedule = useUpdateClubSchedule();
+  const deleteSchedule = useDeleteClubSchedule();
+  const { data: books = [] } = useBooks();
 
-  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'lists' | 'list-items' | 'groups'>('members');
+  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'groups' | 'schedule'>('members');
   const [isCreateCodeDialogOpen, setIsCreateCodeDialogOpen] = useState(false);
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
+  const [isCreateScheduleDialogOpen, setIsCreateScheduleDialogOpen] = useState(false);
   const [newCodeMaxUses, setNewCodeMaxUses] = useState('');
   const [newGroupCode, setNewGroupCode] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupDescription, setNewGroupDescription] = useState('');
-
-  const pendingLists = communityLists.filter(list => !list.is_approved && !list.name.startsWith('[ONAY BEKLİYOR]'));
+  // Schedule form
+  const [scheduleBookId, setScheduleBookId] = useState('');
+  const [scheduleStartDate, setScheduleStartDate] = useState('');
+  const [scheduleEndDate, setScheduleEndDate] = useState('');
+  const [scheduleNotes, setScheduleNotes] = useState('');
 
   // Redirect non-admins
   if (!isAdminLoading && !isAdmin) {
@@ -94,7 +99,6 @@ const AdminPanel = () => {
 
   const handleCreateInviteCode = async () => {
     if (!user || !profile?.group_code) return;
-
     try {
       await createInviteCode.mutateAsync({
         groupCode: profile.group_code,
@@ -123,14 +127,50 @@ const AdminPanel = () => {
     toast.success('Davet linki kopyalandı!');
   };
 
-  const handleApproveList = async (listId: string) => {
+  const handleCreateSchedule = async () => {
+    if (!user || !profile?.group_code || !scheduleBookId || !scheduleStartDate) {
+      toast.error('Kitap ve başlangıç tarihi zorunludur');
+      return;
+    }
     try {
-      await updateList.mutateAsync({ id: listId, is_approved: true });
-      toast.success('Liste onaylandı!');
+      await addSchedule.mutateAsync({
+        book_id: scheduleBookId,
+        group_code: profile.group_code,
+        start_date: scheduleStartDate,
+        end_date: scheduleEndDate || null,
+        status: 'upcoming',
+        notes: scheduleNotes || null,
+        created_by: user.id,
+      });
+      setScheduleBookId('');
+      setScheduleStartDate('');
+      setScheduleEndDate('');
+      setScheduleNotes('');
+      setIsCreateScheduleDialogOpen(false);
+      toast.success('Okuma takvimi oluşturuldu!');
     } catch (error) {
-      toast.error('Liste onaylanamadı');
+      toast.error('Takvim oluşturulamadı');
     }
   };
+
+  const handleToggleScheduleStatus = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'active' ? 'finished' : currentStatus === 'upcoming' ? 'active' : 'upcoming';
+    try {
+      await updateSchedule.mutateAsync({ id, status: newStatus });
+      toast.success(`Durum "${newStatus === 'active' ? 'Aktif' : newStatus === 'finished' ? 'Tamamlandı' : 'Yaklaşan'}" olarak güncellendi`);
+    } catch {
+      toast.error('Durum güncellenemedi');
+    }
+  };
+
+  const getBookTitle = (bookId: string) => {
+    const book = books.find(b => b.id === bookId);
+    return book ? book.title : 'Bilinmeyen Kitap';
+  };
+
+  const statusLabel = (s: string) => s === 'active' ? 'Aktif' : s === 'finished' ? 'Tamamlandı' : 'Yaklaşan';
+  const statusVariant = (s: string): 'default' | 'secondary' | 'destructive' | 'outline' =>
+    s === 'active' ? 'default' : s === 'finished' ? 'secondary' : 'outline';
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -154,8 +194,7 @@ const AdminPanel = () => {
             { id: 'members' as const, label: 'Üyeler', icon: Users, badge: members.length },
             { id: 'invites' as const, label: 'Davetler', icon: Link2, badge: inviteCodes.length },
             { id: 'groups' as const, label: 'Gruplar', icon: FolderPlus, badge: groups.length },
-            { id: 'lists' as const, label: 'Listeler', icon: CheckCircle, badge: pendingLists.length },
-            { id: 'list-items' as const, label: 'Liste İstekleri', icon: BookOpen, badge: pendingProposals.length },
+            { id: 'schedule' as const, label: 'Takvim', icon: Calendar, badge: schedule.filter(s => s.status === 'active').length },
           ].map(tab => (
             <button
               key={tab.id}
@@ -265,9 +304,7 @@ const AdminPanel = () => {
                       className="w-full"
                       disabled={createInviteCode.isPending}
                     >
-                      {createInviteCode.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : null}
+                      {createInviteCode.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                       Oluştur
                     </Button>
                   </div>
@@ -305,138 +342,14 @@ const AdminPanel = () => {
                     </div>
                     {code.is_active && (
                       <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleCopyCode(code.invite_code)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => handleCopyCode(code.invite_code)}>
                           <Copy className="w-4 h-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeactivateCode(code.id)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => handleDeactivateCode(code.id)}>
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
                     )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Lists Tab */}
-        {activeTab === 'lists' && (
-          <div className="space-y-4">
-            <h2 className="font-serif font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              Onay Bekleyen Listeler ({pendingLists.length})
-            </h2>
-
-            {pendingLists.length === 0 ? (
-              <div className="text-center py-8 bg-card rounded-xl border-2 border-border">
-                <CheckCircle className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">Onay bekleyen liste yok</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {pendingLists.map(list => (
-                  <div
-                    key={list.id}
-                    className="flex items-center gap-3 p-3 bg-card rounded-xl border-2 border-border"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{list.name}</p>
-                      {list.description && (
-                        <p className="text-xs text-muted-foreground truncate">{list.description}</p>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => handleApproveList(list.id)}
-                      disabled={updateList.isPending}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Onayla
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* List Items Tab (Pending Proposals) */}
-        {activeTab === 'list-items' && (
-          <div className="space-y-4">
-            <h2 className="font-serif font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              Onay Bekleyen Liste Kitapları ({pendingProposals.length})
-            </h2>
-
-            {pendingProposals.length === 0 ? (
-              <div className="text-center py-8 bg-card rounded-xl border-2 border-border">
-                <CheckCircle className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">Onay bekleyen liste eklentisi yok</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {pendingProposals.map((proposal: any) => (
-                  <div
-                    key={proposal.id}
-                    className="flex items-center gap-3 p-3 bg-card rounded-xl border-2 border-border"
-                  >
-                    <img
-                      src={proposal.book?.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
-                      alt={proposal.book?.title}
-                      className="w-10 h-14 object-cover rounded-lg"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{proposal.book?.title}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        <span className="font-semibold text-primary">{proposal.originalListName}</span> listesine eklenmek isteniyor
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={async () => {
-                          try {
-                            await approveListItem.mutateAsync({
-                              pendingListId: proposal.shadowListId,
-                              targetListId: proposal.targetListId,
-                              bookId: proposal.book_id
-                            });
-                            toast.success('Kitap listeye eklendi!');
-                          } catch {
-                            toast.error('İşlem başarısız!');
-                          }
-                        }}
-                        disabled={approveListItem.isPending}
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Onayla
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={async () => {
-                          try {
-                            await rejectListItem.mutateAsync({
-                              pendingListId: proposal.shadowListId,
-                              bookId: proposal.book_id
-                            });
-                            toast.success('Liste isteği reddedildi.');
-                          } catch {
-                            toast.error('İşlem başarısız!');
-                          }
-                        }}
-                        disabled={rejectListItem.isPending}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -524,9 +437,7 @@ const AdminPanel = () => {
                       className="w-full"
                       disabled={createGroup.isPending}
                     >
-                      {createGroup.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : null}
+                      {createGroup.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                       Oluştur
                     </Button>
                   </div>
@@ -546,10 +457,7 @@ const AdminPanel = () => {
             ) : (
               <div className="space-y-2">
                 {groups.map(group => (
-                  <div
-                    key={group.id}
-                    className="p-4 bg-card rounded-xl border-2 border-border"
-                  >
+                  <div key={group.id} className="p-4 bg-card rounded-xl border-2 border-border">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium">{group.group_name}</p>
@@ -562,6 +470,145 @@ const AdminPanel = () => {
                     {group.description && (
                       <p className="text-sm text-muted-foreground mt-2">{group.description}</p>
                     )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Schedule Tab */}
+        {activeTab === 'schedule' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                Okuma Takvimi ({schedule.length})
+              </h2>
+              <Dialog open={isCreateScheduleDialogOpen} onOpenChange={setIsCreateScheduleDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-1">
+                    <Plus className="w-4 h-4" />
+                    Yeni Program
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle className="font-serif">Okuma Programı Oluştur</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 mt-4">
+                    <div>
+                      <Label>Kitap</Label>
+                      <Select value={scheduleBookId} onValueChange={setScheduleBookId}>
+                        <SelectTrigger className="mt-1.5">
+                          <SelectValue placeholder="Kitap seçin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {books.map(book => (
+                            <SelectItem key={book.id} value={book.id}>
+                              {book.title} — {book.author}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label>Başlangıç</Label>
+                        <Input
+                          type="date"
+                          value={scheduleStartDate}
+                          onChange={(e) => setScheduleStartDate(e.target.value)}
+                          className="mt-1.5"
+                        />
+                      </div>
+                      <div>
+                        <Label>Bitiş (opsiyonel)</Label>
+                        <Input
+                          type="date"
+                          value={scheduleEndDate}
+                          onChange={(e) => setScheduleEndDate(e.target.value)}
+                          className="mt-1.5"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Not (opsiyonel)</Label>
+                      <Textarea
+                        value={scheduleNotes}
+                        onChange={(e) => setScheduleNotes(e.target.value)}
+                        placeholder="Örn: Haftada 50 sayfa hedefi"
+                        className="mt-1.5"
+                        rows={2}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleCreateSchedule}
+                      className="w-full"
+                      disabled={addSchedule.isPending}
+                    >
+                      {addSchedule.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                      Oluştur
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {scheduleLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : schedule.length === 0 ? (
+              <div className="text-center py-8 bg-card rounded-xl border-2 border-border">
+                <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+                <p className="text-muted-foreground">Henüz okuma programı yok</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {schedule.map(item => (
+                  <div key={item.id} className="p-4 bg-card rounded-xl border-2 border-border space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="w-4 h-4 text-primary shrink-0" />
+                        <p className="font-medium text-sm">{getBookTitle(item.book_id)}</p>
+                      </div>
+                      <Badge variant={statusVariant(item.status)} className="text-xs shrink-0">
+                        {statusLabel(item.status)}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span>{item.start_date}</span>
+                      {item.end_date && <span>→ {item.end_date}</span>}
+                    </div>
+                    {item.notes && (
+                      <p className="text-xs text-muted-foreground italic">{item.notes}</p>
+                    )}
+                    <div className="flex gap-2 pt-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => handleToggleScheduleStatus(item.id, item.status)}
+                      >
+                        {item.status === 'upcoming' ? 'Aktif Yap' : item.status === 'active' ? 'Tamamla' : 'Yaklaşana Al'}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-destructive"
+                        onClick={async () => {
+                          try {
+                            await deleteSchedule.mutateAsync(item.id);
+                            toast.success('Program silindi');
+                          } catch {
+                            toast.error('Silinemedi');
+                          }
+                        }}
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        Sil
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
