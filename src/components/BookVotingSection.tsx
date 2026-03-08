@@ -224,26 +224,30 @@ const BookVotingSection = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-serif">Kitap Aday Göster</DialogTitle>
+            <DialogTitle className="font-serif">Kütüphanenizden Kitap Seçin</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSearch} className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-2">
             <Input
               placeholder="Kitap adı veya yazar ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1"
             />
-            <Button type="submit" disabled={isSearching}>
-              {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            </Button>
-          </form>
+            <div className="flex items-center justify-center w-10">
+              <Search className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
 
           <div className="max-h-80 overflow-y-auto space-y-2 mt-4">
-            {results.length === 0 && !isSearching && searchQuery && (
-              <p className="text-center text-muted-foreground text-sm py-4">Sonuç bulunamadı</p>
+            {filteredBooks.length === 0 && (
+              <p className="text-center text-muted-foreground text-sm py-4">
+                {myLibraryBooks.length === 0
+                  ? 'Kütüphanenizde kitap yok. Önce kitap ekleyin.'
+                  : 'Aramanızla eşleşen kitap bulunamadı.'}
+              </p>
             )}
-            {results.map((book) => (
+            {filteredBooks.map((book) => (
               <button
                 key={book.id}
                 onClick={() => handleSelectBook(book)}
@@ -251,10 +255,10 @@ const BookVotingSection = () => {
                 className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent transition-colors text-left"
               >
                 <div className="w-10 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                  {getCoverUrl(book) ? (
+                  {book.cover_url ? (
                     <img
-                      src={getCoverUrl(book)!}
-                      alt={book.volumeInfo.title}
+                      src={book.cover_url}
+                      alt={book.title}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -264,13 +268,8 @@ const BookVotingSection = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{book.volumeInfo.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {book.volumeInfo.authors?.join(', ') || 'Bilinmeyen'}
-                  </p>
-                  {book.volumeInfo.pageCount && (
-                    <p className="text-xs text-muted-foreground/70">{book.volumeInfo.pageCount} sayfa</p>
-                  )}
+                  <p className="font-medium text-sm truncate">{book.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{book.author}</p>
                 </div>
                 <Plus className="w-4 h-4 text-primary flex-shrink-0" />
               </button>
