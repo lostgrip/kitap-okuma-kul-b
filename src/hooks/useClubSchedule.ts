@@ -25,6 +25,7 @@ export const useClubSchedule = () => {
             if (error) throw error;
             return data as ClubScheduleItem[];
         },
+        staleTime: 15 * 60 * 1000,
     });
 };
 

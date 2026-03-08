@@ -50,6 +50,7 @@ export const useUserProgress = (userId: string) => {
       return data as ReadingProgress[];
     },
     enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

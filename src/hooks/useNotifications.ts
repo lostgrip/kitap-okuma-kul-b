@@ -55,6 +55,7 @@ export const useUnreadNotificationCount = (userId?: string) => {
       return count || 0;
     },
     enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
   });
 };
 
