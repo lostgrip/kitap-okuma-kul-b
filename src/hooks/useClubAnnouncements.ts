@@ -15,6 +15,7 @@ export interface ClubAnnouncement {
 export const useClubAnnouncements = () => {
     return useQuery({
         queryKey: ['club_announcements'],
+        staleTime: 10 * 60 * 1000,
         queryFn: async () => {
             const { data, error } = await supabase
                 .from('club_announcements')

@@ -26,6 +26,7 @@ export const useBookDiscussions = (bookId: string) => {
             return data as Discussion[];
         },
         enabled: !!bookId,
+        staleTime: 5 * 60 * 1000,
     });
 };
 

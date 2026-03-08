@@ -185,6 +185,7 @@ export const useBookInLists = (bookId: string) => {
       return data.map(d => d.list_id);
     },
     enabled: !!bookId,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

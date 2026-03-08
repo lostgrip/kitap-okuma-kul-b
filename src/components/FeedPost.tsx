@@ -142,6 +142,8 @@ const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
       </div>
     </div>
   );
-};
+});
+
+FeedPost.displayName = 'FeedPost';
 
 export default FeedPost;

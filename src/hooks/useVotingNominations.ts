@@ -14,6 +14,7 @@ export interface VotingNomination {
 export const useVotingNominations = () => {
   return useQuery({
     queryKey: ['voting_nominations'],
+    staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('voting_nominations')

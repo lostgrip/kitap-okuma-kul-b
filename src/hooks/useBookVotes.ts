@@ -12,6 +12,7 @@ export interface BookVote {
 export const useBookVotes = () => {
     return useQuery({
         queryKey: ['book_votes'],
+        staleTime: 5 * 60 * 1000,
         queryFn: async () => {
             const { data, error } = await supabase
                 .from('book_votes')
