@@ -10,7 +10,8 @@ import {
   X,
   Plus,
   Loader2,
-  BookOpen
+  BookOpen,
+  FolderPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,10 +29,12 @@ import { useIsAdmin, useGroupMembers, useAddUserRole, useRemoveUserRole } from '
 import { useInviteCodes, useCreateInviteCode, useDeactivateInviteCode } from '@/hooks/useInviteCodes';
 import { useCommunityLists, useUpdateBookList, usePendingListProposals } from '@/hooks/useBookLists';
 import { useApproveCommunityListItem, useRejectCommunityListItem } from '@/hooks/useBookListActions';
+import { useGroups, useCreateGroup } from '@/hooks/useGroups';
 import Avatar from '@/components/Avatar';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { GroupMember, UserRole } from '@/types';
+import { Textarea } from '@/components/ui/textarea';
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -48,10 +51,16 @@ const AdminPanel = () => {
   const { data: pendingProposals = [] } = usePendingListProposals();
   const approveListItem = useApproveCommunityListItem();
   const rejectListItem = useRejectCommunityListItem();
+  const { data: groups = [], isLoading: groupsLoading } = useGroups();
+  const createGroup = useCreateGroup();
 
-  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'lists' | 'list-items'>('members');
+  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'lists' | 'list-items' | 'groups'>('members');
   const [isCreateCodeDialogOpen, setIsCreateCodeDialogOpen] = useState(false);
+  const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newCodeMaxUses, setNewCodeMaxUses] = useState('');
+  const [newGroupCode, setNewGroupCode] = useState('');
+  const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupDescription, setNewGroupDescription] = useState('');
 
   const pendingLists = communityLists.filter(list => !list.is_approved && !list.name.startsWith('[ONAY BEKLİYOR]'));
 
@@ -144,6 +153,7 @@ const AdminPanel = () => {
           {[
             { id: 'members' as const, label: 'Üyeler', icon: Users, badge: members.length },
             { id: 'invites' as const, label: 'Davetler', icon: Link2, badge: inviteCodes.length },
+            { id: 'groups' as const, label: 'Gruplar', icon: FolderPlus, badge: groups.length },
             { id: 'lists' as const, label: 'Listeler', icon: CheckCircle, badge: pendingLists.length },
             { id: 'list-items' as const, label: 'Liste İstekleri', icon: BookOpen, badge: pendingProposals.length },
           ].map(tab => (
@@ -427,6 +437,131 @@ const AdminPanel = () => {
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Groups Tab */}
+        {activeTab === 'groups' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                Gruplar ({groups.length})
+              </h2>
+              <Dialog open={isCreateGroupDialogOpen} onOpenChange={setIsCreateGroupDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-1">
+                    <Plus className="w-4 h-4" />
+                    Yeni Grup
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle className="font-serif">Yeni Grup Oluştur</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 mt-4">
+                    <div>
+                      <Label htmlFor="groupName">Grup Adı</Label>
+                      <Input
+                        id="groupName"
+                        value={newGroupName}
+                        onChange={(e) => setNewGroupName(e.target.value)}
+                        placeholder="Örn: Edebiyat Kulübü"
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="groupCode">Grup Kodu</Label>
+                      <Input
+                        id="groupCode"
+                        value={newGroupCode}
+                        onChange={(e) => setNewGroupCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
+                        placeholder="Örn: EDEBIYAT"
+                        className="mt-1.5 font-mono"
+                        maxLength={20}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Benzersiz, boşluksuz kod (otomatik büyük harf)</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="groupDesc">Açıklama (opsiyonel)</Label>
+                      <Textarea
+                        id="groupDesc"
+                        value={newGroupDescription}
+                        onChange={(e) => setNewGroupDescription(e.target.value)}
+                        placeholder="Grup hakkında kısa bir açıklama"
+                        className="mt-1.5"
+                        rows={2}
+                      />
+                    </div>
+                    <Button
+                      onClick={async () => {
+                        if (!newGroupCode || !newGroupName) {
+                          toast.error('Grup adı ve kodu zorunludur');
+                          return;
+                        }
+                        try {
+                          await createGroup.mutateAsync({
+                            groupCode: newGroupCode,
+                            groupName: newGroupName,
+                            description: newGroupDescription,
+                          });
+                          setNewGroupCode('');
+                          setNewGroupName('');
+                          setNewGroupDescription('');
+                          setIsCreateGroupDialogOpen(false);
+                          toast.success('Grup oluşturuldu!');
+                        } catch (error: any) {
+                          if (error?.message?.includes('duplicate')) {
+                            toast.error('Bu grup kodu zaten kullanılıyor');
+                          } else {
+                            toast.error('Grup oluşturulamadı');
+                          }
+                        }
+                      }}
+                      className="w-full"
+                      disabled={createGroup.isPending}
+                    >
+                      {createGroup.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : null}
+                      Oluştur
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {groupsLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : groups.length === 0 ? (
+              <div className="text-center py-8 bg-card rounded-xl border-2 border-border">
+                <FolderPlus className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+                <p className="text-muted-foreground">Henüz grup yok</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {groups.map(group => (
+                  <div
+                    key={group.id}
+                    className="p-4 bg-card rounded-xl border-2 border-border"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{group.group_name}</p>
+                        <p className="text-xs font-mono text-primary">{group.group_code}</p>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        {profile?.group_code === group.group_code ? 'Aktif' : 'Grup'}
+                      </Badge>
+                    </div>
+                    {group.description && (
+                      <p className="text-sm text-muted-foreground mt-2">{group.description}</p>
+                    )}
                   </div>
                 ))}
               </div>
