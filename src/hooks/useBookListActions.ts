@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 /**
  * Hook to add a book to a user's default list by type (want_to_read, reading, read, dnf).
  * Keeps user_books, reading_progress and book_list_items explicitly in sync.
+ * Group-aware: prioritizes lists matching user's group_code.
  */
 export const useAddBookToDefaultList = () => {
   const queryClient = useQueryClient();
@@ -24,13 +25,27 @@ export const useAddBookToDefaultList = () => {
 
       const mappedStatus = statusMap[listType];
 
-      const { data: defaultLists, error: defaultListsError } = await supabase
+      // Get user's group_code first
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('group_code')
+        .eq('user_id', user.id)
+        .single();
+
+      const userGroupCode = profile?.group_code;
+
+      // Fetch all default lists for this user
+      const { data: allDefaultLists, error: defaultListsError } = await supabase
         .from('book_lists')
-        .select('id, list_type')
+        .select('id, list_type, group_code')
         .eq('user_id', user.id)
         .eq('is_default', true);
 
       if (defaultListsError) throw defaultListsError;
+
+      // Filter lists: prefer those matching user's group_code
+      const listsMatchingGroup = allDefaultLists?.filter(l => l.group_code === userGroupCode) ?? [];
+      const defaultLists = listsMatchingGroup.length > 0 ? listsMatchingGroup : allDefaultLists;
 
       const targetList = defaultLists?.find((list) => list.list_type === listType);
       if (!targetList) {
