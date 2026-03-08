@@ -26,6 +26,7 @@ export const useUserBooks = (userId?: string) => {
       return data as UserBook[];
     },
     enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

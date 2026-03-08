@@ -36,7 +36,7 @@ export const useBookLists = (userId?: string) => {
       if (error) throw error;
       return data as BookList[];
     },
-  });
+    staleTime: 5 * 60 * 1000,
 };
 
 export const useCommunityLists = () => {
