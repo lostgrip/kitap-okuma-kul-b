@@ -32,7 +32,8 @@ export const DailyCheckIns = () => {
 
             return profiles;
         },
-        refetchInterval: 60000, // Refresh every minute
+        refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes instead of every minute
+        staleTime: 3 * 60 * 1000,
     });
 
     if (isLoading) return null;

@@ -70,6 +70,7 @@ export const useBookListItems = (listId: string) => {
       return data as BookListItem[];
     },
     enabled: !!listId,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

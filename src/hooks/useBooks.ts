@@ -158,6 +158,7 @@ export const useClubBooks = () => {
       if (error) throw error;
       return data as Book[];
     },
+    staleTime: 10 * 60 * 1000,
   });
 };
 
