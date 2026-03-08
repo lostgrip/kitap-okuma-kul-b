@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, Search, BookOpen, Users, Loader2, Upload, Image, Trash2, BookText, Filter } from 'lucide-react';
+import { Plus, Search, BookOpen, Loader2, Upload, Image, Trash2, BookText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -39,7 +39,7 @@ import { useClubSchedule } from '@/hooks/useClubSchedule';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useIsAdmin } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
+
 import { toast } from 'sonner';
 
 const LibraryTab = () => {
@@ -55,6 +55,7 @@ const LibraryTab = () => {
   const { upload, isUploading } = useFileUpload();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeLibraryTab, setActiveLibraryTab] = useState<'my_library' | 'all_books'>('my_library');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>('none');
@@ -211,70 +212,101 @@ const LibraryTab = () => {
       </div>
 
       {/* Main Content */}
-      <div className="space-y-12">
-        <MyLibrarySection searchQuery={searchQuery} />
-
-        {/* All Books Section */}
-        <div>
-          <h2 className="text-xl font-serif font-semibold text-foreground mb-4">
-            Tüm Kitaplar
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            {filteredBooks.map((book) => (
-              <div key={book.id} className="relative">
-                <BookCard
-                  book={{
-                    id: book.id,
-                    title: book.title,
-                    author: book.author,
-                    total_pages: book.page_count,
-                    cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
-                  }}
-                  size="md"
-                  isClubBook={activeClubBookIds.includes(book.id)}
-                  className="bg-card p-3 rounded-xl shadow-soft"
-                />
-                {/* Admin or owner can delete */}
-                {(isAdmin || book.added_by === user?.id) && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button className="absolute top-2 right-2 w-7 h-7 bg-destructive/90 text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive transition-colors z-10">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Kitabı Sil</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          "{book.title}" kitabını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>İptal</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            deleteBook.mutate(book.id, {
-                              onSuccess: () => toast.success('Kitap silindi'),
-                              onError: () => toast.error('Kitap silinirken hata oluştu'),
-                            });
-                          }}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Sil
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-              </div>
-            ))}
-          </div>
-          {filteredBooks.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Kitap bulunamadı</p>
-            </div>
-          )}
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 rounded-xl bg-muted p-1">
+          <button
+            onClick={() => setActiveLibraryTab('my_library')}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground'
+            }`}
+          >
+            Kütüphanem
+          </button>
+          <button
+            onClick={() => setActiveLibraryTab('all_books')}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              activeLibraryTab === 'all_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground'
+            }`}
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <BookOpen className="h-4 w-4" />
+              Tüm Kitaplar
+            </span>
+          </button>
         </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={activeLibraryTab === 'my_library' ? 'Listelerde kitap ara...' : 'Tüm kitaplarda ara...'}
+            className="pl-9"
+          />
+        </div>
+
+        {activeLibraryTab === 'my_library' ? (
+          <MyLibrarySection searchQuery={searchQuery} />
+        ) : (
+          <div>
+            <h2 className="text-xl font-serif font-semibold text-foreground mb-4">Tüm Kitaplar</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {filteredBooks.map((book) => (
+                <div key={book.id} className="relative">
+                  <BookCard
+                    book={{
+                      id: book.id,
+                      title: book.title,
+                      author: book.author,
+                      total_pages: book.page_count,
+                      cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
+                    }}
+                    size="md"
+                    isClubBook={activeClubBookIds.includes(book.id)}
+                    className="bg-card p-3 rounded-xl shadow-soft"
+                  />
+                  {(isAdmin || book.added_by === user?.id) && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button className="absolute top-2 right-2 w-7 h-7 bg-destructive/90 text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive transition-colors z-10">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Kitabı Sil</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            "{book.title}" kitabını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>İptal</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              deleteBook.mutate(book.id, {
+                                onSuccess: () => toast.success('Kitap silindi'),
+                                onError: () => toast.error('Kitap silinirken hata oluştu'),
+                              });
+                            }}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Sil
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
+              ))}
+            </div>
+            {filteredBooks.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Kitap bulunamadı</p>
+              </div>
+            )}
+          </div>
+        )}
+
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button
