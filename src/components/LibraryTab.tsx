@@ -39,7 +39,7 @@ import { useClubSchedule } from '@/hooks/useClubSchedule';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useIsAdmin } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
+
 import { toast } from 'sonner';
 
 const LibraryTab = () => {
