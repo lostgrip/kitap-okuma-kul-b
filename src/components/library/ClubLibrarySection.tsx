@@ -1,17 +1,10 @@
-import { useState } from 'react';
-import { BookOpen, Users, Loader2, Plus, ArrowDown } from 'lucide-react';
+import { BookOpen, Users, Loader2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useClubBooks } from '@/hooks/useBooks';
-import { useAddBookToDefaultList } from '@/hooks/useBookListActions';
+import { useUpsertUserBook } from '@/hooks/useUserBooks';
 import BookCard from '@/components/BookCard';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface ClubLibrarySectionProps {
     searchQuery: string;
@@ -20,7 +13,7 @@ interface ClubLibrarySectionProps {
 const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
     const { user } = useAuth();
     const { data: clubBooks = [], isLoading } = useClubBooks();
-    const addToDefaultList = useAddBookToDefaultList();
+    const upsertUserBook = useUpsertUserBook();
 
     const filteredBooks = clubBooks.filter(
         (book) =>
@@ -28,20 +21,19 @@ const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
             book.author.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleAddToMyLibrary = async (bookId: string, listType: 'want_to_read' | 'reading' | 'read') => {
+    const handleAddToMyLibrary = async (bookId: string) => {
         if (!user) {
             toast.error('Giriş yapmalısınız');
             return;
         }
 
         try {
-            await addToDefaultList.mutateAsync({ bookId, listType });
-            const listNames = {
-                want_to_read: 'Okumak İstiyorum',
-                reading: 'Şu An Okuyor',
-                read: 'Okudum',
-            };
-            toast.success(`Kitap "${listNames[listType]}" listesine eklendi!`);
+            await upsertUserBook.mutateAsync({
+                user_id: user.id,
+                book_id: bookId,
+                status: 'want_to_read',
+            });
+            toast.success('Kitap kütüphanene eklendi!');
         } catch (error) {
             toast.error('Kitap eklenirken hata oluştu');
         }
@@ -70,25 +62,16 @@ const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
                 <div key={`club-book-${book.id}`} className="flex flex-col h-full bg-card rounded-2xl shadow-sm border border-border/50 overflow-hidden group hover:border-border/80 transition-all">
                     <BookCard book={book} size="md" />
                     <div className="p-3 pt-0 mt-auto flex flex-col gap-2">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="w-full text-xs h-8 gap-1 rounded-lg">
-                                    <Plus className="w-3.5 h-3.5" />
-                                    Kütüphaneme Ekle
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="center" className="w-48">
-                                <DropdownMenuItem onClick={() => handleAddToMyLibrary(book.id, 'reading')}>
-                                    Şu An Okuyor
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleAddToMyLibrary(book.id, 'want_to_read')}>
-                                    Okumak İstiyorum
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleAddToMyLibrary(book.id, 'read')}>
-                                    Okudum
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full text-xs h-8 gap-1 rounded-lg"
+                            onClick={() => handleAddToMyLibrary(book.id)}
+                            disabled={upsertUserBook.isPending}
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            Kütüphaneme Ekle
+                        </Button>
                     </div>
                 </div>
             ))}
