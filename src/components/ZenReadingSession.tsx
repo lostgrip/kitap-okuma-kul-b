@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { CloudRain, Trees } from 'lucide-react';
 
 interface ZenReadingSessionProps {
@@ -35,6 +35,47 @@ const ZenReadingSession = ({ onClose }: ZenReadingSessionProps) => {
         }, 3000);
         return () => clearInterval(t);
     }, []);
+
+    const rainAudio = useRef<HTMLAudioElement | null>(null);
+    const forestAudio = useRef<HTMLAudioElement | null>(null);
+
+    // Rain Audio Effect
+    useEffect(() => {
+        if (!rainAudio.current) {
+            rainAudio.current = new Audio('https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg');
+            rainAudio.current.loop = true;
+            rainAudio.current.volume = 0.5;
+        }
+        if (rainActive) {
+            rainAudio.current.play().catch(() => { });
+        } else {
+            rainAudio.current.pause();
+        }
+        return () => {
+            if (rainAudio.current) {
+                rainAudio.current.pause();
+            }
+        };
+    }, [rainActive]);
+
+    // Forest Audio Effect
+    useEffect(() => {
+        if (!forestAudio.current) {
+            forestAudio.current = new Audio('https://actions.google.com/sounds/v1/environment/forest_morning.ogg');
+            forestAudio.current.loop = true;
+            forestAudio.current.volume = 0.5;
+        }
+        if (forestActive) {
+            forestAudio.current.play().catch(() => { });
+        } else {
+            forestAudio.current.pause();
+        }
+        return () => {
+            if (forestAudio.current) {
+                forestAudio.current.pause();
+            }
+        };
+    }, [forestActive]);
 
     const [from, to] = ZEN_COLORS[colorIdx];
 

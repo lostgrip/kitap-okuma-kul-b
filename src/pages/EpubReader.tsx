@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ReactReader, ReactReaderStyle } from 'react-reader';
 import type { Rendition } from 'epubjs';
-import { ArrowLeft, Settings, Loader2, BookOpen, Type, Sun, Moon, Coffee } from 'lucide-react';
+import { ArrowLeft, Settings, Loader2, BookOpen, Type, Sun, Moon, Coffee, CloudRain, TreePine, Flame, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBook } from '@/hooks/useBooks';
 import { useUserBookByBookId, useUpsertUserBook } from '@/hooks/useUserBooks';
@@ -15,6 +15,13 @@ const THEMES: { key: ReaderTheme; label: string; icon: React.ReactNode; bg: stri
   { key: 'light', label: 'Açık', icon: <Sun className="w-4 h-4" />, bg: '#ffffff', fg: '#1a1a1a', link: '#1a56db' },
   { key: 'sepia', label: 'Sepia', icon: <Coffee className="w-4 h-4" />, bg: '#f4ecd8', fg: '#5b4636', link: '#8b5e3c' },
   { key: 'dark', label: 'Koyu', icon: <Moon className="w-4 h-4" />, bg: '#1a1a2e', fg: '#d4d4d4', link: '#7eb8f7' },
+];
+
+const AMBIENCE_SOUNDS = [
+  { id: 'none', label: 'Sessiz', icon: <VolumeX className="w-4 h-4" />, url: null },
+  { id: 'rain', label: 'Yağmur', icon: <CloudRain className="w-4 h-4" />, url: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg' },
+  { id: 'forest', label: 'Orman', icon: <TreePine className="w-4 h-4" />, url: 'https://actions.google.com/sounds/v1/environment/forest_morning.ogg' },
+  { id: 'cafe', label: 'Kafe', icon: <Coffee className="w-4 h-4" />, url: 'https://actions.google.com/sounds/v1/crowds/cafe_restaurant_ambience.ogg' },
 ];
 
 /** Applies font & color to rendered epub content (inside iframe) */
@@ -69,6 +76,8 @@ const EpubReader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<ReaderTheme>('light');
   const [fontSize, setFontSize] = useState(18);
+  const [ambientSound, setAmbientSound] = useState<string>('none');
+  const [audioVolume, setAudioVolume] = useState(0.5);
 
   const renditionRef = useRef<Rendition | null>(null);
   const hideTimeout = useRef<NodeJS.Timeout>();
@@ -76,6 +85,7 @@ const EpubReader = () => {
   const saveDebounce = useRef<NodeJS.Timeout>();
   // Keep a ref of the latest location so handleBack can flush without stale closure
   const latestLocationRef = useRef<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Load saved cfi
   useEffect(() => {
@@ -95,6 +105,34 @@ const EpubReader = () => {
   useEffect(() => {
     if (renditionRef.current) applyRenditionStyles(renditionRef.current, theme, fontSize);
   }, [theme, fontSize]);
+
+  // Handle Audio playback
+  useEffect(() => {
+    if (ambientSound === 'none') {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      return;
+    }
+
+    const sound = AMBIENCE_SOUNDS.find(s => s.id === ambientSound);
+    if (!sound || !sound.url) return;
+
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.loop = true;
+    }
+
+    audioRef.current.src = sound.url;
+    audioRef.current.volume = audioVolume;
+    audioRef.current.play().catch(e => console.error("Audio play blocked", e));
+  }, [ambientSound]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = audioVolume;
+    }
+  }, [audioVolume]);
 
   // Ultra-smooth Apple-style theme change
   const handleThemeChange = useCallback((newTheme: ReaderTheme) => {
@@ -150,6 +188,10 @@ const EpubReader = () => {
         status: 'reading',
         last_location: latestLocationRef.current,
       });
+    }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
     }
     navigate(-1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -263,6 +305,40 @@ const EpubReader = () => {
                   className="w-10 h-10 rounded-xl bg-muted font-bold text-xl flex items-center justify-center hover:bg-accent transition-colors select-none"
                 >+</button>
               </div>
+            </div>
+
+            {/* Ambient Sounds */}
+            <div className="pt-2 border-t border-border">
+              <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wide flex justify-between items-center">
+                <span>Ambiyans (Odak Modu)</span>
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {AMBIENCE_SOUNDS.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => setAmbientSound(s.id)}
+                    className={cn(
+                      'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all whitespace-nowrap',
+                      ambientSound === s.id ? 'border-primary ring-2 ring-primary/30 text-primary' : 'border-border text-foreground hover:bg-muted'
+                    )}
+                  >
+                    {s.icon} {s.label}
+                  </button>
+                ))}
+              </div>
+
+              {ambientSound !== 'none' && (
+                <div className="mt-2 flex items-center gap-2">
+                  <VolumeX className="w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="range"
+                    min="0" max="1" step="0.05"
+                    value={audioVolume}
+                    onChange={(e) => setAudioVolume(parseFloat(e.target.value))}
+                    className="flex-1 accent-primary"
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}
