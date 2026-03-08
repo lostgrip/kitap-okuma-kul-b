@@ -279,16 +279,29 @@ interface ListBooksViewProps {
   searchQuery: string;
 }
 
-const ListBooksView = ({ listId, books, searchQuery }: ListBooksViewProps) => {
+const ListBooksView = ({ listId, searchQuery }: Omit<ListBooksViewProps, 'books'>) => {
   const { user } = useAuth();
   const { data: items = [], isLoading } = useBookListItems(listId);
   const removeFromList = useRemoveBookFromList();
   const deleteBook = useDeleteBook();
   const { data: schedule = [] } = useClubSchedule();
 
-  const listBooks = books.filter(book =>
-    items.some(item => item.book_id === book.id)
-  );
+  // Fetch ALL books that are in this list (including club books)
+  const bookIds = items.map(item => item.book_id);
+  const { data: listBooks = [] } = useQuery({
+    queryKey: ['books', 'by-ids', bookIds.sort().join(',')],
+    queryFn: async () => {
+      if (bookIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .in('id', bookIds);
+      if (error) throw error;
+      return data as Book[];
+    },
+    enabled: bookIds.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const filteredBooks = listBooks.filter(book =>
     book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
