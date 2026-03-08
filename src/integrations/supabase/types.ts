@@ -800,6 +800,36 @@ export type Database = {
         }
         Relationships: []
       }
+      voting_nominations: {
+        Row: {
+          book_author: string
+          book_cover_url: string | null
+          book_title: string
+          created_at: string
+          group_code: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          book_author: string
+          book_cover_url?: string | null
+          book_title: string
+          created_at?: string
+          group_code: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          book_author?: string
+          book_cover_url?: string | null
+          book_title?: string
+          created_at?: string
+          group_code?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
