@@ -845,6 +845,7 @@ export type Database = {
       }
       increment_invite_code_use: { Args: { code_id: string }; Returns: boolean }
       is_user_admin: { Args: { _user_id: string }; Returns: boolean }
+      validate_invite_code: { Args: { code: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
