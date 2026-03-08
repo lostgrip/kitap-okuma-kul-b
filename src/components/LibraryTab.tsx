@@ -55,9 +55,9 @@ const LibraryTab = () => {
   const { upload, isUploading } = useFileUpload();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeLibraryTab, setActiveLibraryTab] = useState<'my_library' | 'all_books'>('my_library');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
-  const [selectedDestination, setSelectedDestination] = useState<string>('none');
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [epubFile, setEpubFile] = useState<File | null>(null);
