@@ -53,6 +53,7 @@ export const useCommunityLists = () => {
       if (error) throw error;
       return data as BookList[];
     },
+    staleTime: 10 * 60 * 1000,
   });
 };
 
