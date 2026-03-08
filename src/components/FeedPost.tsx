@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Quote, MessageCircle, Heart, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Avatar from './Avatar';
@@ -28,7 +28,7 @@ interface FeedPostProps {
   userCurrentPage: number;
 }
 
-const FeedPost = ({ post, userCurrentPage }: FeedPostProps) => {
+const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
   const { user } = useAuth();
   const [isRevealed, setIsRevealed] = useState(false);
 
@@ -142,6 +142,8 @@ const FeedPost = ({ post, userCurrentPage }: FeedPostProps) => {
       </div>
     </div>
   );
-};
+});
+
+FeedPost.displayName = 'FeedPost';
 
 export default FeedPost;

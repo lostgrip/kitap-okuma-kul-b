@@ -43,6 +43,7 @@ export const useProfile = (userId: string) => {
       return data as Profile;
     },
     enabled: !!userId,
+    staleTime: 10 * 60 * 1000,
   });
 };
 

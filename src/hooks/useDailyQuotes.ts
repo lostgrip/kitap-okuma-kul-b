@@ -48,6 +48,7 @@ export const useDailyQuote = () => {
 export const useGroupQuotes = () => {
   return useQuery({
     queryKey: ['daily_quotes'],
+    staleTime: 10 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('daily_quotes')

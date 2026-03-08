@@ -111,6 +111,7 @@ export const useNotificationSettings = (userId?: string) => {
       return data as NotificationSettings | null;
     },
     enabled: !!userId,
+    staleTime: 10 * 60 * 1000,
   });
 };
 
