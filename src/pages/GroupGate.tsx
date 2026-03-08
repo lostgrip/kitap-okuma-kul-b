@@ -29,23 +29,25 @@ const GroupGate = () => {
     setIsLoading(true);
 
     try {
-      // Check if group code exists (any user with this code)
-      const { data: existingGroup, error: checkError } = await supabase
-        .from('profiles')
-        .select('group_code')
-        .eq('group_code', groupCode.toUpperCase().trim())
-        .limit(1)
-        .maybeSingle();
+      // Validate invite code via secure RPC
+      const { data: validation, error: validateError } = await supabase.rpc('validate_invite_code', {
+        code: groupCode.trim(),
+      }) as { data: { valid: boolean; group_code: string; code_id: string } | null; error: any };
 
-      if (checkError) throw checkError;
+      if (validateError) throw validateError;
 
-      // For now, any code is valid (admins create codes manually)
-      // In production, you'd validate against a groups table
-      
+      if (!validation || !validation.valid) {
+        toast.error('Geçersiz veya süresi dolmuş davet kodu');
+        return;
+      }
+
+      // Increment usage
+      await supabase.rpc('increment_invite_code_use', { code_id: validation.code_id });
+
       // Update user's profile with the group code
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ group_code: groupCode.toUpperCase().trim() })
+        .update({ group_code: validation.group_code })
         .eq('user_id', user.id);
 
       if (updateError) throw updateError;
