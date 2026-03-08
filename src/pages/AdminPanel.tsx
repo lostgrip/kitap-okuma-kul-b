@@ -51,10 +51,16 @@ const AdminPanel = () => {
   const { data: pendingProposals = [] } = usePendingListProposals();
   const approveListItem = useApproveCommunityListItem();
   const rejectListItem = useRejectCommunityListItem();
+  const { data: groups = [], isLoading: groupsLoading } = useGroups();
+  const createGroup = useCreateGroup();
 
-  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'lists' | 'list-items'>('members');
+  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'lists' | 'list-items' | 'groups'>('members');
   const [isCreateCodeDialogOpen, setIsCreateCodeDialogOpen] = useState(false);
+  const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newCodeMaxUses, setNewCodeMaxUses] = useState('');
+  const [newGroupCode, setNewGroupCode] = useState('');
+  const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupDescription, setNewGroupDescription] = useState('');
 
   const pendingLists = communityLists.filter(list => !list.is_approved && !list.name.startsWith('[ONAY BEKLİYOR]'));
 
