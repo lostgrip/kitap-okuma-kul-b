@@ -33,6 +33,7 @@ export const useAllProgress = () => {
       if (error) throw error;
       return data as ReadingProgress[];
     },
+    staleTime: 5 * 60 * 1000,
   });
 };
 
