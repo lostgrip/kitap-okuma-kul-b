@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ThumbsUp, ThumbsDown, Crown, Plus, Trash2, Loader2, Search, X } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Crown, Plus, Trash2, Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,7 +12,7 @@ import { useBookVotes, useAddBookVote, useRemoveBookVote } from '@/hooks/useBook
 import { useVotingNominations, useAddNomination, useRemoveNomination } from '@/hooks/useVotingNominations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfiles } from '@/hooks/useProfiles';
-import { useGoogleBooks } from '@/hooks/useGoogleBooks';
+import { useGoogleBooks, GoogleBook } from '@/hooks/useGoogleBooks';
 import { toast } from 'sonner';
 
 const BookVotingSection = () => {
@@ -50,7 +50,7 @@ const BookVotingSection = () => {
     }
   };
 
-  const handleSelectBook = async (book: ReturnType<typeof results>[0]) => {
+  const handleSelectBook = async (book: GoogleBook) => {
     if (!user) return;
 
     try {
