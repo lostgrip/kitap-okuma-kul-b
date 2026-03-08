@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, Search, BookOpen, Users, Loader2, Upload, Image, Trash2, BookText, Filter } from 'lucide-react';
+import { Plus, Search, BookOpen, Loader2, Upload, Image, Trash2, BookText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
