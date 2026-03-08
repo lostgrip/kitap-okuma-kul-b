@@ -28,7 +28,7 @@ interface FeedPostProps {
   userCurrentPage: number;
 }
 
-const FeedPost = ({ post, userCurrentPage }: FeedPostProps) => {
+const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
   const { user } = useAuth();
   const [isRevealed, setIsRevealed] = useState(false);
 
