@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Plus, BookOpen, Clock, Check, X, List, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +23,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { useBookLists, useCreateBookList, useBookListItems, BookList } from '@/hooks/useBookLists';
-import { Book, useBooks, useDeleteBook } from '@/hooks/useBooks';
+import { Book, useDeleteBook } from '@/hooks/useBooks';
+import { supabase } from '@/integrations/supabase/client';
 import { useRemoveBookFromList } from '@/hooks/useBookListActions';
 import { useClubSchedule } from '@/hooks/useClubSchedule';
 import { useAuth } from '@/contexts/AuthContext';
@@ -98,7 +100,7 @@ interface MyLibrarySectionProps {
 const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
   const { user, profile } = useAuth();
   const { data: allLists = [], isLoading } = useBookLists(user?.id);
-  const { data: books = [] } = useBooks();
+  
   const createList = useCreateBookList();
 
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
@@ -226,7 +228,6 @@ const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
       {selectedListId && (
         <ListBooksView
           listId={selectedListId}
-          books={books}
           searchQuery={searchQuery}
         />
       )}
@@ -279,16 +280,29 @@ interface ListBooksViewProps {
   searchQuery: string;
 }
 
-const ListBooksView = ({ listId, books, searchQuery }: ListBooksViewProps) => {
+const ListBooksView = ({ listId, searchQuery }: Omit<ListBooksViewProps, 'books'>) => {
   const { user } = useAuth();
   const { data: items = [], isLoading } = useBookListItems(listId);
   const removeFromList = useRemoveBookFromList();
   const deleteBook = useDeleteBook();
   const { data: schedule = [] } = useClubSchedule();
 
-  const listBooks = books.filter(book =>
-    items.some(item => item.book_id === book.id)
-  );
+  // Fetch ALL books that are in this list (including club books)
+  const bookIds = items.map(item => item.book_id);
+  const { data: listBooks = [] } = useQuery({
+    queryKey: ['books', 'by-ids', bookIds.sort().join(',')],
+    queryFn: async () => {
+      if (bookIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .in('id', bookIds);
+      if (error) throw error;
+      return data as Book[];
+    },
+    enabled: bookIds.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const filteredBooks = listBooks.filter(book =>
     book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
