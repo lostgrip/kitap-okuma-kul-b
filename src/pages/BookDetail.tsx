@@ -97,7 +97,8 @@ const BookDetail = () => {
   const publisher = publisherMatch ? publisherMatch[1] : null;
   const description = book?.description ? book.description.replace(/\n\nYayınevi:\s*.+$/, '').replace(/Yayınevi:\s*.+$/, '') : null;
 
-  const currentStatus = userBook?.status as keyof typeof statusConfig | undefined;
+  // Convert DB status (completed/paused) to UI key (read/dnf)
+  const currentStatus = userBook?.status ? dbStatusToUiKey[userBook.status] : undefined;
 
   return (
     <div className="min-h-screen bg-background pb-20 max-w-md mx-auto relative shadow-2xl">

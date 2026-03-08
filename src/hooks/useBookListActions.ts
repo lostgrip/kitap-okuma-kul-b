@@ -116,11 +116,16 @@ export const useAddBookToDefaultList = () => {
         if (insertTargetListError) throw insertTargetListError;
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      // Invalidate all relevant caches including specific book queries
       queryClient.invalidateQueries({ queryKey: ['book_list_items'] });
       queryClient.invalidateQueries({ queryKey: ['reading_progress'] });
       queryClient.invalidateQueries({ queryKey: ['user_books'] });
       queryClient.invalidateQueries({ queryKey: ['book_in_lists'] });
+      // Also invalidate specific user-book combination
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: ['user_books', user.id, variables.bookId] });
+      }
     },
   });
 };
