@@ -38,52 +38,57 @@ const CurrentReadTab = () => {
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [isZenMode, setIsZenMode] = useState(false);
 
-  // Auto-sync legacy reading data to default book lists
+  // Auto-sync legacy reading data to default book lists (debounced, runs once per session)
   useEffect(() => {
+    if (!user) return;
+    
+    // Only run once per session using a sessionStorage flag
+    const syncKey = `autoSync_${user.id}`;
+    if (sessionStorage.getItem(syncKey)) return;
+    sessionStorage.setItem(syncKey, '1');
+
     const autoSyncLists = async () => {
-      if (!user) return;
+      const [{ data: lists }, { data: uBooks }] = await Promise.all([
+        supabase
+          .from('book_lists')
+          .select('id, list_type')
+          .eq('user_id', user.id)
+          .eq('is_default', true),
+        supabase
+          .from('user_books')
+          .select('book_id, status')
+          .eq('user_id', user.id),
+      ]);
 
-      const { data: lists } = await supabase
-        .from('book_lists')
-        .select('id, list_type')
-        .eq('user_id', user.id)
-        .eq('is_default', true);
+      if (!lists?.length || !uBooks?.length) return;
 
-      if (!lists || lists.length === 0) return;
+      // Batch check: get all book_list_items for this user's default lists at once
+      const listIds = lists.map(l => l.id);
+      const { data: existingItems } = await supabase
+        .from('book_list_items')
+        .select('list_id, book_id')
+        .in('list_id', listIds);
 
-      const { data: uBooks } = await supabase
-        .from('user_books')
-        .select('book_id, status')
-        .eq('user_id', user.id);
+      const existingSet = new Set(
+        (existingItems || []).map(i => `${i.list_id}:${i.book_id}`)
+      );
 
-      if (uBooks && uBooks.length > 0) {
-        for (const ub of uBooks) {
-          const targetList = lists.find(l => l.list_type === ub.status);
-          if (targetList) {
-            const { data: existing } = await supabase
-              .from('book_list_items')
-              .select('id')
-              .eq('list_id', targetList.id)
-              .eq('book_id', ub.book_id)
-              .maybeSingle();
+      for (const ub of uBooks) {
+        const targetList = lists.find(l => l.list_type === ub.status);
+        if (targetList && !existingSet.has(`${targetList.id}:${ub.book_id}`)) {
+          // Book missing from list — clean up ghost data
+          await supabase
+            .from('user_books')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('book_id', ub.book_id);
 
-            // If the book is completely missing from the target list, it means the user deleted it.
-            // We must clear the ghost data from user_books and reading_progress.
-            if (!existing) {
-              await supabase
-                .from('user_books')
-                .delete()
-                .eq('user_id', user.id)
-                .eq('book_id', ub.book_id);
-
-              if (ub.status === 'reading') {
-                await supabase
-                  .from('reading_progress')
-                  .delete()
-                  .eq('user_id', user.id)
-                  .eq('book_id', ub.book_id);
-              }
-            }
+          if (ub.status === 'reading') {
+            await supabase
+              .from('reading_progress')
+              .delete()
+              .eq('user_id', user.id)
+              .eq('book_id', ub.book_id);
           }
         }
       }
