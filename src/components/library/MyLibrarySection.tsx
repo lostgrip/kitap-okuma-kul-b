@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { useBookLists, useCreateBookList, useBookListItems, BookList } from '@/hooks/useBookLists';
-import { Book, useBooks, useDeleteBook } from '@/hooks/useBooks';
+import { Book, useDeleteBook } from '@/hooks/useBooks';
 import { supabase } from '@/integrations/supabase/client';
 import { useRemoveBookFromList } from '@/hooks/useBookListActions';
 import { useClubSchedule } from '@/hooks/useClubSchedule';
