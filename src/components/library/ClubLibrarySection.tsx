@@ -82,7 +82,7 @@ const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
                             variant="outline"
                             size="sm"
                             className="w-full text-xs h-8 gap-1 rounded-lg"
-                            onClick={() => handleAddToAllBooks(book.id)}
+                            onClick={() => handleAddToLibrary(book.id)}
                         >
                             <Plus className="w-3.5 h-3.5" />
                             Kütüphaneye Ekle
