@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ThumbsUp, ThumbsDown, Crown, Plus, Trash2, Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,8 @@ import { useBookVotes, useAddBookVote, useRemoveBookVote } from '@/hooks/useBook
 import { useVotingNominations, useAddNomination, useRemoveNomination } from '@/hooks/useVotingNominations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfiles } from '@/hooks/useProfiles';
-import { useGoogleBooks, GoogleBook } from '@/hooks/useGoogleBooks';
+import { useUserBooks } from '@/hooks/useUserBooks';
+import { useBooks } from '@/hooks/useBooks';
 import { toast } from 'sonner';
 
 const BookVotingSection = () => {
@@ -20,11 +21,12 @@ const BookVotingSection = () => {
   const { data: votes = [] } = useBookVotes();
   const { data: nominations = [], isLoading } = useVotingNominations();
   const { data: profiles = [] } = useProfiles();
+  const { data: userBooks = [] } = useUserBooks(user?.id);
+  const { data: allBooks = [] } = useBooks();
   const addVote = useAddBookVote();
   const removeVote = useRemoveBookVote();
   const addNomination = useAddNomination();
   const removeNomination = useRemoveNomination();
-  const { searchBooks, results, isSearching, getCoverUrl, clearResults } = useGoogleBooks();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,6 +34,21 @@ const BookVotingSection = () => {
   const userProfile = profiles.find(p => p.user_id === user?.id);
   const userNomination = nominations.find(n => n.user_id === user?.id);
   const effectiveGroupCode = userProfile?.group_code || 'ZENHUB';
+
+  // Get user's library books with details
+  const myLibraryBooks = useMemo(() => {
+    const myBookIds = userBooks.map(ub => ub.book_id);
+    return allBooks.filter(b => myBookIds.includes(b.id));
+  }, [userBooks, allBooks]);
+
+  // Filter by search query
+  const filteredBooks = useMemo(() => {
+    if (!searchQuery.trim()) return myLibraryBooks;
+    const q = searchQuery.toLowerCase();
+    return myLibraryBooks.filter(
+      b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)
+    );
+  }, [myLibraryBooks, searchQuery]);
 
   // Tally votes per nomination
   const voteTally = nominations
@@ -43,28 +60,20 @@ const BookVotingSection = () => {
     }))
     .sort((a, b) => b.count - a.count);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      searchBooks(searchQuery);
-    }
-  };
-
-  const handleSelectBook = async (book: GoogleBook) => {
+  const handleSelectBook = async (book: typeof allBooks[0]) => {
     if (!user) return;
 
     try {
       await addNomination.mutateAsync({
         user_id: user.id,
-        book_title: book.volumeInfo.title,
-        book_author: book.volumeInfo.authors?.join(', ') || 'Bilinmeyen',
-        book_cover_url: getCoverUrl(book),
+        book_title: book.title,
+        book_author: book.author,
+        book_cover_url: book.cover_url,
         group_code: effectiveGroupCode,
       });
       toast.success('Kitap aday gösterildi!');
       setIsDialogOpen(false);
       setSearchQuery('');
-      clearResults();
     } catch {
       toast.error('Zaten bir adayınız var. Önce mevcut adayı silin.');
     }
