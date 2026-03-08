@@ -10,7 +10,8 @@ import {
   X,
   Plus,
   Loader2,
-  BookOpen
+  BookOpen,
+  FolderPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
