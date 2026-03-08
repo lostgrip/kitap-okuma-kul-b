@@ -25,6 +25,7 @@ export const useProfiles = () => {
       if (error) throw error;
       return data as Profile[];
     },
+    staleTime: 10 * 60 * 1000,
   });
 };
 

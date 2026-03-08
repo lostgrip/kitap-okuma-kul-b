@@ -24,6 +24,7 @@ export interface NewFeedPost {
 export const useFeedPosts = () => {
   return useQuery({
     queryKey: ['feed_posts'],
+    staleTime: 3 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from('feed_posts')

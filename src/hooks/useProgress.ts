@@ -33,6 +33,7 @@ export const useAllProgress = () => {
       if (error) throw error;
       return data as ReadingProgress[];
     },
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -49,6 +50,7 @@ export const useUserProgress = (userId: string) => {
       return data as ReadingProgress[];
     },
     enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

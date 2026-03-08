@@ -23,6 +23,7 @@ export const useReadingLog = (userId: string) => {
             return data as ReadingLogEntry[];
         },
         enabled: !!userId,
+        staleTime: 5 * 60 * 1000,
     });
 };
 

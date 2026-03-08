@@ -15,6 +15,7 @@ export interface DailyQuote {
 export const useDailyQuote = () => {
   return useQuery({
     queryKey: ['daily_quotes', 'today'],
+    staleTime: 30 * 60 * 1000,
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
       

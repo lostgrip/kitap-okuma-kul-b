@@ -24,6 +24,7 @@ export const useGoals = (userId: string | undefined) => {
       return data as ReadingGoal[];
     },
     enabled: !!userId,
+    staleTime: 10 * 60 * 1000,
   });
 };
 

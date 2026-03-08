@@ -38,6 +38,7 @@ export const useNotifications = (userId?: string) => {
       return data as Notification[];
     },
     enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
   });
 };
 
@@ -55,6 +56,7 @@ export const useUnreadNotificationCount = (userId?: string) => {
       return count || 0;
     },
     enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
   });
 };
 
