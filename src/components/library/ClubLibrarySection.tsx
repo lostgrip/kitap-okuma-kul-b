@@ -42,14 +42,36 @@ const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
                 return;
             }
 
+            // 1. Add to user_books
             const { error } = await supabase
                 .from('user_books')
                 .insert({ user_id: user.id, book_id: bookId, status: 'want_to_read' });
-
             if (error) throw error;
 
+            // 2. Find user's "Okumak İstiyorum" list and add book there too
+            const { data: wantList } = await supabase
+                .from('book_lists')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('list_type', 'want_to_read')
+                .eq('is_default', true)
+                .maybeSingle();
+
+            if (wantList) {
+                await supabase
+                    .from('book_list_items')
+                    .insert({ list_id: wantList.id, book_id: bookId });
+            }
+
+            // 3. Create reading_progress entry
+            await supabase
+                .from('reading_progress')
+                .insert({ user_id: user.id, book_id: bookId, status: 'want_to_read', current_page: 0 });
+
             queryClient.invalidateQueries({ queryKey: ['user-books'] });
-            toast.success('Kitap kütüphanenize eklendi!');
+            queryClient.invalidateQueries({ queryKey: ['book-list-items'] });
+            queryClient.invalidateQueries({ queryKey: ['reading-progress'] });
+            toast.success('Kitap "Okumak İstiyorum" listenize eklendi!');
         } catch {
             toast.error('Kitap eklenirken hata oluştu');
         }
