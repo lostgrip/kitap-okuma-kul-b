@@ -59,6 +59,7 @@ const LibraryTab = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>('none');
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [epubFile, setEpubFile] = useState<File | null>(null);
   const [newBook, setNewBook] = useState({
