@@ -29,6 +29,7 @@ import { useRemoveBookFromList } from '@/hooks/useBookListActions';
 import { useClubSchedule } from '@/hooks/useClubSchedule';
 import { useAuth } from '@/contexts/AuthContext';
 import BookCard from '@/components/BookCard';
+import { BookListSkeleton } from '@/components/ui/book-skeleton';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -100,7 +101,7 @@ interface MyLibrarySectionProps {
 const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
   const { user, profile } = useAuth();
   const { data: allLists = [], isLoading } = useBookLists(user?.id);
-  
+
   const createList = useCreateBookList();
 
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
@@ -138,8 +139,25 @@ const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-6 animate-pulse">
+        {/* Skeleton for Default Lists */}
+        <div>
+          <div className="h-4 bg-muted rounded w-32 mb-3" />
+          <div className="grid grid-cols-2 gap-2">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-[56px] bg-muted rounded-xl border-2 border-border" />
+            ))}
+          </div>
+        </div>
+        {/* Skeleton for Custom Lists */}
+        <div>
+          <div className="h-4 bg-muted rounded w-32 mb-3" />
+          <div className="grid grid-cols-2 gap-2">
+            {[1, 2].map(i => (
+              <div key={i} className="h-[56px] bg-muted rounded-xl border-2 border-border" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -313,8 +331,8 @@ const ListBooksView = ({ listId, searchQuery }: Omit<ListBooksViewProps, 'books'
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      <div className="mt-8">
+        <BookListSkeleton count={4} />
       </div>
     );
   }
