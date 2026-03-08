@@ -22,23 +22,34 @@ const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
             book.author.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleAddToAllBooks = async (bookId: string) => {
+    const handleAddToLibrary = async (bookId: string) => {
         if (!user) {
             toast.error('Giriş yapmalısınız');
             return;
         }
 
         try {
+            // Check if already in user's library
+            const { data: existing } = await supabase
+                .from('user_books')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('book_id', bookId)
+                .maybeSingle();
+
+            if (existing) {
+                toast.info('Bu kitap zaten kütüphanenizde');
+                return;
+            }
+
             const { error } = await supabase
-                .from('books')
-                .update({ club_status: null })
-                .eq('id', bookId);
+                .from('user_books')
+                .insert({ user_id: user.id, book_id: bookId, status: 'want_to_read' });
 
             if (error) throw error;
 
-            queryClient.invalidateQueries({ queryKey: ['books'] });
-            queryClient.invalidateQueries({ queryKey: ['club-books'] });
-            toast.success('Kitap Tüm Kitaplar\'a eklendi!');
+            queryClient.invalidateQueries({ queryKey: ['user-books'] });
+            toast.success('Kitap kütüphanenize eklendi!');
         } catch {
             toast.error('Kitap eklenirken hata oluştu');
         }
