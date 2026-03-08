@@ -11,8 +11,7 @@ import {
   Download,
   BookMarked,
   CheckCircle,
-  Clock,
-  Trophy
+  Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,9 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { useBook } from '@/hooks/useBooks';
 import { useUserBookByBookId } from '@/hooks/useUserBooks';
-import { useClubSchedule, useAddClubSchedule, useDeleteClubSchedule } from '@/hooks/useClubSchedule';
 import { useAddBookToDefaultList } from '@/hooks/useBookListActions';
-import { useProfiles } from '@/hooks/useProfiles';
 import { useIsAdmin } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
 import BookEditDialog from '@/components/BookEditDialog';
@@ -51,42 +48,10 @@ const BookDetail = () => {
 
   const { data: book, isLoading: bookLoading } = useBook(bookId || '');
   const { data: userBook } = useUserBookByBookId(user?.id || '', bookId || '');
-  const { data: schedule = [] } = useClubSchedule();
-  const { data: profiles = [] } = useProfiles();
   const addToDefaultList = useAddBookToDefaultList();
-  const addClubSchedule = useAddClubSchedule();
-  const deleteClubSchedule = useDeleteClubSchedule();
 
   const [isListModalOpen, setIsListModalOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-
-  const getProfile = (userId: string) => profiles.find(p => p.user_id === userId);
-  const activeSchedule = schedule.find(s => s.book_id === bookId && s.status === 'active');
-
-  const handleToggleClubBook = async () => {
-    if (!user) return;
-    try {
-      if (activeSchedule) {
-        await deleteClubSchedule.mutateAsync(activeSchedule.id);
-        toast.success('Kitap kulüp ortak hedefinden çıkarıldı');
-      } else {
-        const userProfile = getProfile(user.id);
-        const effectiveGroupCode = userProfile?.group_code || 'ZENHUB';
-        await addClubSchedule.mutateAsync({
-          book_id: bookId!,
-          group_code: effectiveGroupCode,
-          start_date: new Date().toISOString().split('T')[0],
-          end_date: null,
-          status: 'active',
-          notes: 'Admin tarafından belirlendi',
-          created_by: user.id
-        });
-        toast.success('Kitap Kulüp Ortak Kitabı olarak ayarlandı! 🌱');
-      }
-    } catch {
-      toast.error('Grup hedefi güncellenirken hata oluştu');
-    }
-  };
 
   const handleShelfChange = async (status: 'want_to_read' | 'reading' | 'read' | 'dnf') => {
     if (!user || !bookId) { toast.error('Giriş yapmalısınız'); return; }
@@ -210,20 +175,6 @@ const BookDetail = () => {
           </Button>
         </div>
 
-        {/* Admin Actions */}
-        {isAdmin && (
-          <div className="mt-3">
-            <Button
-              variant={activeSchedule ? "destructive" : "default"}
-              className={cn("w-full gap-2", !activeSchedule && "bg-forest hover:bg-forest/90")}
-              onClick={handleToggleClubBook}
-              disabled={addClubSchedule.isPending || deleteClubSchedule.isPending}
-            >
-              <Trophy className="w-4 h-4" />
-              {activeSchedule ? 'Kulüp Hedefinden Çıkar' : 'Kulüp Ortak Kitabı Yap'}
-            </Button>
-          </div>
-        )}
 
         {/* EPUB Download */}
         {book.epub_url && (

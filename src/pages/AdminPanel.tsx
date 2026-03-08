@@ -28,7 +28,6 @@ import { useIsAdmin, useGroupMembers, useAddUserRole, useRemoveUserRole } from '
 import { useInviteCodes, useCreateInviteCode, useDeactivateInviteCode } from '@/hooks/useInviteCodes';
 import { useCommunityLists, useUpdateBookList, usePendingListProposals } from '@/hooks/useBookLists';
 import { useApproveCommunityListItem, useRejectCommunityListItem } from '@/hooks/useBookListActions';
-import { usePendingClubBooks, useApproveClubBook, useRejectClubBook } from '@/hooks/useBooks';
 import Avatar from '@/components/Avatar';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -41,19 +40,16 @@ const AdminPanel = () => {
   const { data: members = [], isLoading: membersLoading } = useGroupMembers();
   const { data: inviteCodes = [], isLoading: codesLoading } = useInviteCodes();
   const { data: communityLists = [] } = useCommunityLists();
-  const { data: pendingBooks = [] } = usePendingClubBooks();
   const addRole = useAddUserRole();
   const removeRole = useRemoveUserRole();
   const createInviteCode = useCreateInviteCode();
   const deactivateCode = useDeactivateInviteCode();
   const updateList = useUpdateBookList();
-  const approveClubBook = useApproveClubBook();
-  const rejectClubBook = useRejectClubBook();
   const { data: pendingProposals = [] } = usePendingListProposals();
   const approveListItem = useApproveCommunityListItem();
   const rejectListItem = useRejectCommunityListItem();
 
-  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'lists' | 'books' | 'list-items'>('members');
+  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'lists' | 'list-items'>('members');
   const [isCreateCodeDialogOpen, setIsCreateCodeDialogOpen] = useState(false);
   const [newCodeMaxUses, setNewCodeMaxUses] = useState('');
 
@@ -127,24 +123,6 @@ const AdminPanel = () => {
     }
   };
 
-  const handleApproveBook = async (bookId: string) => {
-    try {
-      await approveClubBook.mutateAsync(bookId);
-      toast.success('Kitap kulüp kütüphanesine eklendi!');
-    } catch (error) {
-      toast.error('Kitap onaylanamadı');
-    }
-  };
-
-  const handleRejectBook = async (bookId: string) => {
-    try {
-      await rejectClubBook.mutateAsync(bookId);
-      toast.success('Kitap önerisi reddedildi');
-    } catch (error) {
-      toast.error('İşlem başarısız');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -166,7 +144,6 @@ const AdminPanel = () => {
           {[
             { id: 'members' as const, label: 'Üyeler', icon: Users, badge: members.length },
             { id: 'invites' as const, label: 'Davetler', icon: Link2, badge: inviteCodes.length },
-            { id: 'books' as const, label: 'Kitaplar', icon: BookOpen, badge: pendingBooks.length },
             { id: 'lists' as const, label: 'Listeler', icon: CheckCircle, badge: pendingLists.length },
             { id: 'list-items' as const, label: 'Liste İstekleri', icon: BookOpen, badge: pendingProposals.length },
           ].map(tab => (
@@ -334,59 +311,6 @@ const AdminPanel = () => {
                         </Button>
                       </div>
                     )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Books Tab - Pending club book approvals */}
-        {activeTab === 'books' && (
-          <div className="space-y-4">
-            <h2 className="font-serif font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              Onay Bekleyen Kitaplar ({pendingBooks.length})
-            </h2>
-
-            {pendingBooks.length === 0 ? (
-              <div className="text-center py-8 bg-card rounded-xl border-2 border-border">
-                <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">Onay bekleyen kitap yok</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {pendingBooks.map(book => (
-                  <div
-                    key={book.id}
-                    className="flex items-center gap-3 p-3 bg-card rounded-xl border-2 border-border"
-                  >
-                    <img
-                      src={book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
-                      alt={book.title}
-                      className="w-12 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{book.title}</p>
-                      <p className="text-xs text-muted-foreground truncate">{book.author}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleApproveBook(book.id)}
-                        disabled={approveClubBook.isPending}
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Onayla
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRejectBook(book.id)}
-                        disabled={rejectClubBook.isPending}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
                   </div>
                 ))}
               </div>

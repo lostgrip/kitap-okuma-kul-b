@@ -32,8 +32,7 @@ import { Label } from '@/components/ui/label';
 import BookCard from './BookCard';
 import CombinedBookSearchDialog from './CombinedBookSearchDialog';
 import MyLibrarySection from './library/MyLibrarySection';
-import ClubLibrarySection from './library/ClubLibrarySection';
-import { useBooks, useAddBook, useDeleteBook, useAddClubBook } from '@/hooks/useBooks';
+import { useBooks, useAddBook, useDeleteBook } from '@/hooks/useBooks';
 import { useBookLists } from '@/hooks/useBookLists';
 import { useAddBookToDefaultList, useAddBookToCustomList } from '@/hooks/useBookListActions';
 import { useClubSchedule } from '@/hooks/useClubSchedule';
@@ -50,13 +49,11 @@ const LibraryTab = () => {
   const { data: isAdmin } = useIsAdmin(user?.id);
   const { data: schedule = [] } = useClubSchedule();
   const addBook = useAddBook();
-  const addClubBook = useAddClubBook();
   const deleteBook = useDeleteBook();
   const addToDefaultList = useAddBookToDefaultList();
   const addToCustomList = useAddBookToCustomList();
   const { upload, isUploading } = useFileUpload();
 
-  const [activeSubTab, setActiveSubTab] = useState<'my' | 'all' | 'club'>('my');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
@@ -147,26 +144,21 @@ const LibraryTab = () => {
         added_by: user.id,
       };
 
-      let createdBook;
-      if (activeSubTab === 'club') {
-        createdBook = await addClubBook.mutateAsync(payload);
-      } else {
-        createdBook = await addBook.mutateAsync(payload);
+      let createdBook = await addBook.mutateAsync(payload);
 
-        // Add to selected destination list (skip if 'none')
-        if (selectedDestination !== 'none') {
-          const defaultTypes = ['want_to_read', 'reading', 'read', 'dnf'];
-          if (defaultTypes.includes(selectedDestination)) {
-            await addToDefaultList.mutateAsync({
-              bookId: createdBook.id,
-              listType: selectedDestination as 'want_to_read' | 'reading' | 'read' | 'dnf',
-            });
-          } else {
-            await addToCustomList.mutateAsync({
-              listId: selectedDestination,
-              bookId: createdBook.id,
-            });
-          }
+      // Add to selected destination list (skip if 'none')
+      if (selectedDestination !== 'none') {
+        const defaultTypes = ['want_to_read', 'reading', 'read', 'dnf'];
+        if (defaultTypes.includes(selectedDestination)) {
+          await addToDefaultList.mutateAsync({
+            bookId: createdBook.id,
+            listType: selectedDestination as 'want_to_read' | 'reading' | 'read' | 'dnf',
+          });
+        } else {
+          await addToCustomList.mutateAsync({
+            listId: selectedDestination,
+            bookId: createdBook.id,
+          });
         }
       }
 
@@ -218,46 +210,15 @@ const LibraryTab = () => {
         </p>
       </div>
 
-      {/* Sub-tabs */}
-      <div className="flex gap-2 mb-5 overflow-x-auto">
-        {[
-          { id: 'my' as const, label: 'Kütüphanem', icon: BookOpen },
-          { id: 'all' as const, label: 'Tüm Kitaplar', icon: BookText },
-          { id: 'club' as const, label: 'Kulüp Kütüphanesi', icon: Users },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveSubTab(tab.id)}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap',
-              activeSubTab === tab.id
-                ? 'bg-primary text-primary-foreground shadow-soft'
-                : 'bg-muted text-muted-foreground hover:bg-accent'
-            )}
-          >
-            {tab.icon && <tab.icon className="w-4 h-4" />}
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Main Content */}
+      <div className="space-y-12">
+        <MyLibrarySection searchQuery={searchQuery} />
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Kitap ara..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-12 h-12 bg-card border-0 shadow-soft rounded-xl text-base"
-        />
-      </div>
-
-      {/* Content based on tab */}
-      {activeSubTab === 'my' && <MyLibrarySection searchQuery={searchQuery} />}
-      {activeSubTab === 'club' && <ClubLibrarySection searchQuery={searchQuery} />}
-      {activeSubTab === 'all' && (
-        <>
+        {/* All Books Section */}
+        <div>
+          <h2 className="text-xl font-serif font-semibold text-foreground mb-4">
+            Tüm Kitaplar
+          </h2>
           <div className="grid grid-cols-2 gap-4">
             {filteredBooks.map((book) => (
               <div key={book.id} className="relative">
@@ -313,11 +274,7 @@ const LibraryTab = () => {
               <p className="text-muted-foreground">Kitap bulunamadı</p>
             </div>
           )}
-        </>
-      )}
-
-      {/* Add Book FAB */}
-      {(activeSubTab !== 'club' || isAdmin) && (
+        </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button
@@ -434,53 +391,51 @@ const LibraryTab = () => {
                   className="mt-1.5 bg-muted border-0 rounded-xl resize-none min-h-20" />
               </div>
 
-              {/* Destination Selection - Hidden if adding to club library */}
-              {activeSubTab !== 'club' && (
-                <div>
-                  <Label className="text-sm font-medium">Nereye Eklensin?</Label>
-                  <Select value={selectedDestination} onValueChange={setSelectedDestination}>
-                    <SelectTrigger className="mt-1.5 h-12 bg-muted border-0 rounded-xl">
-                      <SelectValue placeholder="Liste seçin" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">➖ Hiçbir yere ekleme</SelectItem>
-                      <SelectItem value="want_to_read">📚 Okumak İstiyorum</SelectItem>
-                      <SelectItem value="reading">📖 Okuyorum</SelectItem>
-                      <SelectItem value="read">✅ Okudum</SelectItem>
-                      <SelectItem value="dnf">❌ Yarıda Bıraktım</SelectItem>
-                      {userLists
-                        .filter(l => !l.is_default && !l.is_community)
-                        .map(list => (
-                          <SelectItem key={list.id} value={list.id}>
-                            📋 {list.name}
-                          </SelectItem>
-                        ))
-                      }
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              {/* Destination Selection */}
+              <div>
+                <Label className="text-sm font-medium">Nereye Eklensin?</Label>
+                <Select value={selectedDestination} onValueChange={setSelectedDestination}>
+                  <SelectTrigger className="mt-1.5 h-12 bg-muted border-0 rounded-xl">
+                    <SelectValue placeholder="Liste seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">➖ Hiçbir yere ekleme</SelectItem>
+                    <SelectItem value="want_to_read">📚 Okumak İstiyorum</SelectItem>
+                    <SelectItem value="reading">📖 Okuyorum</SelectItem>
+                    <SelectItem value="read">✅ Okudum</SelectItem>
+                    <SelectItem value="dnf">❌ Yarıda Bıraktım</SelectItem>
+                    {userLists
+                      .filter(l => !l.is_default && !l.is_community)
+                      .map(list => (
+                        <SelectItem key={list.id} value={list.id}>
+                          📋 {list.name}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
 
               <Button
                 onClick={handleAddBook}
                 className="w-full h-12 rounded-xl font-semibold mt-2"
-                disabled={addBook.isPending || addClubBook.isPending || addToDefaultList.isPending || isUploading || !user}
+                disabled={addBook.isPending || addToDefaultList.isPending || isUploading || !user}
               >
-                {!user ? 'Giriş yapmalısınız' : (addBook.isPending || addClubBook.isPending || addToDefaultList.isPending || isUploading) ? (
+                {!user ? 'Giriş yapmalısınız' : (addBook.isPending || addToDefaultList.isPending || isUploading) ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Ekleniyor...</>
                 ) : 'Kütüphaneye Ekle'}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
-      )}
 
-      {/* Combined Book Search Dialog */}
-      <CombinedBookSearchDialog
-        open={isSearchDialogOpen}
-        onOpenChange={setIsSearchDialogOpen}
-        onSelectBook={handleBookFromSearch}
-      />
+        {/* Combined Book Search Dialog */}
+        <CombinedBookSearchDialog
+          open={isSearchDialogOpen}
+          onOpenChange={setIsSearchDialogOpen}
+          onSelectBook={handleBookFromSearch}
+        />
+      </div>
     </div>
   );
 };

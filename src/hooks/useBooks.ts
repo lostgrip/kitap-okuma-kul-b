@@ -34,7 +34,6 @@ export const useBooks = () => {
       const { data, error } = await supabase
         .from('books')
         .select('*')
-        .is('club_status', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -214,47 +213,7 @@ export const useApproveClubBook = () => {
   });
 };
 
-export const useRejectClubBook = () => {
-  const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (bookId: string) => {
-      const { error } = await supabase
-        .from('books')
-        .update({ club_status: null })
-        .eq('id', bookId);
-
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-    },
-  });
-};
-
-export const useSetClubGoal = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (bookId: string) => {
-      // 1. Demote any current active_goal back to simply approved
-      await supabase
-        .from('books')
-        .update({ club_status: 'approved' })
-        .eq('club_status', 'active_goal');
-
-      // 2. Set the newly selected book as the active_goal
-      const { error } = await supabase
-        .from('books')
-        .update({ club_status: 'active_goal' })
-        .eq('id', bookId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-    },
-  });
-};
 
 export const useRemoveClubGoal = () => {
   const queryClient = useQueryClient();
