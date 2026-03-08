@@ -29,10 +29,12 @@ import { useIsAdmin, useGroupMembers, useAddUserRole, useRemoveUserRole } from '
 import { useInviteCodes, useCreateInviteCode, useDeactivateInviteCode } from '@/hooks/useInviteCodes';
 import { useCommunityLists, useUpdateBookList, usePendingListProposals } from '@/hooks/useBookLists';
 import { useApproveCommunityListItem, useRejectCommunityListItem } from '@/hooks/useBookListActions';
+import { useGroups, useCreateGroup } from '@/hooks/useGroups';
 import Avatar from '@/components/Avatar';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { GroupMember, UserRole } from '@/types';
+import { Textarea } from '@/components/ui/textarea';
 
 const AdminPanel = () => {
   const navigate = useNavigate();
