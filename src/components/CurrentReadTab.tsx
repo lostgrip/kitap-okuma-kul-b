@@ -25,8 +25,8 @@ const CurrentReadTab = () => {
   const navigate = useNavigate();
   const { data: books = [], isLoading: booksLoading } = useBooks();
   const { data: allProgress = [], isLoading: progressLoading } = useAllProgress();
-  const { data: goals = [] } = useGoals(user?.id);
-  const { data: logs = [] } = useReadingLog(user?.id || '');
+  const { data: _goals = [] } = useGoals(user?.id);
+  const { data: _logs = [] } = useReadingLog(user?.id || '');
   const { data: userBooks = [] } = useUserBooks(user?.id || '');
   const upsertProgress = useUpsertProgress();
   const deleteProgress = useDeleteProgress();
