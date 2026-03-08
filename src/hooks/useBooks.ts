@@ -34,6 +34,7 @@ export const useBooks = () => {
       const { data, error } = await supabase
         .from('books')
         .select('*')
+        .is('club_status', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -269,6 +270,27 @@ export const useRemoveClubGoal = () => {
       if (error) throw error;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+    },
+  });
+};
+
+export const useAddClubBook = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newBook: NewBook) => {
+      const { data, error } = await supabase
+        .from('books')
+        .insert({ ...newBook, club_status: 'approved' })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Book;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['books', 'club'] });
       queryClient.invalidateQueries({ queryKey: ['books'] });
     },
   });
