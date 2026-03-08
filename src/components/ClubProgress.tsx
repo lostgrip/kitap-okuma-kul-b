@@ -68,20 +68,23 @@ export const ClubProgress = () => {
 
     if (!activeBook || !progressData) return null;
 
+    const percentage = progressData.totalRequired > 0
+        ? Math.min(Math.round((progressData.totalRead / progressData.totalRequired) * 100), 100)
+        : 0;
+
     return (
         <div className="bg-card rounded-2xl p-5 shadow-card mb-6 border border-border/50">
             <h3 className="font-serif font-semibold text-sm mb-1 text-foreground flex items-center gap-2">
                 <Users className="w-4 h-4 text-primary" />
                 Kulübün Ortak Kitabı
             </h3>
-            <p className="text-xs text-muted-foreground mb-4">"{progressData.bookTitle}"</p>
+            <p className="text-xs text-muted-foreground mb-3">"{progressData.bookTitle}" — {progressData.memberCount} Üye</p>
 
-            <div className="space-y-2">
-                <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                    <span>Kolektif İlerleme ({progressData.memberCount} Üye)</span>
-                    <span>{progressData.totalRead} / {progressData.totalRequired} Sayfa</span>
-                </div>
-                <ProgressBar current={progressData.totalRead} total={progressData.totalRequired} size="sm" />
+            <div className="w-full bg-muted rounded-full overflow-hidden h-3">
+                <div
+                    className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${percentage}%` }}
+                />
             </div>
         </div>
     );
