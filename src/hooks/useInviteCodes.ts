@@ -31,30 +31,17 @@ export const useInviteCodes = () => {
 export const useValidateInviteCode = () => {
   return useMutation({
     mutationFn: async (inviteCode: string) => {
-      const { data, error } = await supabase
-        .from('group_invite_codes')
-        .select('*')
-        .eq('invite_code', inviteCode)
-        .eq('is_active', true)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('validate_invite_code', {
+        code: inviteCode,
+      });
 
       if (error) throw error;
-      
-      if (!data) {
+
+      if (!data || !data.valid) {
         throw new Error('Geçersiz davet kodu');
       }
 
-      // Check if expired
-      if (data.expires_at && new Date(data.expires_at) < new Date()) {
-        throw new Error('Bu davet kodunun süresi dolmuş');
-      }
-
-      // Check if max uses reached
-      if (data.max_uses && data.uses_count >= data.max_uses) {
-        throw new Error('Bu davet kodu kullanım limitine ulaşmış');
-      }
-
-      return data as InviteCode;
+      return data as { valid: boolean; group_code: string; code_id: string };
     },
   });
 };
