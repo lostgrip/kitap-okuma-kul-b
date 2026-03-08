@@ -1,7 +1,8 @@
-import { BookOpen, Users, Loader2, Plus } from 'lucide-react';
+import { Users, Loader2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useClubBooks } from '@/hooks/useBooks';
-import { useUpsertUserBook } from '@/hooks/useUserBooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import BookCard from '@/components/BookCard';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +14,7 @@ interface ClubLibrarySectionProps {
 const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
     const { user } = useAuth();
     const { data: clubBooks = [], isLoading } = useClubBooks();
-    const upsertUserBook = useUpsertUserBook();
+    const queryClient = useQueryClient();
 
     const filteredBooks = clubBooks.filter(
         (book) =>
@@ -21,20 +22,24 @@ const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
             book.author.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleAddToMyLibrary = async (bookId: string) => {
+    const handleAddToAllBooks = async (bookId: string) => {
         if (!user) {
             toast.error('Giriş yapmalısınız');
             return;
         }
 
         try {
-            await upsertUserBook.mutateAsync({
-                user_id: user.id,
-                book_id: bookId,
-                status: 'want_to_read',
-            });
-            toast.success('Kitap kütüphanene eklendi!');
-        } catch (error) {
+            const { error } = await supabase
+                .from('books')
+                .update({ club_status: null })
+                .eq('id', bookId);
+
+            if (error) throw error;
+
+            queryClient.invalidateQueries({ queryKey: ['books'] });
+            queryClient.invalidateQueries({ queryKey: ['club-books'] });
+            toast.success('Kitap Tüm Kitaplar\'a eklendi!');
+        } catch {
             toast.error('Kitap eklenirken hata oluştu');
         }
     };
@@ -66,11 +71,10 @@ const ClubLibrarySection = ({ searchQuery }: ClubLibrarySectionProps) => {
                             variant="outline"
                             size="sm"
                             className="w-full text-xs h-8 gap-1 rounded-lg"
-                            onClick={() => handleAddToMyLibrary(book.id)}
-                            disabled={upsertUserBook.isPending}
+                            onClick={() => handleAddToAllBooks(book.id)}
                         >
                             <Plus className="w-3.5 h-3.5" />
-                            Kütüphaneme Ekle
+                            Kütüphaneye Ekle
                         </Button>
                     </div>
                 </div>
