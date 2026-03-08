@@ -40,6 +40,14 @@ const statusConfig = {
   dnf: { label: 'Yarıda Bıraktım', icon: BookOpen, color: 'bg-muted text-muted-foreground border-border' },
 };
 
+// Map database status to UI status key
+const dbStatusToUiKey: Record<string, keyof typeof statusConfig> = {
+  want_to_read: 'want_to_read',
+  reading: 'reading',
+  completed: 'read',
+  paused: 'dnf',
+};
+
 const BookDetail = () => {
   const { bookId } = useParams<{ bookId: string }>();
   const navigate = useNavigate();
