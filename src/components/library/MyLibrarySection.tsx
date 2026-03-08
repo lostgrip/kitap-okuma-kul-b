@@ -228,7 +228,6 @@ const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
       {selectedListId && (
         <ListBooksView
           listId={selectedListId}
-          books={books}
           searchQuery={searchQuery}
         />
       )}
