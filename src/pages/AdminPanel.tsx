@@ -153,6 +153,7 @@ const AdminPanel = () => {
           {[
             { id: 'members' as const, label: 'Üyeler', icon: Users, badge: members.length },
             { id: 'invites' as const, label: 'Davetler', icon: Link2, badge: inviteCodes.length },
+            { id: 'groups' as const, label: 'Gruplar', icon: FolderPlus, badge: groups.length },
             { id: 'lists' as const, label: 'Listeler', icon: CheckCircle, badge: pendingLists.length },
             { id: 'list-items' as const, label: 'Liste İstekleri', icon: BookOpen, badge: pendingProposals.length },
           ].map(tab => (
