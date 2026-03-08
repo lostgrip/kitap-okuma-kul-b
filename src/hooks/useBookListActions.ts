@@ -1,46 +1,111 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useBookLists } from './useBookLists';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Hook to add a book to a user's default list by type (want_to_read, reading, read, dnf).
- * Now syncs primarily via the reading_progress table; database triggers handle list movement.
+ * Keeps user_books, reading_progress and book_list_items explicitly in sync.
  */
 export const useAddBookToDefaultList = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const { data: lists = [] } = useBookLists(user?.id);
 
   return useMutation({
     mutationFn: async ({ bookId, listType }: { bookId: string; listType: 'want_to_read' | 'reading' | 'read' | 'dnf' }) => {
       if (!user) throw new Error('Not authenticated');
 
-      const statusMap: Record<string, 'want_to_read' | 'reading' | 'completed' | 'paused'> = {
+      const now = new Date().toISOString();
+      const statusMap: Record<'want_to_read' | 'reading' | 'read' | 'dnf', 'want_to_read' | 'reading' | 'completed' | 'paused'> = {
         want_to_read: 'want_to_read',
         reading: 'reading',
         read: 'completed',
         dnf: 'paused',
       };
 
-      // We now drive the state via reading_progress.
-      // The database trigger tr_sync_book_list will handle adding the book 
-      // to the correct list and removing it from others.
-      const { error } = await supabase
-        .from('reading_progress')
-        .upsert({
-          user_id: user.id,
-          book_id: bookId,
-          status: statusMap[listType],
-          started_at: listType === 'reading' ? new Date().toISOString() : undefined,
-          completed_at: listType === 'read' ? new Date().toISOString() : undefined,
-        }, { onConflict: 'user_id,book_id' });
+      const mappedStatus = statusMap[listType];
 
-      if (error) throw error;
+      const { data: defaultLists, error: defaultListsError } = await supabase
+        .from('book_lists')
+        .select('id, list_type')
+        .eq('user_id', user.id)
+        .eq('is_default', true);
+
+      if (defaultListsError) throw defaultListsError;
+
+      const targetList = defaultLists?.find((list) => list.list_type === listType);
+      if (!targetList) {
+        throw new Error('Varsayılan liste bulunamadı');
+      }
+
+      const otherDefaultListIds = (defaultLists ?? [])
+        .filter((list) => list.id !== targetList.id)
+        .map((list) => list.id);
+
+      const { error: userBookError } = await supabase
+        .from('user_books')
+        .upsert(
+          {
+            user_id: user.id,
+            book_id: bookId,
+            status: mappedStatus,
+            started_at: listType === 'reading' ? now : null,
+            completed_at: listType === 'read' ? now : null,
+          },
+          { onConflict: 'user_id,book_id' }
+        );
+
+      if (userBookError) throw userBookError;
+
+      const { error: progressError } = await supabase
+        .from('reading_progress')
+        .upsert(
+          {
+            user_id: user.id,
+            book_id: bookId,
+            status: mappedStatus,
+            started_at: listType === 'reading' ? now : null,
+            completed_at: listType === 'read' ? now : null,
+          },
+          { onConflict: 'user_id,book_id' }
+        );
+
+      if (progressError) throw progressError;
+
+      if (otherDefaultListIds.length > 0) {
+        const { error: clearOtherListsError } = await supabase
+          .from('book_list_items')
+          .delete()
+          .eq('book_id', bookId)
+          .in('list_id', otherDefaultListIds);
+
+        if (clearOtherListsError) throw clearOtherListsError;
+      }
+
+      const { data: existingTargetItem, error: existingTargetItemError } = await supabase
+        .from('book_list_items')
+        .select('id')
+        .eq('list_id', targetList.id)
+        .eq('book_id', bookId)
+        .maybeSingle();
+
+      if (existingTargetItemError) throw existingTargetItemError;
+
+      if (!existingTargetItem) {
+        const { error: insertTargetListError } = await supabase
+          .from('book_list_items')
+          .insert({
+            list_id: targetList.id,
+            book_id: bookId,
+          });
+
+        if (insertTargetListError) throw insertTargetListError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['book_list_items'] });
       queryClient.invalidateQueries({ queryKey: ['reading_progress'] });
+      queryClient.invalidateQueries({ queryKey: ['user_books'] });
+      queryClient.invalidateQueries({ queryKey: ['book_in_lists'] });
     },
   });
 };
