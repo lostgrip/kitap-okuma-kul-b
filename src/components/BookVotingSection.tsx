@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ThumbsUp, ThumbsDown, Crown, Plus, Trash2, Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,8 @@ import { useBookVotes, useAddBookVote, useRemoveBookVote } from '@/hooks/useBook
 import { useVotingNominations, useAddNomination, useRemoveNomination } from '@/hooks/useVotingNominations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfiles } from '@/hooks/useProfiles';
-import { useGoogleBooks, GoogleBook } from '@/hooks/useGoogleBooks';
+import { useUserBooks } from '@/hooks/useUserBooks';
+import { useBooks } from '@/hooks/useBooks';
 import { toast } from 'sonner';
 
 const BookVotingSection = () => {
@@ -20,11 +21,12 @@ const BookVotingSection = () => {
   const { data: votes = [] } = useBookVotes();
   const { data: nominations = [], isLoading } = useVotingNominations();
   const { data: profiles = [] } = useProfiles();
+  const { data: userBooks = [] } = useUserBooks(user?.id);
+  const { data: allBooks = [] } = useBooks();
   const addVote = useAddBookVote();
   const removeVote = useRemoveBookVote();
   const addNomination = useAddNomination();
   const removeNomination = useRemoveNomination();
-  const { searchBooks, results, isSearching, getCoverUrl, clearResults } = useGoogleBooks();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,6 +34,21 @@ const BookVotingSection = () => {
   const userProfile = profiles.find(p => p.user_id === user?.id);
   const userNomination = nominations.find(n => n.user_id === user?.id);
   const effectiveGroupCode = userProfile?.group_code || 'ZENHUB';
+
+  // Get user's library books with details
+  const myLibraryBooks = useMemo(() => {
+    const myBookIds = userBooks.map(ub => ub.book_id);
+    return allBooks.filter(b => myBookIds.includes(b.id));
+  }, [userBooks, allBooks]);
+
+  // Filter by search query
+  const filteredBooks = useMemo(() => {
+    if (!searchQuery.trim()) return myLibraryBooks;
+    const q = searchQuery.toLowerCase();
+    return myLibraryBooks.filter(
+      b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)
+    );
+  }, [myLibraryBooks, searchQuery]);
 
   // Tally votes per nomination
   const voteTally = nominations
@@ -43,28 +60,20 @@ const BookVotingSection = () => {
     }))
     .sort((a, b) => b.count - a.count);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      searchBooks(searchQuery);
-    }
-  };
-
-  const handleSelectBook = async (book: GoogleBook) => {
+  const handleSelectBook = async (book: typeof allBooks[0]) => {
     if (!user) return;
 
     try {
       await addNomination.mutateAsync({
         user_id: user.id,
-        book_title: book.volumeInfo.title,
-        book_author: book.volumeInfo.authors?.join(', ') || 'Bilinmeyen',
-        book_cover_url: getCoverUrl(book),
+        book_title: book.title,
+        book_author: book.author,
+        book_cover_url: book.cover_url,
         group_code: effectiveGroupCode,
       });
       toast.success('Kitap aday gösterildi!');
       setIsDialogOpen(false);
       setSearchQuery('');
-      clearResults();
     } catch {
       toast.error('Zaten bir adayınız var. Önce mevcut adayı silin.');
     }
@@ -215,26 +224,30 @@ const BookVotingSection = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-serif">Kitap Aday Göster</DialogTitle>
+            <DialogTitle className="font-serif">Kütüphanenizden Kitap Seçin</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSearch} className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-2">
             <Input
               placeholder="Kitap adı veya yazar ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1"
             />
-            <Button type="submit" disabled={isSearching}>
-              {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            </Button>
-          </form>
+            <div className="flex items-center justify-center w-10">
+              <Search className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
 
           <div className="max-h-80 overflow-y-auto space-y-2 mt-4">
-            {results.length === 0 && !isSearching && searchQuery && (
-              <p className="text-center text-muted-foreground text-sm py-4">Sonuç bulunamadı</p>
+            {filteredBooks.length === 0 && (
+              <p className="text-center text-muted-foreground text-sm py-4">
+                {myLibraryBooks.length === 0
+                  ? 'Kütüphanenizde kitap yok. Önce kitap ekleyin.'
+                  : 'Aramanızla eşleşen kitap bulunamadı.'}
+              </p>
             )}
-            {results.map((book) => (
+            {filteredBooks.map((book) => (
               <button
                 key={book.id}
                 onClick={() => handleSelectBook(book)}
@@ -242,10 +255,10 @@ const BookVotingSection = () => {
                 className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent transition-colors text-left"
               >
                 <div className="w-10 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                  {getCoverUrl(book) ? (
+                  {book.cover_url ? (
                     <img
-                      src={getCoverUrl(book)!}
-                      alt={book.volumeInfo.title}
+                      src={book.cover_url}
+                      alt={book.title}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -255,13 +268,8 @@ const BookVotingSection = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{book.volumeInfo.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {book.volumeInfo.authors?.join(', ') || 'Bilinmeyen'}
-                  </p>
-                  {book.volumeInfo.pageCount && (
-                    <p className="text-xs text-muted-foreground/70">{book.volumeInfo.pageCount} sayfa</p>
-                  )}
+                  <p className="font-medium text-sm truncate">{book.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{book.author}</p>
                 </div>
                 <Plus className="w-4 h-4 text-primary flex-shrink-0" />
               </button>
