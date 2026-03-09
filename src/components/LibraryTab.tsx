@@ -399,7 +399,7 @@ const LibraryTab = () => {
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="space-y-6 overflow-hidden"
+                    className="space-y-6 w-full max-w-full overflow-x-hidden overflow-y-visible px-1"
                   >
                     {/* Cover Focal Point */}
                     <div className="flex justify-center mb-8 relative pt-4">
