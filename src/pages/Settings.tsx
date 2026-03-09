@@ -217,7 +217,7 @@ const Settings = () => {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
             <button
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate('/privacy')}
               className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-center gap-3">
