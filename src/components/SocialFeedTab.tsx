@@ -46,10 +46,7 @@ const SocialFeedTab = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Poll state
   const [pollOptions, setPollOptions] = useState(['', '']);
-
-  // Recommendation dialog
   const [isRecommendDialogOpen, setIsRecommendDialogOpen] = useState(false);
 
   const userProgress = allProgress.find(
@@ -57,7 +54,6 @@ const SocialFeedTab = () => {
   );
   const userCurrentPage = userProgress?.current_page || 0;
 
-  // Books the user has in their library
   const myBookIds = userBooks.map(ub => ub.book_id);
   const myBooks = books.filter(b => myBookIds.includes(b.id));
 
@@ -163,34 +159,34 @@ const SocialFeedTab = () => {
 
   if (isLoading) {
     return (
-      <div className="px-4 pt-6 pb-24 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="px-5 pt-8 pb-24 flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="px-4 pt-6 pb-24 animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-2xl font-serif font-bold text-foreground">Kitap Kulübü Akışı</h1>
-        <p className="text-muted-foreground mt-1">Düşüncelerinizi ve keşiflerinizi paylaşın</p>
+    <div className="px-5 pt-8 pb-24 animate-fade-in">
+      <div className="mb-8">
+        <h1 className="text-xl font-serif font-bold text-foreground">Kitap Kulübü Akışı</h1>
+        <p className="text-muted-foreground mt-1 text-sm">Düşüncelerinizi ve keşiflerinizi paylaşın</p>
       </div>
 
       {/* Quick Actions */}
       {!isComposing && (
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-3 mb-6">
           <button
             onClick={() => setIsComposing(true)}
-            className="flex-1 bg-card rounded-2xl p-4 shadow-soft flex items-center gap-3 text-left hover:shadow-card transition-shadow"
+            className="flex-1 bg-card rounded-2xl p-4 shadow-card border border-border/40 flex items-center gap-3 text-left hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
           >
-            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
-              <Send className="w-5 h-5 text-primary" />
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+              <Send className="w-4 h-4 text-primary" />
             </div>
             <span className="text-muted-foreground text-sm">Bir güncelleme paylaşın...</span>
           </button>
           <button
             onClick={() => setIsRecommendDialogOpen(true)}
-            className="bg-card rounded-2xl p-4 shadow-soft flex items-center justify-center hover:shadow-card transition-shadow"
+            className="bg-card rounded-2xl p-4 shadow-card border border-border/40 flex items-center justify-center hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
             title="Kitap Öner"
           >
             <BookOpen className="w-5 h-5 text-primary" />
@@ -200,7 +196,7 @@ const SocialFeedTab = () => {
 
       {/* Compose Card */}
       {isComposing && (
-        <div className="bg-card rounded-2xl p-4 shadow-card mb-6 animate-fade-in">
+        <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40 mb-6 animate-scale-in">
           <div className="flex gap-2 mb-4 flex-wrap">
             {[
               { type: 'update' as const, icon: MessageSquare, label: 'Güncelleme' },
@@ -212,11 +208,13 @@ const SocialFeedTab = () => {
                 key={item.type}
                 onClick={() => setPostType(item.type)}
                 className={cn(
-                  'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all',
-                  postType === item.type ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
+                  postType === item.type
+                    ? 'bg-primary text-primary-foreground shadow-soft'
+                    : 'bg-muted text-muted-foreground hover:bg-accent'
                 )}
               >
-                <item.icon className="w-4 h-4" />
+                <item.icon className="w-3.5 h-3.5" />
                 {item.label}
               </button>
             ))}
@@ -231,7 +229,7 @@ const SocialFeedTab = () => {
             }
             value={newPostContent}
             onChange={(e) => setNewPostContent(e.target.value)}
-            className="min-h-24 bg-muted border-0 rounded-xl resize-none mb-3"
+            className="min-h-24 bg-muted/50 border-0 rounded-xl resize-none mb-3 text-sm"
           />
 
           {/* Poll Options */}
@@ -247,7 +245,7 @@ const SocialFeedTab = () => {
                       newOptions[index] = e.target.value;
                       setPollOptions(newOptions);
                     }}
-                    className="bg-muted border-0 rounded-xl"
+                    className="bg-muted/50 border-0 rounded-xl text-sm"
                   />
                   {pollOptions.length > 2 && (
                     <Button variant="ghost" size="icon" onClick={() => setPollOptions(pollOptions.filter((_, i) => i !== index))}>
@@ -257,7 +255,7 @@ const SocialFeedTab = () => {
                 </div>
               ))}
               {pollOptions.length < 4 && (
-                <Button variant="outline" size="sm" onClick={() => setPollOptions([...pollOptions, ''])} className="w-full">
+                <Button variant="outline" size="sm" onClick={() => setPollOptions([...pollOptions, ''])} className="w-full text-xs">
                   Seçenek Ekle
                 </Button>
               )}
@@ -267,16 +265,16 @@ const SocialFeedTab = () => {
           {/* Image Preview */}
           {imagePreview && (
             <div className="relative mb-3 inline-block">
-              <img src={imagePreview} alt="Önizleme" className="w-32 h-32 object-cover rounded-xl border-2 border-border" />
-              <button onClick={handleRemoveImage} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+              <img src={imagePreview} alt="Önizleme" className="w-28 h-28 object-cover rounded-xl" />
+              <button onClick={handleRemoveImage} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-soft">
                 <X className="w-3 h-3" />
               </button>
             </div>
           )}
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 pt-1">
             <Select value={selectedBookId} onValueChange={setSelectedBookId}>
-              <SelectTrigger className="w-40 h-10 bg-muted border-0 rounded-lg text-sm">
+              <SelectTrigger className="w-36 h-9 bg-muted/50 border-0 rounded-lg text-xs">
                 <SelectValue placeholder="Kitap seçin" />
               </SelectTrigger>
               <SelectContent>
@@ -287,21 +285,21 @@ const SocialFeedTab = () => {
             </Select>
 
             {postType !== 'poll' && (
-              <label className="cursor-pointer p-2 rounded-lg hover:bg-muted transition-colors">
+              <label className="cursor-pointer p-2 rounded-lg hover:bg-muted transition-colors duration-200">
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
-                <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                <ImagePlus className="w-4 h-4 text-muted-foreground" />
               </label>
             )}
 
             <div className="flex-1" />
-            <Button variant="ghost" onClick={() => { setIsComposing(false); handleRemoveImage(); setPostType('update'); }} className="text-muted-foreground">
+            <Button variant="ghost" size="sm" onClick={() => { setIsComposing(false); handleRemoveImage(); setPostType('update'); }} className="text-muted-foreground text-xs">
               İptal
             </Button>
-            <Button onClick={handlePost} className="rounded-xl" disabled={addFeedPost.isPending || isUploading}>
+            <Button size="sm" onClick={handlePost} className="rounded-xl text-xs" disabled={addFeedPost.isPending || isUploading}>
               {(addFeedPost.isPending || isUploading) ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <><Send className="w-4 h-4 mr-2" />Paylaş</>
+                <><Send className="w-3.5 h-3.5 mr-1.5" />Paylaş</>
               )}
             </Button>
           </div>
@@ -314,26 +312,26 @@ const SocialFeedTab = () => {
           <DialogHeader>
             <DialogTitle className="font-serif">Kütüphanenizden Kitap Önerin</DialogTitle>
           </DialogHeader>
-          <div className="space-y-2 mt-4 max-h-80 overflow-y-auto">
+          <div className="space-y-1 mt-4 max-h-80 overflow-y-auto">
             {myBooks.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">Kütüphanenizde kitap yok</p>
+              <p className="text-muted-foreground text-center py-8 text-sm">Kütüphanenizde kitap yok</p>
             ) : (
               myBooks.map(book => (
                 <button
                   key={book.id}
                   onClick={() => handleRecommendBook(book)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent transition-all duration-200 text-left group"
                 >
                   <img
                     src={book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
                     alt={book.title}
-                    className="w-10 h-14 object-cover rounded-lg"
+                    className="w-10 h-14 object-cover rounded-lg shadow-soft"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{book.title}</p>
                     <p className="text-xs text-muted-foreground">{book.author}</p>
                   </div>
-                  <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
+                  <BookOpen className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
                 </button>
               ))
             )}
@@ -342,20 +340,28 @@ const SocialFeedTab = () => {
       </Dialog>
 
       {/* Feed */}
-      <PinnedAnnouncement />
-      <BookVotingSection />
-      {posts.length === 0 ? (
-        <div className="bg-card rounded-2xl p-8 shadow-soft text-center">
-          <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">Henüz gönderi yok. İlk gönderiyi siz paylaşın!</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {posts.map((post) => (
-            <FeedPost key={post.id} post={getTransformedPost(post)} userCurrentPage={userCurrentPage} />
-          ))}
-        </div>
-      )}
+      <div className="space-y-4">
+        <PinnedAnnouncement />
+        <BookVotingSection />
+        {posts.length === 0 ? (
+          <div className="bg-card rounded-2xl p-10 shadow-card border border-border/40 text-center">
+            <MessageSquare className="w-10 h-10 mx-auto text-muted-foreground/25 mb-3" />
+            <p className="text-muted-foreground text-sm">Henüz gönderi yok. İlk gönderiyi siz paylaşın!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {posts.map((post, index) => (
+              <div
+                key={post.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }}
+              >
+                <FeedPost post={getTransformedPost(post)} userCurrentPage={userCurrentPage} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

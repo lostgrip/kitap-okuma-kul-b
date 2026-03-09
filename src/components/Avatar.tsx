@@ -17,7 +17,7 @@ const Avatar = ({ src, name, size = 'md', className }: AvatarProps) => {
   return (
     <div
       className={cn(
-        'rounded-full overflow-hidden bg-accent border-2 border-background shadow-soft',
+        'rounded-full overflow-hidden bg-muted ring-2 ring-background',
         sizes[size],
         className
       )}
