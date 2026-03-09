@@ -1,4 +1,4 @@
-import { Bell, BookOpen } from 'lucide-react';
+import { Bell, SwatchBook } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadNotificationCount } from '@/hooks/useNotifications';
@@ -17,8 +17,8 @@ const TopNav = () => {
           onClick={() => navigate('/')}
           className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           
-          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-xs">
-            <BookOpen className="w-5 h-5 text-primary-foreground" />
+          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-soft">
+            <SwatchBook className="w-5 h-5 text-primary-foreground" />
           </div>
           <span className="font-serif text-2xl font-extrabold text-center">Kitap İmecesi
  </span>
