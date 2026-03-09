@@ -109,7 +109,24 @@ const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
   const [newListName, setNewListName] = useState('');
 
   const myLists = allLists.filter(list => !list.is_community);
-  const defaultLists = myLists.filter(list => list.is_default);
+
+  // Deduplicate default lists by list_type to handle potential DB duplicates
+  // Priority given to the list matching the user's current group_code
+  const defaultLists = myLists
+    .filter(list => list.is_default)
+    .sort((a, b) => {
+      if (a.group_code === profile?.group_code && b.group_code !== profile?.group_code) return -1;
+      if (b.group_code === profile?.group_code && a.group_code !== profile?.group_code) return 1;
+      // Further prioritize newer lists if both match or neither matches
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    })
+    .reduce((acc, current) => {
+      if (!acc.find(item => item.list_type === current.list_type)) {
+        acc.push(current);
+      }
+      return acc;
+    }, [] as typeof allLists);
+
   const customLists = myLists.filter(list => !list.is_default);
 
   const handleCreateList = async () => {
