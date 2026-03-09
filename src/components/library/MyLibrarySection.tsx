@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Plus, BookOpen, Clock, Check, X, List, Loader2, Trash2, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -283,8 +283,7 @@ interface ListCardProps {
 }
 
 const ListCard = ({ list, isSelected, onClick }: ListCardProps) => {
-  const { data: items = [] } = useBookListItems(list.id);
-  const bookCount = items.length;
+  const bookCount = list.book_list_items?.[0]?.count || 0;
 
   return (
     <button
@@ -329,9 +328,14 @@ const ListBooksView = ({ listId, searchQuery }: Omit<ListBooksViewProps, 'books'
   const { data: schedule = [] } = useClubSchedule();
 
   // Fetch ALL books that are in this list (including club books)
-  const bookIds = items.map(item => item.book_id);
+  const queryKeySuffix = useMemo(() => {
+    return items.map(item => item.book_id).sort().join(',');
+  }, [items]);
+
+  const bookIds = useMemo(() => items.map(item => item.book_id), [items]);
+
   const { data: listBooks = [] } = useQuery({
-    queryKey: ['books', 'by-ids', bookIds.sort().join(',')],
+    queryKey: ['books', 'by-ids', queryKeySuffix],
     queryFn: async () => {
       if (bookIds.length === 0) return [];
       const { data, error } = await supabase

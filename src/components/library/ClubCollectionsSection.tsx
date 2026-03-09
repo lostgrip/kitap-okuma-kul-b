@@ -394,8 +394,7 @@ interface CommunityListCardProps {
 }
 
 const CommunityListCard = ({ list, isSelected, onClick }: CommunityListCardProps) => {
-  const { data: items = [] } = useBookListItems(list.id);
-  const bookCount = items.length;
+  const bookCount = list.book_list_items?.[0]?.count || 0;
 
   return (
     <button

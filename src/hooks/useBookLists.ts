@@ -13,6 +13,7 @@ export interface BookList {
   list_type: 'want_to_read' | 'reading' | 'read' | 'dnf' | 'custom';
   created_at: string;
   updated_at: string;
+  book_list_items?: [{ count: number }];
 }
 
 export interface BookListItem {
@@ -26,7 +27,7 @@ export const useBookLists = (userId?: string) => {
   return useQuery({
     queryKey: ['book_lists', userId],
     queryFn: async () => {
-      let query = supabase.from('book_lists').select('*').order('created_at', { ascending: true });
+      let query = supabase.from('book_lists').select('*, book_list_items(count)').order('created_at', { ascending: true });
 
       if (userId) {
         query = query.eq('user_id', userId);
@@ -46,7 +47,7 @@ export const useCommunityLists = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('book_lists')
-        .select('*')
+        .select('*, book_list_items(count)')
         .eq('is_community', true)
         .order('created_at', { ascending: false });
 
