@@ -262,7 +262,7 @@ const LibraryTab = () => {
             <h2 className="text-xl font-serif font-semibold text-foreground mb-4">Tüm Kitaplar</h2>
             <div className="grid grid-cols-2 gap-4">
               {filteredBooks.map((book) => (
-                <div key={book.id} className="relative">
+                <div key={book.id} className="relative h-full flex flex-col">
                   <BookCard
                     book={{
                       id: book.id,
@@ -271,9 +271,9 @@ const LibraryTab = () => {
                       total_pages: book.page_count,
                       cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
                     }}
-                    size="md"
+                    size="full"
                     isClubBook={activeClubBookIds.includes(book.id)}
-                    className="bg-card p-3 rounded-xl shadow-soft"
+                    className="bg-card p-3 rounded-xl shadow-soft flex-1"
                   />
                   {(isAdmin || book.added_by === user?.id) && (
                     <div className="absolute top-2 right-2 z-10">

@@ -379,7 +379,7 @@ const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
         const isOwner = book.added_by === user?.id;
 
         return (
-          <div key={book.id} className="relative flex flex-col gap-2">
+          <div key={book.id} className="relative flex flex-col gap-2 h-full">
             <BookCard
               book={{
                 id: book.id,
@@ -388,9 +388,9 @@ const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
                 total_pages: book.page_count,
                 cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
               }}
-              size="md"
+              size="full"
               isClubBook={activeClubBookIds.includes(book.id)}
-              className="bg-stone-50 dark:bg-stone-900/50 p-3 rounded-2xl shadow-sm hover:-translate-y-0.5 transition-transform duration-500"
+              className="bg-stone-50 dark:bg-stone-900/50 p-3 rounded-2xl shadow-sm hover:-translate-y-0.5 transition-transform duration-500 flex-1"
             />
 
             {/* VibeBookshelf: His Etiketi */}

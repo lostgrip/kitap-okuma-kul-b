@@ -457,18 +457,19 @@ const CollectionBooksView = ({ listId, books, searchQuery }: CollectionBooksView
   return (
     <div className="grid grid-cols-2 gap-4">
       {filteredBooks.map(book => (
-        <BookCard
-          key={book.id}
-          book={{
-            id: book.id,
-            title: book.title,
-            author: book.author,
-            total_pages: book.page_count,
-            cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
-          }}
-          size="md"
-          className="bg-card p-3 rounded-xl shadow-soft"
-        />
+        <div key={book.id} className="relative h-full flex flex-col">
+          <BookCard
+            book={{
+              id: book.id,
+              title: book.title,
+              author: book.author,
+              total_pages: book.page_count,
+              cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
+            }}
+            size="full"
+            className="bg-card p-3 rounded-xl shadow-soft flex-1"
+          />
+        </div>
       ))}
     </div>
   );

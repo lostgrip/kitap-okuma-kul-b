@@ -17,10 +17,14 @@ const TabFallback = () => (
 );
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('current');
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    const savedTab = sessionStorage.getItem('activeTab') as Tab | null;
+    return savedTab || 'current';
+  });
 
   const handleTabChange = useCallback((tab: Tab) => {
     setActiveTab(tab);
+    sessionStorage.setItem('activeTab', tab);
   }, []);
 
   return (

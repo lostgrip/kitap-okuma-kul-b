@@ -13,28 +13,30 @@ interface BookCardProps {
     total_pages?: number;
     owner_id?: string;
   };
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'full';
   showOwner?: boolean;
   ownerName?: string;
   isClubBook?: boolean;
   className?: string;
 }
 
-const COVER_WIDTHS: Record<string, number> = { sm: 120, md: 200, lg: 280 };
+const COVER_WIDTHS: Record<string, number> = { sm: 120, md: 200, lg: 280, full: 300 };
 
 const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClubBook = false, className }: BookCardProps) => {
   const navigate = useNavigate();
 
   const sizes = {
-    sm: 'w-16 h-24',
-    md: 'w-24 h-36',
-    lg: 'w-32 h-48',
+    sm: 'w-16 h-24 shrink-0',
+    md: 'w-24 h-36 shrink-0',
+    lg: 'w-32 h-48 shrink-0',
+    full: 'w-full aspect-[2/3] h-auto shrink-0',
   };
 
   const textSizes = {
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-base',
+    full: 'text-sm',
   };
 
   return (
@@ -72,6 +74,7 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
         <h4
           className={cn(
             'font-serif font-semibold text-foreground line-clamp-2 leading-snug',
+            size === 'full' && 'min-h-[2.5rem]',
             textSizes[size]
           )}
         >

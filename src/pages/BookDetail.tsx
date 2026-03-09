@@ -82,7 +82,7 @@ const BookDetail = () => {
   if (!book) {
     return (
       <div className="min-h-screen bg-background p-4">
-        <Button variant="ghost" onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/')}>
+        <Button variant="ghost" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Geri
         </Button>
         <div className="text-center py-16">
@@ -104,7 +104,7 @@ const BookDetail = () => {
     <div className="min-h-screen bg-background pb-20 max-w-md mx-auto relative shadow-2xl">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between max-w-md mx-auto">
-        <Button variant="ghost" size="sm" onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/')} className="gap-2">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2">
           <ArrowLeft className="w-4 h-4" />
           Geri
         </Button>
