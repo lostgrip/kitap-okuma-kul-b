@@ -7,7 +7,6 @@ export const DailyCheckIns = () => {
     const { data: activeReaders = [], isLoading } = useQuery({
         queryKey: ['daily_checkins'],
         queryFn: async () => {
-            // Get today's start
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
@@ -18,9 +17,7 @@ export const DailyCheckIns = () => {
 
             if (logsError) throw logsError;
 
-            // Unique user ids who read today
             const userIds = Array.from(new Set(logs.map(l => l.user_id)));
-
             if (userIds.length === 0) return [];
 
             const { data: profiles, error: profilesError } = await supabase
@@ -29,17 +26,16 @@ export const DailyCheckIns = () => {
                 .in('id', userIds);
 
             if (profilesError) throw profilesError;
-
             return profiles;
         },
-        refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes instead of every minute
+        refetchInterval: 5 * 60 * 1000,
         staleTime: 3 * 60 * 1000,
     });
 
     if (isLoading) return null;
 
     return (
-        <div className="bg-gradient-to-br from-forest-light/5 to-forest/5 rounded-2xl p-5 shadow-soft mb-6 border border-forest/10">
+        <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40 mb-6">
             <h3 className="font-serif font-semibold text-sm mb-3 text-forest flex items-center gap-2">
                 <Leaf className="w-4 h-4" />
                 Bugün Okuyanlar
@@ -53,8 +49,8 @@ export const DailyCheckIns = () => {
                                 name={reader.display_name || reader.username || 'Kullanıcı'}
                                 size="sm"
                             />
-                            <div className="absolute -bottom-1 -right-1 bg-background rounded-full p-0.5 shadow-sm border border-border">
-                                <Leaf className="w-3 h-3 text-forest" />
+                            <div className="absolute -bottom-0.5 -right-0.5 bg-background rounded-full p-0.5 shadow-sm">
+                                <Leaf className="w-2.5 h-2.5 text-forest" />
                             </div>
                         </div>
                     ))}

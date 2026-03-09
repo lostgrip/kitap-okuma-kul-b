@@ -2,112 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fonts are loaded via <link> in index.html for preconnect + single request. */
-
 @layer base {
   :root {
-    /* Zen, minimalist habit tracker palette */
     --background: 40 20% 97%;
-    /* #F9F8F6 Ivory */
-    --foreground: 0 0% 17%;
-    /* #2C2C2C Dark gray */
+    --foreground: 0 0% 15%;
 
     --card: 0 0% 100%;
-    /* Pure white for cards to lift slightly */
-    --card-foreground: 0 0% 17%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 17%;
+    --popover-foreground: 0 0% 15%;
 
-    /* Sage green primary - calming */
-    --primary: 140 11% 33%;
-    /* #4A5D4E Sage green */
+    --primary: 140 14% 34%;
     --primary-foreground: 0 0% 100%;
 
-    /* Soft earthy secondary */
-    --secondary: 40 15% 90%;
-    /* #EBE8E3 Warm light gray */
-    --secondary-foreground: 0 0% 17%;
+    --secondary: 40 15% 91%;
+    --secondary-foreground: 0 0% 15%;
 
-    /* Muted spaces */
-    --muted: 140 11% 94%;
-    /* Very light sage */
-    --muted-foreground: 140 5% 45%;
+    --muted: 140 8% 94%;
+    --muted-foreground: 140 5% 42%;
 
-    /* Accent */
     --accent: 40 20% 93%;
-    /* Soft warm hue */
-    --accent-foreground: 140 11% 33%;
+    --accent-foreground: 140 14% 34%;
 
-    --destructive: 13 45% 60%;
-    /* Soft terracotta */
+    --destructive: 0 60% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 15% 85%;
-    --input: 40 15% 85%;
-    --ring: 140 11% 33%;
+    --border: 40 12% 88%;
+    --input: 40 12% 88%;
+    --ring: 140 14% 34%;
 
-    --radius: 1rem;
-    /* Softer, rounder corners */
+    --radius: 0.75rem;
 
-    /* Custom tokens for habits */
+    /* Custom tokens */
     --cream: 40 40% 95%;
     --warm-sand: 35 35% 88%;
     --forest: 150 20% 35%;
     --forest-light: 150 20% 45%;
     --moss: 140 25% 75%;
-    --terracotta: 20 50% 60%;
+    --terracotta: 15 55% 55%;
     --amber: 40 80% 65%;
 
-    /* Soft Gradients */
-    --gradient-warm: linear-gradient(135deg, hsl(40 20% 97%), hsl(35 25% 93%));
-    --gradient-forest: linear-gradient(135deg, hsl(140 11% 33%), hsl(140 11% 40%));
-    --gradient-sunset: linear-gradient(135deg, hsl(35 40% 94%), hsl(20 40% 90%));
-
-    /* Very soft shadows (Zen) */
-    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.02);
-    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.04);
-    --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.06);
-
-    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-    --font-serif: 'Lora', 'Merriweather', ui-serif, Georgia, serif;
-    --font-mono: ui-monospace, SFMono-Regular, monospace;
+    /* Shadows */
+    --shadow-soft: 0 1px 3px 0 rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.04);
+    --shadow-card: 0 2px 8px -2px rgba(0,0,0,0.06), 0 1px 3px -1px rgba(0,0,0,0.04);
+    --shadow-elevated: 0 8px 24px -6px rgba(0,0,0,0.08), 0 2px 6px -2px rgba(0,0,0,0.04);
   }
 
   .dark {
-    /* Dark mode for late night reading - Dark warm gray */
-    --background: 30 10% 12%;
-    --foreground: 40 20% 90%;
+    --background: 30 10% 10%;
+    --foreground: 40 15% 92%;
 
-    --card: 30 10% 14%;
-    --card-foreground: 40 20% 90%;
+    --card: 30 10% 13%;
+    --card-foreground: 40 15% 92%;
 
-    --popover: 30 10% 14%;
-    --popover-foreground: 40 20% 90%;
+    --popover: 30 10% 13%;
+    --popover-foreground: 40 15% 92%;
 
-    --primary: 140 15% 45%;
-    /* Lighter sage for dark mode */
-    --primary-foreground: 30 10% 10%;
+    --primary: 140 18% 48%;
+    --primary-foreground: 30 10% 8%;
 
-    --secondary: 30 10% 20%;
-    --secondary-foreground: 40 20% 90%;
+    --secondary: 30 10% 18%;
+    --secondary-foreground: 40 15% 92%;
 
-    --muted: 30 10% 18%;
-    --muted-foreground: 30 10% 60%;
+    --muted: 30 10% 16%;
+    --muted-foreground: 30 8% 58%;
 
-    --accent: 30 10% 20%;
-    --accent-foreground: 40 20% 90%;
+    --accent: 30 10% 18%;
+    --accent-foreground: 40 15% 92%;
 
-    --destructive: 13 45% 50%;
+    --destructive: 0 55% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 10% 20%;
-    --input: 30 10% 20%;
-    --ring: 140 15% 45%;
+    --border: 30 10% 18%;
+    --input: 30 10% 18%;
+    --ring: 140 18% 48%;
 
-    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.2);
-    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.4);
+    --shadow-soft: 0 1px 3px 0 rgba(0,0,0,0.2);
+    --shadow-card: 0 2px 8px -2px rgba(0,0,0,0.3);
+    --shadow-elevated: 0 8px 24px -6px rgba(0,0,0,0.4);
   }
 }
 
@@ -117,111 +90,28 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: 'Lora', serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Lora', ui-serif, Georgia, serif;
     @apply font-semibold tracking-tight;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    @apply leading-relaxed;
   }
 }
 
 @layer utilities {
-  .font-serif {
-    font-family: 'Lora', serif;
-  }
-
-  .font-sans {
-    font-family: 'Inter', sans-serif;
-  }
-
-  .bg-cream {
-    background-color: hsl(var(--cream));
-  }
-
-  .bg-warm-sand {
-    background-color: hsl(var(--warm-sand));
-  }
-
-  .bg-forest {
-    background-color: hsl(var(--forest));
-  }
-
-  .text-forest {
-    color: hsl(var(--forest));
-  }
-
-  .text-forest-light {
-    color: hsl(var(--forest-light));
-  }
-
-  .bg-moss {
-    background-color: hsl(var(--moss));
-  }
-
-  .text-terracotta {
-    color: hsl(var(--terracotta));
-  }
-
-  .bg-terracotta {
-    background-color: hsl(var(--terracotta));
-  }
-
-  .text-amber {
-    color: hsl(var(--amber));
-  }
-
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
-  }
-
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-
-  .shadow-elevated {
-    box-shadow: var(--shadow-elevated);
-  }
-
-  .gradient-warm {
-    background: var(--gradient-warm);
-  }
-
-  .gradient-forest {
-    background: var(--gradient-forest);
-  }
-
-  .gradient-sunset {
-    background: var(--gradient-sunset);
-  }
-
-  /* Progress bar animation */
-  @keyframes progress-fill {
-    from {
-      width: 0%;
-    }
-  }
-
-  .animate-progress {
-    animation: progress-fill 1s ease-out;
-  }
-
-  /* Smooth page transitions */
-  .page-enter {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  .page-enter-active {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 200ms ease-out, transform 200ms ease-out;
+  /* Safe area for mobile */
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.5rem);
   }
 
   /* Spoiler blur effect */
@@ -230,15 +120,15 @@
     user-select: none;
     transition: filter 0.3s ease;
   }
-
   .spoiler-blur.revealed {
     filter: blur(0);
   }
 }
 
-/* Safe area for mobile */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .pb-safe {
-    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+/* Smooth scrollbar */
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
   }
 }

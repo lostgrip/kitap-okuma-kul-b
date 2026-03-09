@@ -46,22 +46,22 @@ const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
   const isCurrentUser = post.user_id === user?.id;
 
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-card animate-fade-in">
+    <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex items-center gap-3 mb-4">
         <Avatar
           src={post.userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.user_id}`}
           name={post.userName || 'Kullanıcı'}
           size="md"
         />
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-foreground truncate">
+          <p className="font-medium text-sm text-foreground truncate">
             {isCurrentUser ? 'Sen' : post.userName || 'Anonim'}
           </p>
-          <p className="text-xs text-muted-foreground">{timeAgo}</p>
+          <p className="text-xs text-muted-foreground/70">{timeAgo}</p>
         </div>
         {post.type === 'quote' && (
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
             <Quote className="w-4 h-4 text-primary" />
           </div>
         )}
@@ -80,7 +80,7 @@ const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
 
       {/* Spoiler Warning */}
       {isSpoiler && !isRevealed && (
-        <div className="bg-muted rounded-xl p-3 mb-3 flex items-center justify-between">
+        <div className="bg-muted/60 rounded-xl p-3 mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <EyeOff className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Sayfa {post.page_reference}'den içerik</span>
@@ -95,28 +95,30 @@ const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
       {/* Content */}
       <div className={cn('relative transition-all duration-300', showBlur && 'spoiler-blur select-none')}>
         {post.type === 'quote' ? (
-          <blockquote className="text-foreground italic border-l-4 border-primary pl-4 py-2">
+          <blockquote className="text-foreground/90 italic border-l-2 border-primary/40 pl-4 py-1 text-[15px] leading-relaxed">
             "{post.content}"
           </blockquote>
         ) : (
-          <p className="text-foreground leading-relaxed">{post.content}</p>
+          <p className="text-foreground/90 leading-relaxed text-[15px]">{post.content}</p>
         )}
       </div>
 
       {/* Post Image */}
       {post.image_url && (
-        <div className="mt-3 rounded-xl overflow-hidden border-2 border-border">
+        <div className="mt-4 rounded-xl overflow-hidden">
           <img src={post.image_url} alt="Gönderi görseli" className="w-full max-h-80 object-cover" />
         </div>
       )}
 
       {/* Book Reference */}
       {post.bookTitle && (
-        <p className="text-xs text-muted-foreground mt-3">📖 {post.bookTitle}</p>
+        <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5">
+          <span className="opacity-70">📖</span> {post.bookTitle}
+        </p>
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border">
+      <div className="flex items-center gap-5 mt-4 pt-3 border-t border-border/40">
         <button
           onClick={() => {
             if (!user) return;
@@ -128,14 +130,14 @@ const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
           }}
           disabled={likeMutation.isPending || unlikeMutation.isPending}
           className={cn(
-            'flex items-center gap-1.5 text-sm transition-colors',
+            'flex items-center gap-1.5 text-sm transition-all duration-200',
             isLiked ? 'text-terracotta' : 'text-muted-foreground hover:text-terracotta'
           )}
         >
-          <Heart className={cn('w-4 h-4', isLiked && 'fill-current')} />
+          <Heart className={cn('w-4 h-4 transition-transform duration-200', isLiked && 'fill-current scale-110')} />
           <span>{likeCount > 0 ? likeCount : 'Beğen'}</span>
         </button>
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+        <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
           <MessageCircle className="w-4 h-4" />
           <span>Yorum</span>
         </button>

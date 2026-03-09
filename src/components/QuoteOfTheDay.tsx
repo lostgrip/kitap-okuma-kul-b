@@ -48,28 +48,28 @@ const QuoteOfTheDay = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-card rounded-2xl p-5 shadow-card">
+      <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40">
         <div className="flex justify-center py-4">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-br from-primary/10 to-accent rounded-2xl p-5 shadow-card border-2 border-primary/20">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+    <div className="bg-card rounded-2xl p-5 shadow-card border border-primary/15">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
             <Quote className="w-4 h-4 text-primary" />
           </div>
-          <h3 className="font-serif font-semibold">Günün Sözü</h3>
+          <h3 className="font-serif font-semibold text-sm">Günün Sözü</h3>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-1">
-              <Send className="w-4 h-4" />
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground text-xs">
+              <Send className="w-3.5 h-3.5" />
               Öner
             </Button>
           </DialogTrigger>
@@ -116,21 +116,21 @@ const QuoteOfTheDay = () => {
 
       {quote ? (
         <div>
-          <blockquote className="text-foreground italic leading-relaxed">
+          <blockquote className="text-foreground/85 italic leading-relaxed text-[15px]">
             "{quote.quote_text}"
           </blockquote>
           {quote.author && (
-            <p className="text-sm text-muted-foreground mt-2 font-medium">
+            <p className="text-xs text-muted-foreground mt-2.5 font-medium">
               — {quote.author}
             </p>
           )}
         </div>
       ) : (
         <div>
-          <blockquote className="text-foreground italic leading-relaxed">
+          <blockquote className="text-foreground/85 italic leading-relaxed text-[15px]">
             "İnsan, ancak aradığı zaman bulur; ancak dayanamadığı zaman düşünür."
           </blockquote>
-          <p className="text-sm text-muted-foreground mt-2 font-medium">
+          <p className="text-xs text-muted-foreground mt-2.5 font-medium">
             — Sabahattin Ali
           </p>
         </div>

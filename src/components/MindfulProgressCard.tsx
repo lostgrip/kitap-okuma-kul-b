@@ -8,37 +8,36 @@ interface MindfulProgressCardProps {
 }
 
 const MindfulProgressCard = ({ bookTitle, bookCover, currentPage, totalPages }: MindfulProgressCardProps) => {
-    // Calculate fill ratio without exposing numbers
     const fillRatio = totalPages > 0 ? Math.min(1, currentPage / totalPages) : 0;
     const fillPercent = Math.round(fillRatio * 100);
 
     return (
-        <div className="relative rounded-3xl overflow-hidden shadow-card mb-6 min-h-[200px]">
-            {/* Background: book cover blurred */}
+        <div className="relative rounded-2xl overflow-hidden shadow-elevated min-h-[180px]">
             {bookCover && (
                 <div
-                    className="absolute inset-0 bg-cover bg-center"
+                    className="absolute inset-0 bg-cover bg-center scale-105"
                     style={{ backgroundImage: `url(${bookCover})` }}
                 />
             )}
-            {/* Dark veil */}
-            <div className="absolute inset-0 bg-[#1a1a14]/70 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-foreground/65 backdrop-blur-sm" />
 
-            {/* Sage green fill — rises from bottom */}
+            {/* Fill from bottom */}
             <div
                 className="absolute bottom-0 left-0 right-0 transition-all duration-[2000ms] ease-out"
-                style={{ height: `${fillPercent}%`, background: 'linear-gradient(to top, rgba(134,155,108,0.45), rgba(134,155,108,0.1))' }}
+                style={{
+                    height: `${fillPercent}%`,
+                    background: 'linear-gradient(to top, hsla(140, 20%, 42%, 0.4), hsla(140, 20%, 42%, 0.08))'
+                }}
             />
 
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-8 min-h-[200px]">
-                <p className="text-white/60 text-xs font-sans uppercase tracking-[0.2em] mb-3">
+            <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-8 min-h-[180px]">
+                <p className="text-primary-foreground/50 text-[11px] font-sans uppercase tracking-[0.2em] mb-3">
                     Şu an bu dünyadasın...
                 </p>
-                <h3 className="font-serif text-xl font-semibold text-white leading-snug mb-4">
+                <h3 className="font-serif text-lg font-semibold text-primary-foreground leading-snug mb-3">
                     {bookTitle}
                 </h3>
-                <p className="text-white/50 text-xs font-sans leading-relaxed max-w-[220px]">
+                <p className="text-primary-foreground/40 text-xs font-sans leading-relaxed max-w-[200px]">
                     Ne kadar okuduğunun bir önemi yok,<br />burada olman yeterli.
                 </p>
             </div>
