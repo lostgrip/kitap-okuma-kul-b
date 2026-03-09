@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Plus, Users, BookOpen, CheckCircle, Clock, Loader2, Shield, Trash2, Send } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Plus, Users, BookOpen, CheckCircle, Clock, Loader2, Shield, Trash2, Send, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +23,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { useCommunityLists, useCreateBookList, useBookListItems, useUpdateBookList, BookList } from '@/hooks/useBookLists';
 import { useClubBooks, useBooks, useDeleteBook, useSubmitBookToClub } from '@/hooks/useBooks';
@@ -210,11 +217,18 @@ const ClubCollectionsSection = ({ searchQuery }: ClubCollectionsSectionProps) =>
           </Dialog>
 
           {filteredClubBooks.length === 0 ? (
-            <div className="text-center py-8 bg-card rounded-xl border-2 border-border">
-              <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-              <p className="text-muted-foreground">Kulüp kütüphanesinde kitap yok</p>
-              <p className="text-xs text-muted-foreground mt-1">Bir kitap önerin!</p>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="text-center py-12 bg-card rounded-2xl border border-border/40 shadow-card flex flex-col items-center"
+            >
+              <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+                <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+              </div>
+              <p className="text-foreground font-medium mb-1">Kulüp kütüphanesinde kitap yok</p>
+              <p className="text-muted-foreground text-sm">İlk kitabı siz önerin!</p>
+            </motion.div>
           ) : (
             <div className="grid grid-cols-2 gap-4">
               {filteredClubBooks.map((book) => (
@@ -232,27 +246,39 @@ const ClubCollectionsSection = ({ searchQuery }: ClubCollectionsSectionProps) =>
                   />
                   {/* Admin remove button */}
                   {isAdmin && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button className="absolute top-2 right-2 w-7 h-7 bg-destructive/90 text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive transition-colors z-10">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Kitabı Kaldır</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            "{book.title}" kitabını kulüp kütüphanesinden kaldırmak istediğinize emin misiniz?
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>İptal</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleRemoveBook(book.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Kaldır
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <div className="absolute top-2 right-2 z-10">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive cursor-pointer">
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Kaldır
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Kitabı Kaldır</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  "{book.title}" kitabını kulüp kütüphanesinden kaldırmak istediğinize emin misiniz?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>İptal</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleRemoveBook(book.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                  Kaldır
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   )}
                 </div>
               ))}
@@ -333,11 +359,18 @@ const ClubCollectionsSection = ({ searchQuery }: ClubCollectionsSectionProps) =>
             </div>
 
             {approvedLists.length === 0 ? (
-              <div className="text-center py-8 bg-card rounded-xl border-2 border-border">
-                <Users className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">Henüz kulüp listesi yok</p>
-                <p className="text-xs text-muted-foreground mt-1">Bir liste önerin!</p>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="text-center py-12 bg-card rounded-2xl border border-border/40 shadow-card flex flex-col items-center"
+              >
+                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+                  <Users className="w-8 h-8 text-muted-foreground/50" />
+                </div>
+                <p className="text-foreground font-medium mb-1">Henüz kulüp listesi yok</p>
+                <p className="text-muted-foreground text-sm">Bir liste önererek arkadaşlarınızla paylaşın!</p>
+              </motion.div>
             ) : (
               <div className="space-y-3">
                 {approvedLists.map(list => (
@@ -407,10 +440,18 @@ const CollectionBooksView = ({ listId, books, searchQuery }: CollectionBooksView
 
   if (filteredBooks.length === 0) {
     return (
-      <div className="text-center py-8 bg-card rounded-xl border-2 border-border">
-        <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-        <p className="text-muted-foreground">Bu koleksiyonda kitap yok</p>
-      </div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="text-center py-12 bg-card rounded-2xl border border-border/40 shadow-card flex flex-col items-center mt-4 col-span-2"
+      >
+        <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+          <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+        </div>
+        <p className="text-foreground font-medium mb-1">Bu koleksiyonda kitap yok</p>
+        <p className="text-muted-foreground text-sm">Sonradan kitap eklenebilir.</p>
+      </motion.div>
     );
   }
 

@@ -107,7 +107,7 @@ const Settings = () => {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-lg mx-auto px-4 py-8 space-y-8">
         {/* Notifications Section */}
         <section>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
@@ -116,12 +116,12 @@ const Settings = () => {
           </h2>
           <div className="bg-card rounded-xl border-2 border-border divide-y divide-border">
             {isLoading ? (
-              <div className="p-4 flex justify-center">
+              <div className="p-5 flex justify-center">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             ) : (
               <>
-                <div className="p-4 flex items-center justify-between">
+                <div className="p-5 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">Push Bildirimleri</p>
                     <p className="text-xs text-muted-foreground">Uygulama dışında bildirim al</p>
@@ -131,7 +131,7 @@ const Settings = () => {
                     onCheckedChange={(v) => handleNotificationToggle('push_enabled', v)}
                   />
                 </div>
-                <div className="p-4 flex items-center justify-between">
+                <div className="p-5 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">Yeni Kitap Bildirimleri</p>
                     <p className="text-xs text-muted-foreground">Kulübe yeni kitap eklendiğinde</p>
@@ -141,7 +141,7 @@ const Settings = () => {
                     onCheckedChange={(v) => handleNotificationToggle('new_book_notifications', v)}
                   />
                 </div>
-                <div className="p-4 flex items-center justify-between">
+                <div className="p-5 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">Sosyal Bildirimler</p>
                     <p className="text-xs text-muted-foreground">Beğeni ve yorum bildirimleri</p>
@@ -151,7 +151,7 @@ const Settings = () => {
                     onCheckedChange={(v) => handleNotificationToggle('social_notifications', v)}
                   />
                 </div>
-                <div className="p-4 flex items-center justify-between">
+                <div className="p-5 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">Hedef Hatırlatıcıları</p>
                     <p className="text-xs text-muted-foreground">Okuma hedefleriniz hakkında</p>
@@ -173,7 +173,7 @@ const Settings = () => {
             Tercihler
           </h2>
           <div className="bg-card rounded-xl border-2 border-border divide-y divide-border">
-            <div className="p-4 flex items-center justify-between">
+            <div className="p-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 <div>
@@ -277,7 +277,7 @@ const Settings = () => {
             <HelpCircle className="w-4 h-4" />
             Sıkça Sorulan Sorular
           </h2>
-          <div className="bg-card rounded-xl border-2 border-border p-4">
+          <div className="bg-card rounded-2xl border-2 border-border p-5 sm:p-6 shadow-sm">
             <Accordion type="single" collapsible className="w-full">
               {faqItems.map((item, index) => (
                 <AccordionItem key={index} value={`item-${index}`}>

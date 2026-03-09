@@ -14,8 +14,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
-				serif: ['Lora', 'Merriweather', 'ui-serif', 'Georgia', 'serif'],
+				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				serif: ['Playfair Display', 'Lora', 'Merriweather', 'ui-serif', 'Georgia', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

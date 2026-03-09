@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Plus, Search, BookOpen, Loader2, Upload, Image, Trash2, BookText } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Search, BookOpen, Loader2, Upload, Image, Trash2, BookText, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +22,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Select,
   SelectContent,
@@ -58,6 +65,7 @@ const LibraryTab = () => {
   const [activeLibraryTab, setActiveLibraryTab] = useState<'my_library' | 'all_books'>('my_library');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
+  const [isFormVisible, setIsFormVisible] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>('none');
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -169,6 +177,7 @@ const LibraryTab = () => {
       setEpubFile(null);
       setSelectedDestination('none');
       setIsAddDialogOpen(false);
+      setIsFormVisible(false);
       toast.success('Kitap eklendi!');
     } catch {
       toast.error('Kitap eklenirken hata oluştu');
@@ -189,6 +198,7 @@ const LibraryTab = () => {
     setCoverPreview(book.cover_url || null);
     setIsSearchDialogOpen(false);
     setIsAddDialogOpen(true);
+    setIsFormVisible(true);
   };
 
   if (isLoading) {
@@ -216,17 +226,15 @@ const LibraryTab = () => {
         <div className="flex items-center gap-1 rounded-xl bg-muted/60 p-1">
           <button
             onClick={() => setActiveLibraryTab('my_library')}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
-              activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+              }`}
           >
             Kütüphanem
           </button>
           <button
             onClick={() => setActiveLibraryTab('all_books')}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
-              activeLibraryTab === 'all_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${activeLibraryTab === 'all_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+              }`}
           >
             <span className="inline-flex items-center gap-1.5">
               <BookOpen className="h-4 w-4" />
@@ -266,48 +274,69 @@ const LibraryTab = () => {
                     className="bg-card p-3 rounded-xl shadow-soft"
                   />
                   {(isAdmin || book.added_by === user?.id) && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button className="absolute top-2 right-2 w-7 h-7 bg-destructive/90 text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive transition-colors z-10">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Kitabı Sil</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            "{book.title}" kitabını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>İptal</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => {
-                              deleteBook.mutate(book.id, {
-                                onSuccess: () => toast.success('Kitap silindi'),
-                                onError: () => toast.error('Kitap silinirken hata oluştu'),
-                              });
-                            }}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Sil
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <div className="absolute top-2 right-2 z-10">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive cursor-pointer">
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Sil
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Kitabı Sil</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  "{book.title}" kitabını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>İptal</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => {
+                                    deleteBook.mutate(book.id, {
+                                      onSuccess: () => toast.success('Kitap silindi'),
+                                      onError: () => toast.error('Kitap silinirken hata oluştu'),
+                                    });
+                                  }}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Sil
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   )}
                 </div>
               ))}
             </div>
             {filteredBooks.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Kitap bulunamadı</p>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="text-center py-16 bg-card rounded-2xl border border-border/40 shadow-card flex flex-col items-center mt-4 col-span-2"
+              >
+                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+                  <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+                </div>
+                <p className="text-foreground font-medium mb-1">Kitap bulunamadı</p>
+                <p className="text-muted-foreground text-sm max-w-[250px]">Arama kriterinize uygun kitap yok veya henüz kütüphanenize kitap eklemediniz.</p>
+              </motion.div>
             )}
           </div>
         )}
 
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) setIsFormVisible(false); }}>
           <DialogTrigger asChild>
             <Button
               className="fixed bottom-24 right-4 w-14 h-14 rounded-full shadow-elevated"
@@ -324,139 +353,182 @@ const LibraryTab = () => {
             </DialogHeader>
             <div className="space-y-4 mt-4">
               {/* Search from combined sources */}
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setIsSearchDialogOpen(true)}
-              >
-                <Search className="w-4 h-4 mr-2" />
-                Kitap Ara
-              </Button>
+              {!isFormVisible && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="py-4"
+                >
+                  <Button
+                    variant="outline"
+                    className="w-full h-14 rounded-xl text-base shadow-sm"
+                    onClick={() => setIsSearchDialogOpen(true)}
+                  >
+                    <Search className="w-5 h-5 mr-3" />
+                    Kitap Ara
+                  </Button>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    veya manuel ekle
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="title" className="text-sm font-medium">Kitap Adı *</Label>
-                <Input id="title" placeholder="Kitap adını girin..." value={newBook.title}
-                  onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
-                  className="mt-1.5 h-12 bg-muted border-0 rounded-xl" />
-              </div>
-              <div>
-                <Label htmlFor="author" className="text-sm font-medium">Yazar *</Label>
-                <Input id="author" placeholder="Yazar adını girin..." value={newBook.author}
-                  onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
-                  className="mt-1.5 h-12 bg-muted border-0 rounded-xl" />
-              </div>
-              <div>
-                <Label htmlFor="publisher" className="text-sm font-medium">Yayınevi</Label>
-                <Input id="publisher" placeholder="Yayınevi bilgisini girin..." value={newBook.publisher}
-                  onChange={(e) => setNewBook({ ...newBook, publisher: e.target.value })}
-                  className="mt-1.5 h-12 bg-muted border-0 rounded-xl" />
-              </div>
-              <div>
-                <Label htmlFor="pages" className="text-sm font-medium">Toplam Sayfa *</Label>
-                <Input id="pages" type="number" placeholder="Sayfa sayısını girin..." value={newBook.pages}
-                  onChange={(e) => setNewBook({ ...newBook, pages: e.target.value })}
-                  className="mt-1.5 h-12 bg-muted border-0 rounded-xl" />
-              </div>
-              <div>
-                <Label htmlFor="genre" className="text-sm font-medium">Tür</Label>
-                <Input id="genre" placeholder="Roman, Bilim Kurgu, vb..." value={newBook.genre}
-                  onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
-                  className="mt-1.5 h-12 bg-muted border-0 rounded-xl" />
-              </div>
-
-              {/* Cover Upload */}
-              <div>
-                <Label className="text-sm font-medium">Kapak Resmi</Label>
-                <div className="mt-1.5 flex items-center gap-3">
-                  {coverPreview ? (
-                    <img src={coverPreview} alt="Kapak" className="w-16 h-24 object-cover rounded-lg border-2 border-border" />
-                  ) : (
-                    <div className="w-16 h-24 bg-muted rounded-lg flex items-center justify-center border-2 border-border">
-                      <Image className="w-6 h-6 text-muted-foreground" />
+                  <div className="relative my-8">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-border/60" />
                     </div>
-                  )}
-                  <label className="flex-1">
-                    <input type="file" accept="image/*" className="hidden" onChange={handleCoverFileChange} />
-                    <div className="flex items-center gap-2 px-4 py-2.5 bg-muted rounded-xl cursor-pointer hover:bg-accent transition-colors text-sm font-medium">
-                      <Upload className="w-4 h-4" />
-                      {coverFile ? 'Değiştir' : 'Kapak Yükle'}
+                    <div className="relative flex justify-center text-xs uppercase tracking-wider font-medium">
+                      <span className="bg-background px-4 text-muted-foreground">
+                        veya
+                      </span>
                     </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* EPUB Upload */}
-              <div>
-                <Label className="text-sm font-medium">EPUB Dosyası (İsteğe Bağlı)</Label>
-                <div className="mt-1.5 flex items-center gap-3">
-                  <div className="flex-1 flex items-center gap-2 px-4 py-2.5 bg-muted rounded-xl border-2 border-transparent">
-                    <BookText className="w-5 h-5 text-muted-foreground shrink-0" />
-                    <span className="text-sm text-foreground truncate select-none flex-1">
-                      {epubFile ? epubFile.name : 'Dosya seçilmedi'}
-                    </span>
                   </div>
-                  <label>
-                    <input type="file" accept=".epub" className="hidden" onChange={handleEpubFileChange} />
-                    <div className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl cursor-pointer hover:bg-primary/90 transition-colors text-sm font-medium shrink-0">
-                      <Upload className="w-4 h-4" />
-                      {epubFile ? 'Değiştir' : 'Yükle'}
+
+                  <Button
+                    variant="ghost"
+                    className="w-full h-12 rounded-xl text-muted-foreground hover:bg-muted"
+                    onClick={() => setIsFormVisible(true)}
+                  >
+                    Bilgileri manuel gir
+                  </Button>
+                </motion.div>
+              )}
+
+              <AnimatePresence>
+                {isFormVisible && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="space-y-6 overflow-hidden"
+                  >
+                    {/* Cover Focal Point */}
+                    <div className="flex justify-center mb-8 relative pt-4">
+                      <div className="relative w-32 sm:w-36 group">
+                        {coverPreview ? (
+                          <>
+                            {/* Blur/Glow Shadow */}
+                            <div className="absolute inset-0 -z-10 translate-y-4 scale-95 opacity-40 blur-2xl">
+                              <img src={coverPreview} alt="" className="w-full h-full object-cover rounded-2xl" />
+                            </div>
+                            <img src={coverPreview} alt="Kapak" className="relative w-full h-auto object-cover aspect-[2/3] rounded-2xl shadow-elevated border border-border/20" />
+                          </>
+                        ) : (
+                          <div className="w-full aspect-[2/3] bg-muted/40 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-border/60 text-muted-foreground/50 hover:bg-muted/60 transition-colors">
+                            <Image className="w-8 h-8 mb-2" />
+                            <span className="text-xs font-medium">Kapak Yok</span>
+                          </div>
+                        )}
+                        <label className="absolute -bottom-3 -right-3 cursor-pointer">
+                          <input type="file" accept="image/*" className="hidden" onChange={handleCoverFileChange} />
+                          <div className="bg-primary text-primary-foreground p-2.5 rounded-full shadow-elevated hover:bg-primary/90 transition-transform active:scale-95 text-xs flex items-center gap-1.5 font-medium">
+                            <Upload className="w-4 h-4" />
+                          </div>
+                        </label>
+                      </div>
                     </div>
-                  </label>
-                </div>
-              </div>
 
-              <div>
-                <Label htmlFor="description" className="text-sm font-medium">Açıklama</Label>
-                <Textarea id="description" placeholder="Kitap hakkında kısa açıklama..." value={newBook.description}
-                  onChange={(e) => setNewBook({ ...newBook, description: e.target.value })}
-                  className="mt-1.5 bg-muted border-0 rounded-xl resize-none min-h-20" />
-              </div>
+                    <div className="space-y-5">
+                      {/* Input Fields - Premium Styling */}
+                      <div className="space-y-1">
+                        <Label htmlFor="title" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Kitap Adı *</Label>
+                        <Input id="title" placeholder="Kitap adını girin..." value={newBook.title}
+                          onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
+                          className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-lg font-serif font-medium placeholder:text-muted-foreground/40 transition-colors" />
+                      </div>
 
-              {/* Destination Selection */}
-              <div>
-                <Label className="text-sm font-medium">Nereye Eklensin?</Label>
-                <Select value={selectedDestination} onValueChange={setSelectedDestination}>
-                  <SelectTrigger className="mt-1.5 h-12 bg-muted border-0 rounded-xl">
-                    <SelectValue placeholder="Liste seçin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">➖ Hiçbir yere ekleme</SelectItem>
-                    <SelectItem value="want_to_read">📚 Okumak İstiyorum</SelectItem>
-                    <SelectItem value="reading">📖 Okuyorum</SelectItem>
-                    <SelectItem value="read">✅ Okudum</SelectItem>
-                    <SelectItem value="dnf">❌ Yarıda Bıraktım</SelectItem>
-                    {userLists
-                      .filter(l => !l.is_default && !l.is_community)
-                      .map(list => (
-                        <SelectItem key={list.id} value={list.id}>
-                          📋 {list.name}
-                        </SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
-              </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <Label htmlFor="author" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Yazar *</Label>
+                          <Input id="author" placeholder="Yazar adını girin..." value={newBook.author}
+                            onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
+                            className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition-colors" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="publisher" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Yayınevi</Label>
+                          <Input id="publisher" placeholder="Yayınevi..." value={newBook.publisher}
+                            onChange={(e) => setNewBook({ ...newBook, publisher: e.target.value })}
+                            className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition-colors" />
+                        </div>
+                      </div>
 
-              <Button
-                onClick={handleAddBook}
-                className="w-full h-12 rounded-xl font-semibold mt-2"
-                disabled={addBook.isPending || addToDefaultList.isPending || isUploading || !user}
-              >
-                {!user ? 'Giriş yapmalısınız' : (addBook.isPending || addToDefaultList.isPending || isUploading) ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Ekleniyor...</>
-                ) : 'Kütüphaneye Ekle'}
-              </Button>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <Label htmlFor="pages" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Sayfa *</Label>
+                          <Input id="pages" type="number" placeholder="0" value={newBook.pages}
+                            onChange={(e) => setNewBook({ ...newBook, pages: e.target.value })}
+                            className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition-colors" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="genre" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Tür</Label>
+                          <Input id="genre" placeholder="Örn: Roman..." value={newBook.genre}
+                            onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
+                            className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition-colors" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label htmlFor="description" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Açıklama</Label>
+                        <Textarea id="description" placeholder="Kitap hakkında kısa açıklama..." value={newBook.description}
+                          onChange={(e) => setNewBook({ ...newBook, description: e.target.value })}
+                          className="mt-1 bg-transparent border border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-xl resize-none min-h-24 text-sm px-3 py-2 placeholder:text-muted-foreground/40 transition-colors" />
+                      </div>
+
+                      {/* EPUB Upload - Ghost/Outline */}
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">EPUB Dosyası (İsteğe Bağlı)</Label>
+                        <div className="mt-1 flex items-center gap-3">
+                          <div className="flex-1 flex items-center gap-2 px-3 py-2.5 bg-muted/30 rounded-xl border border-border/40">
+                            <BookText className="w-4 h-4 text-muted-foreground shrink-0" />
+                            <span className="text-sm text-foreground truncate select-none flex-1">
+                              {epubFile ? epubFile.name : 'Dosya seçilmedi'}
+                            </span>
+                          </div>
+                          <label>
+                            <input type="file" accept=".epub" className="hidden" onChange={handleEpubFileChange} />
+                            <div className="flex items-center gap-2 px-4 py-2.5 border border-primary text-primary rounded-xl cursor-pointer hover:bg-primary/5 transition-colors text-sm font-medium shrink-0 shadow-sm">
+                              <Upload className="w-3.5 h-3.5" />
+                              {epubFile ? 'Değiştir' : 'Yükle'}
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Destination Selection */}
+                      <div className="space-y-1 pb-2">
+                        <Label className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Nereye Eklensin?</Label>
+                        <Select value={selectedDestination} onValueChange={setSelectedDestination}>
+                          <SelectTrigger className="mt-1 h-12 bg-muted/40 border-0 rounded-xl shadow-sm">
+                            <SelectValue placeholder="Liste seçin" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">➖ Hiçbir yere ekleme</SelectItem>
+                            <SelectItem value="want_to_read">📚 Okumak İstiyorum</SelectItem>
+                            <SelectItem value="reading">📖 Okuyorum</SelectItem>
+                            <SelectItem value="read">✅ Okudum</SelectItem>
+                            <SelectItem value="dnf">❌ Yarıda Bıraktım</SelectItem>
+                            {userLists
+                              .filter(l => !l.is_default && !l.is_community)
+                              .map(list => (
+                                <SelectItem key={list.id} value={list.id}>
+                                  📋 {list.name}
+                                </SelectItem>
+                              ))
+                            }
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <Button
+                        onClick={handleAddBook}
+                        className="w-full h-12 rounded-xl font-semibold mt-2 shadow-elevated"
+                        disabled={addBook.isPending || addToDefaultList.isPending || isUploading || !user}
+                      >
+                        {!user ? 'Giriş yapmalısınız' : (addBook.isPending || addToDefaultList.isPending || isUploading) ? (
+                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Ekleniyor...</>
+                        ) : 'Kütüphaneye Ekle'}
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </DialogContent>
         </Dialog>

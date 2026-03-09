@@ -164,11 +164,11 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 pt-6">
+      <div className="max-w-lg mx-auto px-4 pt-8">
         {/* Profile Card */}
         {user && profile && (
-          <Card className="mb-6">
-            <CardContent className="pt-6">
+          <Card className="mb-8 border-none shadow-sm bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6 sm:p-8">
               <div className="flex items-center gap-4">
                 <Avatar
                   src={profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`}
@@ -184,18 +184,18 @@ const Profile = () => {
               </div>
 
               {/* Quick Stats */}
-              <div className="grid grid-cols-3 gap-4 mt-6">
-                <div className="text-center p-3 bg-muted rounded-xl">
+              <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-8">
+                <div className="text-center p-4 bg-muted/50 rounded-2xl">
                   <BookOpen className="h-5 w-5 mx-auto mb-1 text-primary" />
                   <p className="text-2xl font-bold">{readingBooks}</p>
                   <p className="text-xs text-muted-foreground">Okunan</p>
                 </div>
-                <div className="text-center p-3 bg-muted rounded-xl">
+                <div className="text-center p-4 bg-muted/50 rounded-2xl">
                   <Target className="h-5 w-5 mx-auto mb-1 text-primary" />
                   <p className="text-2xl font-bold">{completedBooks}</p>
                   <p className="text-xs text-muted-foreground">Tamamlanan</p>
                 </div>
-                <div className="text-center p-3 bg-muted rounded-xl">
+                <div className="text-center p-4 bg-muted/50 rounded-2xl">
                   <TrendingUp className="h-5 w-5 mx-auto mb-1 text-primary" />
                   <p className="text-2xl font-bold">{totalPagesRead}</p>
                   <p className="text-xs text-muted-foreground">Sayfa</p>
@@ -217,8 +217,8 @@ const Profile = () => {
         {user && logs.length > 0 && <ReadingJournal logs={logs} />}
 
         {!user && (
-          <Card className="mb-6">
-            <CardContent className="pt-6 text-center">
+          <Card className="mb-8 border-none shadow-sm">
+            <CardContent className="p-8 text-center">
               <p className="text-muted-foreground mb-4">
                 Hedeflerinizi takip etmek ve istatistiklerinizi görmek için giriş yapın
               </p>
@@ -231,13 +231,13 @@ const Profile = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="goals" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 rounded-xl">
-            <TabsTrigger value="goals" className="text-xs rounded-lg">
-              <Target className="h-4 w-4 mr-1" />
+          <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50 p-1.5 rounded-2xl">
+            <TabsTrigger value="goals" className="text-sm rounded-xl py-2">
+              <Target className="h-4 w-4 mr-2" />
               Alışkanlıklar
             </TabsTrigger>
-            <TabsTrigger value="stats" className="text-xs rounded-lg">
-              <BarChart3 className="h-4 w-4 mr-1" />
+            <TabsTrigger value="stats" className="text-sm rounded-xl py-2">
+              <BarChart3 className="h-4 w-4 mr-2" />
               İstatistik
             </TabsTrigger>
           </TabsList>
@@ -319,8 +319,8 @@ const Profile = () => {
               const Icon = icons[type as keyof typeof icons];
 
               return (
-                <Card key={type}>
-                  <CardContent className="pt-4">
+                <Card key={type} className="border-none shadow-sm bg-card/50 backdrop-blur-sm">
+                  <CardContent className="p-5 sm:p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
@@ -348,21 +348,21 @@ const Profile = () => {
           </TabsContent>
 
           {/* Stats Tab */}
-          <TabsContent value="stats" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Okuma İstatistikleri</CardTitle>
+          <TabsContent value="stats" className="space-y-6">
+            <Card className="border-none shadow-sm bg-card/50 backdrop-blur-sm">
+              <CardHeader className="p-6 pb-2">
+                <CardTitle className="text-base font-serif">Okuma İstatistikleri</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+              <CardContent className="space-y-4 p-6 pt-0">
+                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-2xl">
                   <span className="text-muted-foreground">Toplam Okunan Sayfa</span>
                   <span className="font-bold text-lg">{totalPagesRead}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-2xl">
                   <span className="text-muted-foreground">Şu An Okunan Kitap</span>
                   <span className="font-bold text-lg">{readingBooks}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-2xl">
                   <span className="text-muted-foreground">Tamamlanan Kitap</span>
                   <span className="font-bold text-lg">{completedBooks}</span>
                 </div>

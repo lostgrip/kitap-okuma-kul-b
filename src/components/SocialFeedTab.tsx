@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Send, Quote, MessageSquare, Loader2, ImagePlus, X, BarChart3, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -344,10 +345,18 @@ const SocialFeedTab = () => {
         <PinnedAnnouncement />
         <BookVotingSection />
         {posts.length === 0 ? (
-          <div className="bg-card rounded-2xl p-10 shadow-card border border-border/40 text-center">
-            <MessageSquare className="w-10 h-10 mx-auto text-muted-foreground/25 mb-3" />
-            <p className="text-muted-foreground text-sm">Henüz gönderi yok. İlk gönderiyi siz paylaşın!</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="bg-card rounded-2xl p-12 shadow-card border border-border/40 text-center flex flex-col items-center"
+          >
+            <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
+              <MessageSquare className="w-8 h-8 text-muted-foreground/50" />
+            </div>
+            <p className="text-foreground font-medium mb-1">Henüz gönderi yok</p>
+            <p className="text-muted-foreground text-sm max-w-[250px]">İlk gönderiyi siz paylaşın ve kulüpte tartışmayı başlatın!</p>
+          </motion.div>
         ) : (
           <div className="space-y-4">
             {posts.map((post, index) => (

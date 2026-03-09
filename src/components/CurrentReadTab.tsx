@@ -241,19 +241,31 @@ const CurrentReadTab = () => {
       )}
 
       {/* Book Cover */}
-      <div className="flex justify-center mb-8 animate-fade-in" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
+      <div className="flex justify-center mb-12 animate-fade-in" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
         <button
           onClick={() => navigate(`/book/${displayBook.id}`)}
-          className="w-36 rounded-2xl overflow-hidden shadow-elevated transition-all duration-300 hover:shadow-card hover:-translate-y-1 active:scale-[0.97]"
+          className="relative group w-36 sm:w-40 transition-all duration-300 hover:-translate-y-2 active:scale-[0.97]"
         >
-          <img
-            src={displayBook.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
-            alt={displayBook.title}
-            className="w-full h-auto object-cover aspect-[2/3]"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop';
-            }}
-          />
+          {/* Background Glow */}
+          <div className="absolute inset-0 -z-10 translate-y-6 scale-95 opacity-50 blur-2xl transition-all duration-300 group-hover:opacity-70 group-hover:blur-3xl group-hover:translate-y-8" aria-hidden="true">
+            <img
+              src={displayBook.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
+              alt=""
+              className="w-full h-full object-cover rounded-2xl"
+            />
+          </div>
+
+          {/* Actual Cover */}
+          <div className="relative rounded-2xl overflow-hidden shadow-elevated group-hover:shadow-card">
+            <img
+              src={displayBook.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
+              alt={displayBook.title}
+              className="w-full h-auto object-cover aspect-[2/3] transform transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop';
+              }}
+            />
+          </div>
         </button>
       </div>
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Plus, BookOpen, Clock, Check, X, List, Loader2, Trash2 } from 'lucide-react';
+import { Plus, BookOpen, Clock, Check, X, List, Loader2, Trash2, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -21,6 +21,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { useBookLists, useCreateBookList, useBookListItems, BookList } from '@/hooks/useBookLists';
 import { Book, useDeleteBook } from '@/hooks/useBooks';
@@ -387,54 +393,84 @@ const ListBooksView = ({ listId, searchQuery }: Omit<ListBooksViewProps, 'books'
             {/* VibeBookshelf: His Etiketi */}
             <BookMoodTag bookId={book.id} />
 
-            {/* Remove from list */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button className="absolute top-2 right-2 w-7 h-7 bg-destructive/90 text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive transition-colors z-10">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Kitabı Kaldır</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    &ldquo;{book.title}&rdquo; kitabını bu listeden kaldırmak istediğinize emin misiniz?
-                    {isOwner && ' Kitabı tamamen silmek isterseniz "Tamamen Sil" butonunu kullanın.'}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                  <AlertDialogCancel>İptal</AlertDialogCancel>
+            {/* Options Menu */}
+            <div className="absolute top-2 right-2 z-10">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
                   {listItem && (
-                    <AlertDialogAction
-                      onClick={() => {
-                        removeFromList.mutate(
-                          { listId, bookId: book.id },
-                          {
-                            onSuccess: () => toast.success('Kitap listeden kaldırıldı'),
-                            onError: () => toast.error('Kaldırılırken hata oluştu'),
-                          }
-                        );
-                      }}
-                    >
-                      Listeden Kaldır
-                    </AlertDialogAction>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
+                          <List className="w-4 h-4 mr-2" />
+                          Listeden Kaldır
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Kitabı Kaldır</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            &ldquo;{book.title}&rdquo; kitabını bu listeden kaldırmak istediğinize emin misiniz?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>İptal</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              removeFromList.mutate(
+                                { listId, bookId: book.id },
+                                {
+                                  onSuccess: () => toast.success('Kitap listeden kaldırıldı'),
+                                  onError: () => toast.error('Kaldırılırken hata oluştu'),
+                                }
+                              );
+                            }}
+                          >
+                            Kaldır
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
                   {isOwner && (
-                    <AlertDialogAction
-                      onClick={() => {
-                        deleteBook.mutate(book.id, {
-                          onSuccess: () => toast.success('Kitap tamamen silindi'),
-                          onError: () => toast.error('Silinirken hata oluştu'),
-                        });
-                      }}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Tamamen Sil
-                    </AlertDialogAction>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive cursor-pointer">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Tamamen Sil
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Tamamen Sil</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            &ldquo;{book.title}&rdquo; kitabını kütüphaneden tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>İptal</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              deleteBook.mutate(book.id, {
+                                onSuccess: () => toast.success('Kitap tamamen silindi'),
+                                onError: () => toast.error('Silinirken hata oluştu'),
+                              });
+                            }}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Sil
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         );
       })}
