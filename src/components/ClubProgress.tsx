@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Users } from 'lucide-react';
-import ProgressBar from './ProgressBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClubSchedule } from '@/hooks/useClubSchedule';
 
@@ -9,7 +8,6 @@ export const ClubProgress = () => {
     const { user } = useAuth();
     const { data: schedule = [] } = useClubSchedule();
 
-    // Find the active club book
     const activeBook = schedule.find(s => s.status === 'active');
 
     const { data: progressData, isLoading } = useQuery({
@@ -17,7 +15,6 @@ export const ClubProgress = () => {
         queryFn: async () => {
             if (!activeBook) return null;
 
-            // 1. Get the book details (we need page_count)
             const { data: book } = await supabase
                 .from('books')
                 .select('title, page_count')
@@ -26,7 +23,6 @@ export const ClubProgress = () => {
 
             if (!book) return null;
 
-            // 2. Get members of this group
             const { data: members } = await supabase
                 .from('profiles')
                 .select('id')
@@ -36,7 +32,6 @@ export const ClubProgress = () => {
 
             const memberIds = members.map(m => m.id);
 
-            // 3. Get progress of these members for this book
             const { data: progressList } = await supabase
                 .from('reading_progress')
                 .select('current_page, status')
@@ -73,19 +68,20 @@ export const ClubProgress = () => {
         : 0;
 
     return (
-        <div className="bg-card rounded-2xl p-5 shadow-card mb-6 border border-border/50">
-            <h3 className="font-serif font-semibold text-sm mb-1 text-foreground flex items-center gap-2">
+        <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40">
+            <div className="flex items-center gap-2 mb-1">
                 <Users className="w-4 h-4 text-primary" />
-                Kulübün Ortak Kitabı
-            </h3>
-            <p className="text-xs text-muted-foreground mb-3">"{progressData.bookTitle}" — {progressData.memberCount} Üye</p>
+                <h3 className="font-serif font-semibold text-sm text-foreground">Kulübün Ortak Kitabı</h3>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">"{progressData.bookTitle}" — {progressData.memberCount} Üye</p>
 
-            <div className="w-full bg-muted rounded-full overflow-hidden h-3">
+            <div className="w-full bg-muted rounded-full overflow-hidden h-2">
                 <div
-                    className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                    className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
                     style={{ width: `${percentage}%` }}
                 />
             </div>
+            <p className="text-[11px] text-muted-foreground/70 mt-2 text-right">%{percentage}</p>
         </div>
     );
 };

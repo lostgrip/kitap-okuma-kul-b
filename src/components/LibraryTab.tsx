@@ -200,32 +200,32 @@ const LibraryTab = () => {
   }
 
   return (
-    <div className="px-4 pt-6 pb-24 animate-fade-in">
+    <div className="px-5 pt-8 pb-24 animate-fade-in">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-serif font-bold text-foreground">
+      <div className="mb-8">
+        <h1 className="text-xl font-serif font-bold text-foreground">
           Kütüphane
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-sm">
           Kitap koleksiyonunuzu yönetin
         </p>
       </div>
 
       {/* Main Content */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-2 rounded-xl bg-muted p-1">
+      <div className="space-y-5">
+        <div className="flex items-center gap-1 rounded-xl bg-muted/60 p-1">
           <button
             onClick={() => setActiveLibraryTab('my_library')}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground'
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
+              activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Kütüphanem
           </button>
           <button
             onClick={() => setActiveLibraryTab('all_books')}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              activeLibraryTab === 'all_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground'
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
+              activeLibraryTab === 'all_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <span className="inline-flex items-center gap-1.5">
