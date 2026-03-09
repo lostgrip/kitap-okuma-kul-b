@@ -26,10 +26,10 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
   const navigate = useNavigate();
 
   const sizes = {
-    sm: 'w-16 h-24 shrink-0',
-    md: 'w-24 h-36 shrink-0',
-    lg: 'w-32 h-48 shrink-0',
-    full: 'w-full aspect-[2/3] h-auto shrink-0',
+    sm: 'w-16 aspect-[2/3] shrink-0',
+    md: 'w-24 aspect-[2/3] shrink-0',
+    lg: 'w-32 aspect-[2/3] shrink-0',
+    full: 'w-full aspect-[2/3] shrink-0',
   };
 
   const textSizes = {
@@ -55,22 +55,12 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
           sizes[size]
         )}
       >
-        {/* Apple Music Style Ambient Blur Background (Fill Empty Aspect Ratio Gaps) */}
-        <div 
-          className="absolute inset-0 scale-110 blur-xl opacity-40 bg-cover bg-center"
-          style={{ backgroundImage: `url(${getOptimizedCoverUrl(book.cover_url, { width: 10 })})` }}
-        />
-        
-        {/* Main Cover Image (Uncropped) */}
         <img
           src={getOptimizedCoverUrl(book.cover_url, { width: COVER_WIDTHS[size] })}
           alt={book.title}
           loading="lazy"
           decoding="async"
-          className={cn(
-            "w-full h-full relative z-10",
-            size === 'full' ? "object-contain" : "object-cover"
-          )}
+          className="w-full h-full object-cover object-top"
           onError={(e) => {
             (e.target as HTMLImageElement).src = getOptimizedCoverUrl(null);
           }}
