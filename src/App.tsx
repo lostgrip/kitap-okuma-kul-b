@@ -76,6 +76,7 @@ const App = () => (
                   <Route path="/edit-profile" element={<EditProfile />} />
                   <Route path="/members/:userId" element={<MemberProfile />} />
                   <Route path="/" element={<Index />} />
+                  <Route path="/privacy" element={<Privacy />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
