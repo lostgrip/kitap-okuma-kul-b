@@ -467,7 +467,7 @@ const CollectionBooksView = ({ listId, books, searchQuery }: CollectionBooksView
               cover_url: book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
             }}
             size="full"
-            className="bg-card p-3 rounded-xl shadow-soft flex-1"
+            className="bg-card rounded-xl shadow-soft flex-1 overflow-hidden"
           />
         </div>
       ))}

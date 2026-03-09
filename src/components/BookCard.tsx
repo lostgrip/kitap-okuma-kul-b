@@ -49,7 +49,8 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
     >
       <div
         className={cn(
-          'relative rounded-xl overflow-hidden shadow-card bg-muted',
+          'relative bg-muted',
+          size === 'full' ? 'rounded-t-2xl overflow-hidden' : 'rounded-xl overflow-hidden shadow-card',
           'transition-shadow duration-300 group-hover:shadow-elevated',
           sizes[size]
         )}
@@ -70,7 +71,10 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
           </div>
         )}
       </div>
-      <div className="mt-2 flex-1 flex flex-col justify-start min-h-[4rem]">
+      <div className={cn(
+        "mt-2 flex-1 flex flex-col justify-start min-h-[4rem]",
+        size === 'full' && "px-3 pb-3"
+      )}>
         <h4
           className={cn(
             'font-serif font-semibold text-foreground line-clamp-2 leading-snug',

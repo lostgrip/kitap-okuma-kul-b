@@ -273,7 +273,7 @@ const LibraryTab = () => {
                     }}
                     size="full"
                     isClubBook={activeClubBookIds.includes(book.id)}
-                    className="bg-card p-3 rounded-xl shadow-soft flex-1"
+                    className="bg-card rounded-xl shadow-soft flex-1 overflow-hidden"
                   />
                   {(isAdmin || book.added_by === user?.id) && (
                     <div className="absolute top-2 right-2 z-10">

@@ -390,7 +390,7 @@ const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
               }}
               size="full"
               isClubBook={activeClubBookIds.includes(book.id)}
-              className="bg-stone-50 dark:bg-stone-900/50 p-3 rounded-2xl shadow-sm hover:-translate-y-0.5 transition-transform duration-500 flex-1"
+              className="bg-stone-50 dark:bg-stone-900/50 rounded-2xl shadow-sm hover:-translate-y-0.5 transition-transform duration-500 flex-1 overflow-hidden"
             />
 
             {/* VibeBookshelf: His Etiketi */}
