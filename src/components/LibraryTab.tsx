@@ -138,6 +138,8 @@ const LibraryTab = () => {
         }
       }
 
+      // TODO: 'books' tablosunda 'publisher' adında ayrı bir sütun bulunmuyor.
+      // Şimdilik description içine string birleştirme yapıyoruz. İleride DB migration eklenecek.
       const descriptionPayload = newBook.publisher
         ? (newBook.description ? newBook.description + '\n\nYayınevi: ' + newBook.publisher : 'Yayınevi: ' + newBook.publisher)
         : newBook.description || null;
@@ -210,7 +212,7 @@ const LibraryTab = () => {
   }
 
   return (
-    <div className="px-5 pt-8 pb-24 animate-fade-in">
+    <div className="px-5 pt-8 pb-24 animate-fade-in overflow-x-hidden">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl font-serif font-bold text-foreground">
@@ -345,7 +347,7 @@ const LibraryTab = () => {
               <Plus className="w-6 h-6" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="mx-4 rounded-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] mx-auto rounded-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
             <DialogHeader>
               <DialogTitle className="font-serif text-xl">
                 Yeni Kitap Ekle

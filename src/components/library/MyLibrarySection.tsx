@@ -316,11 +316,10 @@ const ListCard = ({ list, isSelected, onClick }: ListCardProps) => {
 
 interface ListBooksViewProps {
   listId: string;
-  books: Book[];
   searchQuery: string;
 }
 
-const ListBooksView = ({ listId, searchQuery }: Omit<ListBooksViewProps, 'books'>) => {
+const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
   const { user } = useAuth();
   const { data: items = [], isLoading } = useBookListItems(listId);
   const removeFromList = useRemoveBookFromList();

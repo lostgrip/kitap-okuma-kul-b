@@ -41,7 +41,7 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
     <button
       onClick={() => navigate(`/book/${book.id}`)}
       className={cn(
-        'flex flex-col text-left group transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98]',
+        'flex flex-col text-left group transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98] h-full',
         className
       )}
     >
@@ -68,7 +68,7 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
           </div>
         )}
       </div>
-      <div className="mt-2">
+      <div className="mt-2 flex-1 flex flex-col justify-start min-h-[4rem]">
         <h4
           className={cn(
             'font-serif font-semibold text-foreground line-clamp-2 leading-snug',
@@ -79,7 +79,7 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
         </h4>
         <p
           className={cn(
-            'text-muted-foreground mt-0.5',
+            'text-muted-foreground mt-0.5 line-clamp-1',
             size === 'sm' ? 'text-[10px]' : 'text-xs'
           )}
         >

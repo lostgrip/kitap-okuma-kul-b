@@ -34,7 +34,7 @@ const CombinedBookSearchDialog = ({ open, onOpenChange, onSelectBook }: Combined
       setQuery('');
       clearResults();
     }
-  }, [open]);
+  }, [open, clearResults]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
