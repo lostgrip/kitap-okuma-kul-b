@@ -10,55 +10,51 @@ const TopNav = () => {
   const { data: unreadCount = 0 } = useUnreadNotificationCount(user?.id);
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b-2 border-border">
-      <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo */}
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          
-          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-soft">
-            <SwatchBook className="w-5 h-5 text-primary-foreground" />
+          className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+        >
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <SwatchBook className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="font-serif text-2xl font-extrabold text-center">Kitap İmecesi
- </span>
+          <span className="font-serif text-lg font-bold text-foreground">Kitap İmecesi</span>
         </button>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-3">
-          {/* Notifications */}
-          <button onClick={() => navigate('/notifications')}
-          className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-            
-            <Bell className="w-5 h-5 text-foreground" />
-            {unreadCount > 0 &&
-            <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => navigate('/notifications')}
+            className="relative p-2.5 rounded-xl hover:bg-muted transition-colors duration-200"
+          >
+            <Bell className="w-[18px] h-[18px] text-muted-foreground" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
-            }
+            )}
           </button>
 
-          {/* Avatar */}
           <button
             onClick={() => navigate('/profile')}
-            className="hover:opacity-80 transition-opacity">
-            
-            {user && profile ?
-            <Avatar
-              src={profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`}
-              name={profile.display_name || profile.username}
-              size="sm" /> :
-
-
-            <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center border-2 border-border">
+            className="p-1 rounded-xl hover:bg-muted transition-colors duration-200"
+          >
+            {user && profile ? (
+              <Avatar
+                src={profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`}
+                name={profile.display_name || profile.username}
+                size="sm"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                 <span className="text-xs font-medium text-muted-foreground">?</span>
               </div>
-            }
+            )}
           </button>
         </div>
       </div>
-    </header>);
-
+    </header>
+  );
 };
 
 export default TopNav;

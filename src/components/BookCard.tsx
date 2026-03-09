@@ -40,11 +40,15 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
   return (
     <button
       onClick={() => navigate(`/book/${book.id}`)}
-      className={cn('flex flex-col text-left hover:opacity-90 transition-opacity', className)}
+      className={cn(
+        'flex flex-col text-left group transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98]',
+        className
+      )}
     >
       <div
         className={cn(
-          'relative rounded-lg overflow-hidden shadow-card bg-muted border-2 border-border',
+          'relative rounded-xl overflow-hidden shadow-card bg-muted',
+          'transition-shadow duration-300 group-hover:shadow-elevated',
           sizes[size]
         )}
       >
@@ -59,15 +63,15 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
           }}
         />
         {isClubBook && (
-          <div className="absolute top-2 left-2 bg-amber-500 text-white p-1 rounded-md shadow-sm backdrop-blur-md bg-opacity-90">
-            <Crown className="w-3.5 h-3.5" />
+          <div className="absolute top-1.5 left-1.5 bg-amber/90 text-foreground p-1 rounded-md shadow-sm backdrop-blur-sm">
+            <Crown className="w-3 h-3" />
           </div>
         )}
       </div>
       <div className="mt-2">
         <h4
           className={cn(
-            'font-serif font-semibold text-foreground line-clamp-2',
+            'font-serif font-semibold text-foreground line-clamp-2 leading-snug',
             textSizes[size]
           )}
         >
@@ -94,4 +98,3 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
 BookCard.displayName = 'BookCard';
 
 export default BookCard;
-
