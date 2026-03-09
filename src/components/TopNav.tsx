@@ -13,52 +13,52 @@ const TopNav = () => {
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b-2 border-border">
       <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <button 
+        <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-        >
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          
           <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-xs">
             <BookOpen className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-serif font-bold text-lg">Kitap Kulübü</span>
+          <span className="font-serif text-2xl font-extrabold text-center">Kitap İmecesi
+ </span>
         </button>
 
         {/* Right Side */}
         <div className="flex items-center gap-3">
           {/* Notifications */}
-          <button
-            onClick={() => navigate('/notifications')}
-            className="relative p-2 rounded-lg hover:bg-muted transition-colors"
-          >
+          <button onClick={() => navigate('/notifications')}
+          className="relative p-2 rounded-lg hover:bg-muted transition-colors">
+            
             <Bell className="w-5 h-5 text-foreground" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+            {unreadCount > 0 &&
+            <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
-            )}
+            }
           </button>
 
           {/* Avatar */}
           <button
             onClick={() => navigate('/profile')}
-            className="hover:opacity-80 transition-opacity"
-          >
-            {user && profile ? (
-              <Avatar
-                src={profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`}
-                name={profile.display_name || profile.username}
-                size="sm"
-              />
-            ) : (
-              <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center border-2 border-border">
+            className="hover:opacity-80 transition-opacity">
+            
+            {user && profile ?
+            <Avatar
+              src={profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`}
+              name={profile.display_name || profile.username}
+              size="sm" /> :
+
+
+            <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center border-2 border-border">
                 <span className="text-xs font-medium text-muted-foreground">?</span>
               </div>
-            )}
+            }
           </button>
         </div>
       </div>
-    </header>
-  );
+    </header>);
+
 };
 
 export default TopNav;
