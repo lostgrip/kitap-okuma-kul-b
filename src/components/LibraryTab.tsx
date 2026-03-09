@@ -260,7 +260,7 @@ const LibraryTab = () => {
         ) : (
           <div>
             <h2 className="text-xl font-serif font-semibold text-foreground mb-4">Tüm Kitaplar</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {filteredBooks.map((book) => (
                 <div key={book.id} className="relative h-full flex flex-col">
                   <BookCard

@@ -373,7 +373,7 @@ const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
       {filteredBooks.map(book => {
         const listItem = items.find(item => item.book_id === book.id);
         const isOwner = book.added_by === user?.id;

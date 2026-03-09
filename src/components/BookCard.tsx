@@ -36,7 +36,7 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-base',
-    full: 'text-sm',
+    full: 'text-[11px] leading-tight',
   };
 
   return (
@@ -51,34 +51,44 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
         className={cn(
           'relative bg-muted',
           size === 'full' ? 'rounded-t-2xl overflow-hidden' : 'rounded-xl overflow-hidden shadow-card',
-          'transition-shadow duration-300 group-hover:shadow-elevated',
+          'transition-shadow duration-300 group-hover:shadow-elevated flex items-center justify-center',
           sizes[size]
         )}
       >
+        {/* Apple Music Style Ambient Blur Background (Fill Empty Aspect Ratio Gaps) */}
+        <div 
+          className="absolute inset-0 scale-110 blur-xl opacity-40 bg-cover bg-center"
+          style={{ backgroundImage: `url(${getOptimizedCoverUrl(book.cover_url, { width: 10 })})` }}
+        />
+        
+        {/* Main Cover Image (Uncropped) */}
         <img
           src={getOptimizedCoverUrl(book.cover_url, { width: COVER_WIDTHS[size] })}
           alt={book.title}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover"
+          className={cn(
+            "w-full h-full relative z-10",
+            size === 'full' ? "object-contain" : "object-cover"
+          )}
           onError={(e) => {
             (e.target as HTMLImageElement).src = getOptimizedCoverUrl(null);
           }}
         />
         {isClubBook && (
-          <div className="absolute top-1.5 left-1.5 bg-amber/90 text-foreground p-1 rounded-md shadow-sm backdrop-blur-sm">
+          <div className="absolute top-1.5 left-1.5 bg-amber/90 text-foreground p-1 rounded-md shadow-sm backdrop-blur-sm z-20">
             <Crown className="w-3 h-3" />
           </div>
         )}
       </div>
       <div className={cn(
         "mt-2 flex-1 flex flex-col justify-start min-h-[4rem]",
-        size === 'full' && "px-3 pb-3"
+        size === 'full' && "px-2 pb-3"
       )}>
         <h4
           className={cn(
             'font-serif font-semibold text-foreground line-clamp-2 leading-snug',
-            size === 'full' && 'min-h-[2.5rem]',
+            size === 'full' && 'min-h-[2rem]',
             textSizes[size]
           )}
         >
@@ -87,7 +97,7 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
         <p
           className={cn(
             'text-muted-foreground mt-0.5 line-clamp-1',
-            size === 'sm' ? 'text-[10px]' : 'text-xs'
+            size === 'full' ? 'text-[9px]' : (size === 'sm' ? 'text-[10px]' : 'text-xs')
           )}
         >
           {book.author}
