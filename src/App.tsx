@@ -24,6 +24,7 @@ const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
 const MemberProfile = lazy(() => import("./pages/MemberProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
