@@ -62,7 +62,9 @@ const LibraryTab = () => {
   const { upload, isUploading } = useFileUpload();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeLibraryTab, setActiveLibraryTab] = useState<'my_library' | 'all_books'>('my_library');
+  const [activeLibraryTab, setActiveLibraryTab] = useState<'my_library' | 'all_books'>(() => {
+    return (sessionStorage.getItem('activeLibraryTab') as 'my_library' | 'all_books') || 'my_library';
+  });
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -227,14 +229,20 @@ const LibraryTab = () => {
       <div className="space-y-5">
         <div className="flex items-center gap-1 rounded-xl bg-muted/60 p-1">
           <button
-            onClick={() => setActiveLibraryTab('my_library')}
+            onClick={() => {
+              setActiveLibraryTab('my_library');
+              sessionStorage.setItem('activeLibraryTab', 'my_library');
+            }}
             className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
               }`}
           >
             Kütüphanem
           </button>
           <button
-            onClick={() => setActiveLibraryTab('all_books')}
+            onClick={() => {
+              setActiveLibraryTab('all_books');
+              sessionStorage.setItem('activeLibraryTab', 'all_books');
+            }}
             className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${activeLibraryTab === 'all_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
               }`}
           >

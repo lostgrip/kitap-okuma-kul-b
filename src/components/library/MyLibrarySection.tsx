@@ -110,9 +110,18 @@ const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
 
   const createList = useCreateBookList();
 
-  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [selectedListId, setSelectedListId] = useState<string | null>(() => {
+    return sessionStorage.getItem('MyLib_selectedListId');
+  });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newListName, setNewListName] = useState('');
+
+  const handleListToggle = (id: string) => {
+    const nextId = selectedListId === id ? null : id;
+    setSelectedListId(nextId);
+    if (nextId) sessionStorage.setItem('MyLib_selectedListId', nextId);
+    else sessionStorage.removeItem('MyLib_selectedListId');
+  };
 
   const myLists = allLists.filter(list => !list.is_community);
 
@@ -198,7 +207,7 @@ const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
               key={list.id}
               list={list}
               isSelected={selectedListId === list.id}
-              onClick={() => setSelectedListId(selectedListId === list.id ? null : list.id)}
+              onClick={() => handleListToggle(list.id)}
             />
           ))}
         </div>
@@ -258,7 +267,7 @@ const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
                 key={list.id}
                 list={list}
                 isSelected={selectedListId === list.id}
-                onClick={() => setSelectedListId(selectedListId === list.id ? null : list.id)}
+                onClick={() => handleListToggle(list.id)}
               />
             ))}
           </div>

@@ -29,7 +29,7 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
     sm: 'w-16 aspect-[2/3] shrink-0',
     md: 'w-24 aspect-[2/3] shrink-0',
     lg: 'w-32 aspect-[2/3] shrink-0',
-    full: 'w-full aspect-[2/3] shrink-0',
+    full: 'w-full aspect-[2/3] shrink-0 overflow-hidden',
   };
 
   const textSizes = {
