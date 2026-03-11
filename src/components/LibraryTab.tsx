@@ -214,6 +214,7 @@ const LibraryTab = () => {
   }
 
   return (
+    <>
     <div className="px-5 pt-8 pb-24 animate-fade-in overflow-x-hidden">
       {/* Header */}
       <div className="mb-8">
