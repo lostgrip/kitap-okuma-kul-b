@@ -32,7 +32,7 @@ const GroupGate = () => {
       // Validate invite code via secure RPC
       const { data: validation, error: validateError } = await supabase.rpc('validate_invite_code', {
         code: groupCode.trim(),
-      }) as { data: { valid: boolean; group_code: string; code_id: string } | null; error: any };
+      }) as { data: { valid: boolean; group_code: string; code_id: string } | null; error: Error | null };
 
       if (validateError) throw validateError;
 
@@ -73,7 +73,7 @@ const GroupGate = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
       {/* Logo */}
-      <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center shadow-md mb-8">
+      <div className="w-20 h-20 bg-primary rounded-xl flex items-center justify-center shadow-md mb-8">
         <BookOpen className="w-10 h-10 text-primary-foreground" />
       </div>
 
@@ -87,7 +87,7 @@ const GroupGate = () => {
 
       {/* Group Code Input */}
       <div className="w-full max-w-sm space-y-6">
-        <div className="bg-card rounded-2xl p-6 border-2 border-border shadow-sm">
+        <div className="bg-card rounded-xl p-6 border-2 border-border shadow-sm">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
               <Users className="w-5 h-5 text-primary" />

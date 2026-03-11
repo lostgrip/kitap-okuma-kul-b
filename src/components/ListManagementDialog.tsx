@@ -60,7 +60,7 @@ const ListManagementDialog = ({ bookId, open, onOpenChange }: ListManagementDial
             if (isChecked) {
                 // ADD to list
                 if (list.is_default) {
-                    await addToDefault.mutateAsync({ bookId, listType: list.list_type as any });
+                    await addToDefault.mutateAsync({ bookId, listType: list.list_type as 'want_to_read' | 'reading' | 'read' | 'dnf' });
                     // Note: Adding to a default list automatically removes from other default lists in the backend hook.
                     // For UI optimism, we should uncheck other default lists.
                     defaultLists.forEach(dl => {
@@ -121,7 +121,7 @@ const ListManagementDialog = ({ bookId, open, onOpenChange }: ListManagementDial
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="font-serif text-xl">Listeleri Yönet</DialogTitle>
                     <DialogDescription>

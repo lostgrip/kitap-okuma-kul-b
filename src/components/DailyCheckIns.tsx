@@ -35,7 +35,7 @@ export const DailyCheckIns = () => {
     if (isLoading) return null;
 
     return (
-        <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40 mb-6">
+        <div className="bg-card rounded-xl p-5 shadow-card border border-border/40 mb-6">
             <h3 className="font-serif font-semibold text-sm mb-3 text-forest flex items-center gap-2">
                 <Leaf className="w-4 h-4" />
                 Bugün Okuyanlar

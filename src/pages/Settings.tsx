@@ -277,7 +277,7 @@ const Settings = () => {
             <HelpCircle className="w-4 h-4" />
             Sıkça Sorulan Sorular
           </h2>
-          <div className="bg-card rounded-2xl border-2 border-border p-5 sm:p-6 shadow-sm">
+          <div className="bg-card rounded-xl border-2 border-border p-5 sm:p-6 shadow-sm">
             <Accordion type="single" collapsible className="w-full">
               {faqItems.map((item, index) => (
                 <AccordionItem key={index} value={`item-${index}`}>

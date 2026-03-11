@@ -203,7 +203,7 @@ export const usePendingListProposals = () => {
       if (slError) throw slError;
       if (!shadowLists.length) return [];
 
-      const shadowListIds = shadowLists.map((l: any) => l.id);
+      const shadowListIds = shadowLists.map((l: BookList) => l.id);
 
       // 2. Get items in those lists with book details
       const { data: items, error: itemsError } = await supabase
@@ -220,8 +220,8 @@ export const usePendingListProposals = () => {
       if (itemsError) throw itemsError;
 
       // Map them to include the target list ID (from description) and original list name
-      return items.map((item: any) => {
-        const shadowList = shadowLists.find((l: any) => l.id === item.list_id);
+      return items.map((item: { id: string, book_id: string, list_id: string, added_at: string, book: unknown }) => {
+        const shadowList = shadowLists.find((l: BookList) => l.id === item.list_id);
         const originalName = shadowList?.name.replace('[ONAY BEKLİYOR] ', '') || 'Unknown List';
         const targetListId = shadowList?.description || ''; // We stored the target list ID here
 

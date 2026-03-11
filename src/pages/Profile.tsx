@@ -185,17 +185,17 @@ const Profile = () => {
 
               {/* Quick Stats */}
               <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-8">
-                <div className="text-center p-4 bg-muted/50 rounded-2xl">
+                <div className="text-center p-4 bg-muted/50 rounded-xl">
                   <BookOpen className="h-5 w-5 mx-auto mb-1 text-primary" />
                   <p className="text-2xl font-bold">{readingBooks}</p>
                   <p className="text-xs text-muted-foreground">Okunan</p>
                 </div>
-                <div className="text-center p-4 bg-muted/50 rounded-2xl">
+                <div className="text-center p-4 bg-muted/50 rounded-xl">
                   <Target className="h-5 w-5 mx-auto mb-1 text-primary" />
                   <p className="text-2xl font-bold">{completedBooks}</p>
                   <p className="text-xs text-muted-foreground">Tamamlanan</p>
                 </div>
-                <div className="text-center p-4 bg-muted/50 rounded-2xl">
+                <div className="text-center p-4 bg-muted/50 rounded-xl">
                   <TrendingUp className="h-5 w-5 mx-auto mb-1 text-primary" />
                   <p className="text-2xl font-bold">{totalPagesRead}</p>
                   <p className="text-xs text-muted-foreground">Sayfa</p>
@@ -354,15 +354,15 @@ const Profile = () => {
                 <CardTitle className="text-base font-serif">Okuma İstatistikleri</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 p-6 pt-0">
-                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-2xl">
+                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
                   <span className="text-muted-foreground">Toplam Okunan Sayfa</span>
                   <span className="font-bold text-lg">{totalPagesRead}</span>
                 </div>
-                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-2xl">
+                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
                   <span className="text-muted-foreground">Şu An Okunan Kitap</span>
                   <span className="font-bold text-lg">{readingBooks}</span>
                 </div>
-                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-2xl">
+                <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
                   <span className="text-muted-foreground">Tamamlanan Kitap</span>
                   <span className="font-bold text-lg">{completedBooks}</span>
                 </div>

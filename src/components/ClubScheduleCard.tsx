@@ -24,7 +24,7 @@ const ClubScheduleCard = ({ schedule, books }: ClubScheduleCardProps) => {
     };
 
     return (
-        <div className="bg-card rounded-2xl p-5 shadow-card mb-6">
+        <div className="bg-card rounded-xl p-5 shadow-card mb-6">
             <h3 className="font-serif font-semibold text-base mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-primary" />
                 Kulüp Takvimi

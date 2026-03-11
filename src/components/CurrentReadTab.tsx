@@ -130,7 +130,7 @@ const CurrentReadTab = () => {
           <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-widest">Şu Anda Okunan</p>
           <h1 className="text-xl font-serif font-bold text-foreground mt-1">Kitap Seçilmedi</h1>
         </div>
-        <div className="bg-card rounded-2xl p-8 shadow-card text-center border border-border/40">
+        <div className="bg-card rounded-xl p-8 shadow-card text-center border border-border/40">
           <BookOpen className="w-12 h-12 mx-auto text-muted-foreground/25 mb-4" />
           <p className="text-muted-foreground text-sm leading-relaxed max-w-[260px] mx-auto">
             Şu an okuduğunuz bir kitap görünmüyor. Kütüphanenizden yeni bir yolculuğa başlayabilirsiniz.
@@ -251,12 +251,12 @@ const CurrentReadTab = () => {
             <img
               src={displayBook.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
               alt=""
-              className="w-full h-full object-cover rounded-2xl"
+              className="w-full h-full object-cover rounded-xl"
             />
           </div>
 
           {/* Actual Cover */}
-          <div className="relative rounded-2xl overflow-hidden shadow-elevated group-hover:shadow-card">
+          <div className="relative rounded-xl overflow-hidden shadow-elevated group-hover:shadow-card">
             <img
               src={displayBook.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
               alt={displayBook.title}
@@ -280,7 +280,7 @@ const CurrentReadTab = () => {
       </div>
 
       {/* Update Progress */}
-      <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40 mb-8 animate-fade-in" style={{ animationDelay: '250ms', animationFillMode: 'both' }}>
+      <div className="bg-card rounded-xl p-5 shadow-card border border-border/40 mb-8 animate-fade-in" style={{ animationDelay: '250ms', animationFillMode: 'both' }}>
         <h3 className="font-serif font-medium text-center text-foreground mb-4 flex items-center justify-center gap-2 text-sm">
           <Leaf className="w-4 h-4 text-forest" />
           Okumaya devam et

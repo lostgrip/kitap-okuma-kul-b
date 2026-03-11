@@ -43,8 +43,7 @@ export const useUserBookByBookId = (userId: string, bookId: string) => {
       if (error) throw error;
       return data as UserBook | null;
     },
-    enabled: !!userId && !!bookId,
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

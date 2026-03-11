@@ -30,7 +30,7 @@ const MemberProfile = () => {
     if (progressLoading) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
             </div>
         );
     }
@@ -60,7 +60,7 @@ const MemberProfile = () => {
 
             <div className="max-w-lg mx-auto px-4 pt-6 space-y-5">
                 {/* Profile card */}
-                <div className="bg-card rounded-2xl p-6 border border-border">
+                <div className="bg-card rounded-xl p-6 border border-border">
                     <div className="flex items-center gap-4 mb-4">
                         <Avatar
                             src={profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`}
@@ -76,8 +76,8 @@ const MemberProfile = () => {
                         </div>
                     </div>
 
-                    {(profile as any).bio && (
-                        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{(profile as any).bio}</p>
+                    {(profile as { bio?: string }).bio && (
+                        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{(profile as { bio?: string }).bio}</p>
                     )}
 
                     {/* Stats */}
@@ -110,7 +110,7 @@ const MemberProfile = () => {
 
                 {/* Currently reading */}
                 {readingBooks.length > 0 && (
-                    <div className="bg-card rounded-2xl p-5 border border-border">
+                    <div className="bg-card rounded-xl p-5 border border-border">
                         <h3 className="font-serif font-semibold mb-3">Şu An Okuyor</h3>
                         <div className="space-y-3">
                             {readingBooks.map(p => {
@@ -143,7 +143,7 @@ const MemberProfile = () => {
 
                 {/* Completed books */}
                 {completedBooks.length > 0 && (
-                    <div className="bg-card rounded-2xl p-5 border border-border">
+                    <div className="bg-card rounded-xl p-5 border border-border">
                         <h3 className="font-serif font-semibold mb-3">Tamamlananlar ({completedBooks.length})</h3>
                         <div className="flex gap-2 flex-wrap">
                             {completedBooks.slice(0, 12).map(p => {

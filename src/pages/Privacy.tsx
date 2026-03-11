@@ -56,7 +56,7 @@ const Privacy = () => {
                 </section>
 
                 <section className="bg-muted/50 rounded-xl p-6 mt-8 border-2 border-border text-center">
-                    <Shield className="w-8 h-8 text-primary mx-auto mb-3 opacity-80" />
+                    <Shield className="w-10 h-10 text-primary mx-auto mb-3 opacity-80" />
                     <p className="text-sm font-medium">Verileriniz bizim için önemli ve güvendedir.</p>
                     <p className="text-xs text-muted-foreground mt-1">Son Güncelleme: Mart 2026</p>
                 </section>

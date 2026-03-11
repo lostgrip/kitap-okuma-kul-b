@@ -68,7 +68,7 @@ export const ClubProgress = () => {
         : 0;
 
     return (
-        <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40">
+        <div className="bg-card rounded-xl p-5 shadow-card border border-border/40">
             <div className="flex items-center gap-2 mb-1">
                 <Users className="w-4 h-4 text-primary" />
                 <h3 className="font-serif font-semibold text-sm text-foreground">Kulübün Ortak Kitabı</h3>

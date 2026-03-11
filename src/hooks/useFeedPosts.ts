@@ -10,7 +10,7 @@ export interface FeedPost {
   image_url: string | null;
   created_at: string;
   updated_at: string;
-  feed_post_likes?: { user_id: string }[];
+  feed_post_likes?: { user_id: string }[] | null | unknown;
 }
 
 export interface NewFeedPost {
@@ -26,7 +26,7 @@ export const useFeedPosts = () => {
     queryKey: ['feed_posts'],
     staleTime: 3 * 60 * 1000,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('feed_posts')
         .select(`
           *,
@@ -37,7 +37,7 @@ export const useFeedPosts = () => {
       if (error) {
         // Fallback if the relation doesn't exist yet on the remote database
         if (error.code === 'PGRST200') {
-          const { data: fallbackData, error: fallbackError } = await (supabase as any)
+          const { data: fallbackData, error: fallbackError } = await supabase
             .from('feed_posts')
             .select('*')
             .order('created_at', { ascending: false });
@@ -46,7 +46,7 @@ export const useFeedPosts = () => {
         }
         throw error;
       }
-      return data as FeedPost[];
+      return data as unknown as FeedPost[];
     },
   });
 };
@@ -100,7 +100,7 @@ export const useLikePost = () => {
 
   return useMutation({
     mutationFn: async ({ postId, userId }: { postId: string; userId: string }) => {
-      const { error } = await (supabase as any)
+      const { error } = await (supabase as unknown as { from: (table: string) => { insert: (data: unknown) => Promise<{ error: unknown }>, delete: () => { eq: (field: string, val: unknown) => { eq: (field: string, val: unknown) => Promise<{ error: unknown }> } } } })
         .from('feed_post_likes')
         .insert({ post_id: postId, user_id: userId });
 
@@ -117,7 +117,7 @@ export const useUnlikePost = () => {
 
   return useMutation({
     mutationFn: async ({ postId, userId }: { postId: string; userId: string }) => {
-      const { error } = await (supabase as any)
+      const { error } = await (supabase as unknown as { from: (table: string) => { insert: (data: unknown) => Promise<{ error: unknown }>, delete: () => { eq: (field: string, val: unknown) => { eq: (field: string, val: unknown) => Promise<{ error: unknown }> } } } })
         .from('feed_post_likes')
         .delete()
         .eq('post_id', postId)

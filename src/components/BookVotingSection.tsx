@@ -114,14 +114,14 @@ const BookVotingSection = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-card rounded-2xl p-5 shadow-card mb-6 flex items-center justify-center min-h-32">
+      <div className="bg-card rounded-xl p-5 shadow-card mb-6 flex items-center justify-center min-h-32">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-card mb-6">
+    <div className="bg-card rounded-xl p-5 shadow-card mb-6">
       <div className="flex items-center justify-between mb-1">
         <h3 className="font-serif font-semibold text-base flex items-center gap-2">
           <Crown className="w-5 h-5 text-amber-500" />
@@ -199,13 +199,13 @@ const BookVotingSection = () => {
               <button
                 onClick={() => handleVote(nomination.id, hasVoted)}
                 disabled={addVote.isPending || removeVote.isPending}
-                className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all ${
+                className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${
                   hasVoted
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground hover:bg-accent'
                 }`}
               >
-                {hasVoted ? <ThumbsDown className="w-4 h-4" /> : <ThumbsUp className="w-4 h-4" />}
+                {hasVoted ? <ThumbsDown className="w-5 h-5" /> : <ThumbsUp className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -213,7 +213,7 @@ const BookVotingSection = () => {
 
         {nominations.length === 0 && (
           <div className="text-center py-6">
-            <Crown className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+            <Crown className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">Henüz aday gösterilen kitap yok</p>
             <p className="text-xs text-muted-foreground mt-1">İlk adayı siz gösterin!</p>
           </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Plus, BookOpen, Clock, Check, X, List, Loader2, Trash2, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -116,12 +116,14 @@ const MyLibrarySection = ({ searchQuery }: MyLibrarySectionProps) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newListName, setNewListName] = useState('');
 
-  const handleListToggle = (id: string) => {
-    const nextId = selectedListId === id ? null : id;
-    setSelectedListId(nextId);
-    if (nextId) sessionStorage.setItem('MyLib_selectedListId', nextId);
-    else sessionStorage.removeItem('MyLib_selectedListId');
-  };
+  const handleListToggle = useCallback((id: string) => {
+    setSelectedListId(prev => {
+      const nextId = prev === id ? null : id;
+      if (nextId) sessionStorage.setItem('MyLib_selectedListId', nextId);
+      else sessionStorage.removeItem('MyLib_selectedListId');
+      return nextId;
+    });
+  }, []);
 
   const myLists = allLists.filter(list => !list.is_community);
 
@@ -291,7 +293,7 @@ interface ListCardProps {
   onClick: () => void;
 }
 
-const ListCard = ({ list, isSelected, onClick }: ListCardProps) => {
+const ListCard = memo(({ list, isSelected, onClick }: ListCardProps) => {
   const bookCount = list.book_list_items?.[0]?.count || 0;
 
   return (
@@ -321,14 +323,15 @@ const ListCard = ({ list, isSelected, onClick }: ListCardProps) => {
       </div>
     </button>
   );
-};
+});
+ListCard.displayName = 'ListCard';
 
 interface ListBooksViewProps {
   listId: string;
   searchQuery: string;
 }
 
-const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
+const ListBooksView = memo(({ listId, searchQuery }: ListBooksViewProps) => {
   const { user } = useAuth();
   const { data: items = [], isLoading } = useBookListItems(listId);
   const removeFromList = useRemoveBookFromList();
@@ -399,7 +402,7 @@ const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
               }}
               size="full"
               isClubBook={activeClubBookIds.includes(book.id)}
-              className="bg-stone-50 dark:bg-stone-900/50 rounded-2xl shadow-sm hover:-translate-y-0.5 transition-transform duration-500 flex-1 overflow-hidden"
+              className="bg-stone-50 dark:bg-stone-900/50 rounded-xl shadow-sm hover:-translate-y-0.5 transition-transform duration-500 flex-1 overflow-hidden"
             />
 
             {/* VibeBookshelf: His Etiketi */}
@@ -409,8 +412,8 @@ const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
             <div className="absolute top-2 right-2 z-10">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
-                    <MoreVertical className="w-4 h-4" />
+                  <button className="w-10 h-10 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
+                    <MoreVertical className="w-5 h-5" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
@@ -488,6 +491,7 @@ const ListBooksView = ({ listId, searchQuery }: ListBooksViewProps) => {
       })}
     </div>
   );
-};
+});
+ListBooksView.displayName = 'ListBooksView';
 
 export default MyLibrarySection;

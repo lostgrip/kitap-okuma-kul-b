@@ -12,7 +12,7 @@ const MindfulProgressCard = ({ bookTitle, bookCover, currentPage, totalPages }: 
     const fillPercent = Math.round(fillRatio * 100);
 
     return (
-        <div className="relative rounded-2xl overflow-hidden shadow-elevated min-h-[180px]">
+        <div className="relative rounded-xl overflow-hidden shadow-elevated min-h-[180px]">
             {bookCover && (
                 <div
                     className="absolute inset-0 bg-cover bg-center scale-105"

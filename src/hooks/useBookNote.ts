@@ -13,7 +13,7 @@ export const useBookNote = (userId: string | undefined, bookId: string | undefin
                 .eq('book_id', bookId)
                 .maybeSingle();
             if (error) throw error;
-            return (data as any)?.note_text ?? null;
+            return (data as { note_text: string })?.note_text ?? null;
         },
         enabled: !!userId && !!bookId,
     });

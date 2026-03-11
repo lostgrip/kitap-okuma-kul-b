@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft,
   BookOpen,
@@ -51,6 +51,7 @@ const dbStatusToUiKey: Record<string, keyof typeof statusConfig> = {
 const BookDetail = () => {
   const { bookId } = useParams<{ bookId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { data: isAdmin } = useIsAdmin(user?.id);
 
@@ -71,10 +72,22 @@ const BookDetail = () => {
     }
   };
 
+  const handleBack = () => {
+    if (location.state?.from) {
+      if (window.history.length > 2) {
+        navigate(-1);
+      } else {
+        navigate(location.state.from + (location.state.search || ''));
+      }
+    } else {
+      navigate(-1);
+    }
+  };
+
   if (bookLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -82,7 +95,7 @@ const BookDetail = () => {
   if (!book) {
     return (
       <div className="min-h-screen bg-background p-4">
-        <Button variant="ghost" onClick={() => navigate(-1)}>
+        <Button variant="ghost" onClick={handleBack}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Geri
         </Button>
         <div className="text-center py-16">
@@ -104,7 +117,7 @@ const BookDetail = () => {
     <div className="min-h-screen bg-background pb-20 max-w-md mx-auto relative shadow-2xl">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between max-w-md mx-auto">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2">
+        <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
           <ArrowLeft className="w-4 h-4" />
           Geri
         </Button>

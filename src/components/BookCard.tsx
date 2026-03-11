@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getOptimizedCoverUrl } from '@/lib/imageUtils';
@@ -18,12 +18,14 @@ interface BookCardProps {
   ownerName?: string;
   isClubBook?: boolean;
   className?: string;
+  navState?: Record<string, unknown>;
 }
 
 const COVER_WIDTHS: Record<string, number> = { sm: 120, md: 200, lg: 280, full: 300 };
 
-const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClubBook = false, className }: BookCardProps) => {
+const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClubBook = false, className, navState }: BookCardProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const sizes = {
     sm: 'w-16 aspect-[2/3] shrink-0',
@@ -41,7 +43,7 @@ const BookCard = memo(({ book, size = 'md', showOwner = false, ownerName, isClub
 
   return (
     <button
-      onClick={() => navigate(`/book/${book.id}`)}
+      onClick={() => navigate(`/book/${book.id}`, { state: { from: location.pathname, search: location.search, ...navState } })}
       className={cn(
         'flex flex-col text-left group transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98] h-full',
         className

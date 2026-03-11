@@ -178,7 +178,7 @@ const SocialFeedTab = () => {
         <div className="flex gap-3 mb-6">
           <button
             onClick={() => setIsComposing(true)}
-            className="flex-1 bg-card rounded-2xl p-4 shadow-card border border-border/40 flex items-center gap-3 text-left hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
+            className="flex-1 bg-card rounded-xl p-4 shadow-card border border-border/40 flex items-center gap-3 text-left hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
           >
             <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
               <Send className="w-4 h-4 text-primary" />
@@ -187,7 +187,7 @@ const SocialFeedTab = () => {
           </button>
           <button
             onClick={() => setIsRecommendDialogOpen(true)}
-            className="bg-card rounded-2xl p-4 shadow-card border border-border/40 flex items-center justify-center hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
+            className="bg-card rounded-xl p-4 shadow-card border border-border/40 flex items-center justify-center hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200"
             title="Kitap Öner"
           >
             <BookOpen className="w-5 h-5 text-primary" />
@@ -197,7 +197,7 @@ const SocialFeedTab = () => {
 
       {/* Compose Card */}
       {isComposing && (
-        <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40 mb-6 animate-scale-in">
+        <div className="bg-card rounded-xl p-5 shadow-card border border-border/40 mb-6 animate-scale-in">
           <div className="flex gap-2 mb-4 flex-wrap">
             {[
               { type: 'update' as const, icon: MessageSquare, label: 'Güncelleme' },
@@ -349,7 +349,7 @@ const SocialFeedTab = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="bg-card rounded-2xl p-12 shadow-card border border-border/40 text-center flex flex-col items-center"
+            className="bg-card rounded-xl p-12 shadow-card border border-border/40 text-center flex flex-col items-center"
           >
             <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
               <MessageSquare className="w-8 h-8 text-muted-foreground/50" />

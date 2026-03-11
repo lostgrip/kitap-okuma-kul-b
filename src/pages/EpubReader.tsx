@@ -126,7 +126,7 @@ const EpubReader = () => {
     audioRef.current.src = sound.url;
     audioRef.current.volume = audioVolume;
     audioRef.current.play().catch(e => console.error("Audio play blocked", e));
-  }, [ambientSound]);
+  }, [ambientSound, audioVolume]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -215,7 +215,7 @@ const EpubReader = () => {
 
   if (bookLoading) return (
     <div className="fixed inset-0 bg-background flex items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 
@@ -291,7 +291,7 @@ const EpubReader = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setFontSize(s => Math.max(12, s - 2))}
-                  className="w-10 h-10 rounded-xl bg-muted font-bold text-xl flex items-center justify-center hover:bg-accent transition-colors select-none"
+                  className="w-11 h-11 rounded-xl bg-muted font-bold text-xl flex items-center justify-center hover:bg-accent transition-colors select-none"
                 >−</button>
                 <div className="flex-1 flex gap-1">
                   {[12, 14, 16, 18, 20, 22, 24].map(s => (

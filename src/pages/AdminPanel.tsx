@@ -78,7 +78,7 @@ const AdminPanel = () => {
   if (isAdminLoading || membersLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -223,9 +223,9 @@ const AdminPanel = () => {
             <h2 className="font-serif font-semibold text-sm text-muted-foreground uppercase tracking-wide">
               Grup Üyeleri ({members.length})
             </h2>
-            {members.map((member: any) => {
+            {members.map((member: { id: string, user_id: string, user_roles?: { role: string }[], avatar_url?: string | null, username: string, display_name?: string | null }) => {
               const memberRoles = member.user_roles || [];
-              const isMemberAdmin = memberRoles.some((r: UserRole) => r.role === 'admin');
+              const isMemberAdmin = memberRoles.some((r: { role: string }) => r.role === 'admin');
               const isCurrentUser = member.user_id === user?.id;
 
               return (
@@ -426,8 +426,8 @@ const AdminPanel = () => {
                           setNewGroupDescription('');
                           setIsCreateGroupDialogOpen(false);
                           toast.success('Grup oluşturuldu!');
-                        } catch (error: any) {
-                          if (error?.message?.includes('duplicate')) {
+                        } catch (error: Error | unknown) {
+                          if (error instanceof Error && error.message.includes('duplicate')) {
                             toast.error('Bu grup kodu zaten kullanılıyor');
                           } else {
                             toast.error('Grup oluşturulamadı');

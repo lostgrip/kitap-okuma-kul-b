@@ -44,7 +44,7 @@ const YearInReview = ({ progress, books, logs }: YearInReviewProps) => {
     if (completedBooks.length === 0) return null;
 
     return (
-        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl p-5 border border-primary/20">
+        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-xl p-5 border border-primary/20">
             <h3 className="font-serif font-semibold text-base mb-4 flex items-center gap-2">
                 <Star className="w-5 h-5 text-amber-500" />
                 {currentYear} Yılında

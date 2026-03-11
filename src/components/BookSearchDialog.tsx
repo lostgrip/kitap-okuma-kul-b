@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCombinedBookSearch, CombinedBookResult } from '@/hooks/useCombinedBookSearch';
 import { cn } from '@/lib/utils';
 
-interface CombinedBookSearchDialogProps {
+interface BookSearchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectBook: (book: {
@@ -25,7 +25,7 @@ interface CombinedBookSearchDialogProps {
   }) => void;
 }
 
-const CombinedBookSearchDialog = ({ open, onOpenChange, onSelectBook }: CombinedBookSearchDialogProps) => {
+const BookSearchDialog = ({ open, onOpenChange, onSelectBook }: BookSearchDialogProps) => {
   const [query, setQuery] = useState('');
   const { searchBooks, results, isSearching, clearResults } = useCombinedBookSearch();
 
@@ -43,7 +43,7 @@ const CombinedBookSearchDialog = ({ open, onOpenChange, onSelectBook }: Combined
       }
     }, 400);
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, searchBooks]);
 
   const handleSelect = (book: CombinedBookResult) => {
     onSelectBook({
@@ -60,7 +60,7 @@ const CombinedBookSearchDialog = ({ open, onOpenChange, onSelectBook }: Combined
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[80vh]">
+      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-serif">Kitap Ara</DialogTitle>
         </DialogHeader>
@@ -136,4 +136,4 @@ const CombinedBookSearchDialog = ({ open, onOpenChange, onSelectBook }: Combined
   );
 };
 
-export default CombinedBookSearchDialog;
+export default BookSearchDialog;

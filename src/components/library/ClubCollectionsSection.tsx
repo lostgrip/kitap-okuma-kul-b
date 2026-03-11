@@ -221,7 +221,7 @@ const ClubCollectionsSection = ({ searchQuery }: ClubCollectionsSectionProps) =>
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="text-center py-12 bg-card rounded-2xl border border-border/40 shadow-card flex flex-col items-center"
+              className="text-center py-12 bg-card rounded-xl border border-border/40 shadow-card flex flex-col items-center"
             >
               <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
                 <BookOpen className="w-8 h-8 text-muted-foreground/50" />
@@ -249,8 +249,8 @@ const ClubCollectionsSection = ({ searchQuery }: ClubCollectionsSectionProps) =>
                     <div className="absolute top-2 right-2 z-10">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
-                            <MoreVertical className="w-4 h-4" />
+                          <button className="w-10 h-10 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
+                            <MoreVertical className="w-5 h-5" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40">
@@ -363,7 +363,7 @@ const ClubCollectionsSection = ({ searchQuery }: ClubCollectionsSectionProps) =>
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="text-center py-12 bg-card rounded-2xl border border-border/40 shadow-card flex flex-col items-center"
+                className="text-center py-12 bg-card rounded-xl border border-border/40 shadow-card flex flex-col items-center"
               >
                 <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
                   <Users className="w-8 h-8 text-muted-foreground/50" />
@@ -443,7 +443,7 @@ const CollectionBooksView = ({ listId, books, searchQuery }: CollectionBooksView
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="text-center py-12 bg-card rounded-2xl border border-border/40 shadow-card flex flex-col items-center mt-4 col-span-2"
+        className="text-center py-12 bg-card rounded-xl border border-border/40 shadow-card flex flex-col items-center mt-4 col-span-2"
       >
         <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
           <BookOpen className="w-8 h-8 text-muted-foreground/50" />

@@ -48,7 +48,7 @@ const QuoteOfTheDay = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40">
+      <div className="bg-card rounded-xl p-5 shadow-card border border-border/40">
         <div className="flex justify-center py-4">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
@@ -57,11 +57,11 @@ const QuoteOfTheDay = () => {
   }
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-card border border-primary/15">
+    <div className="bg-card rounded-xl p-5 shadow-card border border-primary/15">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Quote className="w-4 h-4 text-primary" />
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Quote className="w-5 h-5 text-primary" />
           </div>
           <h3 className="font-serif font-semibold text-sm">Günün Sözü</h3>
         </div>

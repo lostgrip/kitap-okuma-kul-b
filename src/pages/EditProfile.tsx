@@ -136,7 +136,7 @@ const EditProfile = () => {
               name={displayName || username}
               size="lg"
             />
-            <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors">
+            <label className="absolute -bottom-1 -right-1 w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors">
               <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
               <Camera className="w-4 h-4" />
             </label>
@@ -178,6 +178,7 @@ const EditProfile = () => {
               <Input id="email" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="mt-1.5 h-12 bg-muted border-0 rounded-xl" />
             </div>
             <Button variant="outline" onClick={handleUpdateEmail} className="w-full h-12 rounded-xl" disabled={isUpdating}>
+              {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               E-postayı Güncelle
             </Button>
           </div>
@@ -199,6 +200,7 @@ const EditProfile = () => {
               <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Şifreyi tekrar girin" className="mt-1.5 h-12 bg-muted border-0 rounded-xl" />
             </div>
             <Button variant="outline" onClick={handleUpdatePassword} className="w-full h-12 rounded-xl" disabled={isUpdating}>
+              {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Şifreyi Güncelle
             </Button>
           </div>

@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import BookCard from './BookCard';
-import CombinedBookSearchDialog from './CombinedBookSearchDialog';
+import BookSearchDialog from './BookSearchDialog';
 import MyLibrarySection from './library/MyLibrarySection';
 import { useBooks, useAddBook, useDeleteBook } from '@/hooks/useBooks';
 import { useBookLists } from '@/hooks/useBookLists';
@@ -157,7 +157,7 @@ const LibraryTab = () => {
         added_by: user.id,
       };
 
-      let createdBook = await addBook.mutateAsync(payload);
+      const createdBook = await addBook.mutateAsync(payload);
 
       // Add to selected destination list (skip if 'none')
       if (selectedDestination !== 'none') {
@@ -288,8 +288,8 @@ const LibraryTab = () => {
                     <div className="absolute top-2 right-2 z-10">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
-                            <MoreVertical className="w-4 h-4" />
+                          <button className="w-10 h-10 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
+                            <MoreVertical className="w-5 h-5" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40">
@@ -335,7 +335,7 @@ const LibraryTab = () => {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="text-center py-16 bg-card rounded-2xl border border-border/40 shadow-card flex flex-col items-center mt-4 col-span-2"
+                className="text-center py-16 bg-card rounded-xl border border-border/40 shadow-card flex flex-col items-center mt-4 col-span-2"
               >
                 <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
                   <BookOpen className="w-8 h-8 text-muted-foreground/50" />
@@ -359,7 +359,7 @@ const LibraryTab = () => {
           <Plus className="w-6 h-6" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] mx-auto rounded-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+      <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] mx-auto rounded-xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">
             Yeni Kitap Ekle
@@ -419,18 +419,18 @@ const LibraryTab = () => {
                     {coverPreview ? (
                       <>
                         <div className="absolute inset-0 -z-10 translate-y-4 scale-95 opacity-40 blur-2xl">
-                          <img src={coverPreview} alt="" className="w-full h-full object-cover rounded-2xl" />
+                          <img src={coverPreview} alt="" className="w-full h-full object-cover rounded-xl" />
                         </div>
-                        <img src={coverPreview} alt="Kapak" className="relative w-full h-auto object-cover aspect-[2/3] rounded-2xl shadow-elevated border border-border/20" />
+                        <img src={coverPreview} alt="Kapak" className="relative w-full h-auto object-cover aspect-[2/3] rounded-xl shadow-elevated border border-border/20" />
                       </>
                     ) : (
-                      <div className="w-full aspect-[2/3] bg-muted/50 rounded-2xl flex flex-col items-center justify-center gap-2 text-muted-foreground border-2 border-dashed border-border/60">
+                      <div className="w-full aspect-[2/3] bg-muted/50 rounded-xl flex flex-col items-center justify-center gap-2 text-muted-foreground border-2 border-dashed border-border/60">
                         <Image className="w-8 h-8 opacity-40" />
                         <span className="text-xs">Kapak</span>
                       </div>
                     )}
-                    <label className="absolute bottom-2 right-2 w-8 h-8 bg-background/90 backdrop-blur-sm border border-border/50 rounded-full flex items-center justify-center cursor-pointer hover:bg-background transition-all shadow-sm">
-                      <Upload className="w-3.5 h-3.5" />
+                    <label className="absolute bottom-2 right-2 w-10 h-10 bg-background/90 backdrop-blur-sm border border-border/50 rounded-full flex items-center justify-center cursor-pointer hover:bg-background transition-all shadow-sm">
+                      <Upload className="w-4 h-4" />
                       <input type="file" accept="image/*" onChange={handleCoverFileChange} className="hidden" />
                     </label>
                   </div>
@@ -512,7 +512,7 @@ const LibraryTab = () => {
       </DialogContent>
     </Dialog>
 
-    <CombinedBookSearchDialog
+    <BookSearchDialog
       open={isSearchDialogOpen}
       onOpenChange={setIsSearchDialogOpen}
       onSelectBook={handleBookFromSearch}

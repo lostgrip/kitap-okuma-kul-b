@@ -58,7 +58,7 @@ const PinnedAnnouncement = () => {
     return (
         <div>
             {shown.map(a => (
-                <div key={a.id} className="bg-card border border-primary/15 rounded-2xl p-4 mb-3 animate-fade-in">
+                <div key={a.id} className="bg-card border border-primary/15 rounded-xl p-4 mb-3 animate-fade-in">
                     <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-2.5 flex-1">
                             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5 flex-shrink-0">
@@ -103,7 +103,7 @@ const PinnedAnnouncement = () => {
                             Duyuru ekle
                         </button>
                     ) : (
-                        <div className="bg-card border border-border/40 rounded-2xl p-4 space-y-3 animate-scale-in shadow-card">
+                        <div className="bg-card border border-border/40 rounded-xl p-4 space-y-3 animate-scale-in shadow-card">
                             <h4 className="text-sm font-medium">Yeni Duyuru</h4>
                             <Input placeholder="Başlık..." value={title} onChange={e => setTitle(e.target.value)} className="h-9 text-sm" />
                             <Textarea placeholder="Duyuru içeriği..." value={content} onChange={e => setContent(e.target.value)} className="min-h-16 text-sm resize-none" />

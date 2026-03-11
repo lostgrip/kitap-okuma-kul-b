@@ -204,7 +204,7 @@ const BookDiscussions = ({ bookId }: BookDiscussionsProps) => {
                 <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
             ) : roots.length === 0 ? (
                 <div className="bg-card rounded-xl p-6 text-center border border-border">
-                    <MessageCircle className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                    <MessageCircle className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
                     <p className="text-muted-foreground text-sm">Henüz tartışma yok. İlk yorumu siz yapın!</p>
                 </div>
             ) : (

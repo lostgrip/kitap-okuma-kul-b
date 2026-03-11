@@ -15,7 +15,7 @@ import { useUpdateBook, Book } from '@/hooks/useBooks';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import CombinedBookSearchDialog from './CombinedBookSearchDialog';
+import BookSearchDialog from './BookSearchDialog';
 
 interface BookEditDialogProps {
   book: Book;
@@ -150,7 +150,7 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={(v) => { if (!isAnythingUploading) onOpenChange(v); }}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif">Kitabı Düzenle</DialogTitle>
           </DialogHeader>
@@ -282,7 +282,7 @@ const BookEditDialog = ({ book, open, onOpenChange }: BookEditDialogProps) => {
         </DialogContent>
       </Dialog>
 
-      <CombinedBookSearchDialog open={searchOpen} onOpenChange={setSearchOpen} onSelectBook={handleSearchSelect} />
+        <BookSearchDialog open={searchOpen} onOpenChange={setSearchOpen} onSelectBook={handleSearchSelect} />
     </>
   );
 };

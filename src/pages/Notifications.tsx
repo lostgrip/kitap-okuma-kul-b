@@ -87,7 +87,7 @@ const Notifications = () => {
       <div className="max-w-lg mx-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-16 px-4">

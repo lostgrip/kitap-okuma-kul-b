@@ -72,7 +72,7 @@ const Auth = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-primary/10 p-3 rounded-full">
-              <BookOpen className="h-8 w-8 text-primary" />
+              <BookOpen className="h-10 w-10 text-primary" />
             </div>
           </div>
           <CardTitle className="text-2xl">Kitap Kulübü</CardTitle>

@@ -16,8 +16,8 @@ const TopNav = () => {
           onClick={() => navigate('/')}
           className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
         >
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <SwatchBook className="w-4 h-4 text-primary-foreground" />
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <SwatchBook className="w-5 h-5 text-primary-foreground" />
           </div>
           <span className="font-serif text-lg font-bold text-foreground">Kitap İmecesi</span>
         </button>
@@ -46,8 +46,8 @@ const TopNav = () => {
                 size="sm"
               />
             ) : (
-              <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                <span className="text-xs font-medium text-muted-foreground">?</span>
+              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                <span className="text-sm font-medium text-muted-foreground">?</span>
               </div>
             )}
           </button>

@@ -33,7 +33,7 @@ export const useValidateInviteCode = () => {
     mutationFn: async (inviteCode: string) => {
       const { data, error } = await supabase.rpc('validate_invite_code', {
         code: inviteCode,
-      }) as { data: { valid: boolean; group_code: string; code_id: string } | null; error: any };
+      }) as { data: { valid: boolean; group_code: string; code_id: string } | null; error: Error | null };
 
       if (error) throw error;
 

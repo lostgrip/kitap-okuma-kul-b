@@ -36,7 +36,7 @@ const ReadingJournal = ({ logs }: ReadingJournalProps) => {
     const activeDays = new Set(logs.map(l => l.logged_at.split('T')[0])).size;
 
     return (
-        <div className="bg-card rounded-2xl p-5 shadow-card mb-6">
+        <div className="bg-card rounded-xl p-5 shadow-card mb-6">
             <h3 className="font-serif font-semibold text-base mb-1 flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
                 Okuma Günlüğüm

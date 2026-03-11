@@ -46,7 +46,7 @@ const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
   const isCurrentUser = post.user_id === user?.id;
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-card border border-border/40 animate-fade-in">
+    <div className="bg-card rounded-xl p-5 shadow-card border border-border/40 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <Avatar
@@ -71,9 +71,9 @@ const FeedPost = memo(({ post, userCurrentPage }: FeedPostProps) => {
             size="icon"
             onClick={() => deleteMutation.mutate(post.id)}
             disabled={deleteMutation.isPending}
-            className="w-8 h-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            className="w-10 h-10 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-5 h-5" />
           </Button>
         )}
       </div>
