@@ -1,7 +1,20 @@
--- Auto-create a profile row whenever a new auth.users row is inserted.
--- This runs as SECURITY DEFINER (superuser context) so RLS is bypassed,
--- which is the correct and safe pattern for server-side user provisioning.
+-- ============================================================
+-- FIX: Auto-create profiles row on user signup via DB trigger.
+-- This avoids the RLS INSERT restriction that blocks frontend
+-- inserts made before a session is established.
+-- ============================================================
 
+-- 1. Allow the trigger (which runs as the postgres/service role)
+--    to insert into profiles by adding a permissive policy.
+--    The existing "authenticated" INSERT policy blocks anon/service inserts.
+DROP POLICY IF EXISTS "Service role can insert profiles" ON public.profiles;
+CREATE POLICY "Service role can insert profiles"
+  ON public.profiles FOR INSERT
+  TO service_role
+  WITH CHECK (true);
+
+-- 2. Create (or replace) the trigger function.
+--    SECURITY DEFINER + search_path guard is the canonical Supabase pattern.
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -16,12 +29,17 @@ BEGIN
     'https://api.dicebear.com/7.x/avataaars/svg?seed=' ||
       COALESCE(NEW.raw_user_meta_data->>'username', NEW.id::text)
   )
-  ON CONFLICT (user_id) DO NOTHING;  -- idempotent: skip if profile already exists
+  ON CONFLICT (user_id) DO NOTHING;
   RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Never block user creation due to a profile insert failure.
+    RAISE WARNING 'handle_new_user: could not create profile for %: %', NEW.id, SQLERRM;
+    RETURN NEW;
 END;
 $$;
 
--- Attach the trigger to auth.users (drops first if it already exists)
+-- 3. Attach the trigger to auth.users
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
