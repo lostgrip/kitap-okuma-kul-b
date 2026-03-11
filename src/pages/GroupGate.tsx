@@ -107,8 +107,8 @@ const GroupGate = () => {
                 id="groupCode"
                 placeholder="Davet kodunu girin"
                 value={groupCode}
-                onChange={(e) => setGroupCode(e.target.value.toUpperCase())}
-                className="mt-1.5 h-12 text-center text-base font-mono uppercase tracking-wider"
+                onChange={(e) => setGroupCode(e.target.value.trim())}
+                className="mt-1.5 h-12 text-center text-base font-mono tracking-wider"
               />
             </div>
 
