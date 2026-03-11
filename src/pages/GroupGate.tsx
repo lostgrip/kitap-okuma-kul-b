@@ -105,11 +105,10 @@ const GroupGate = () => {
               </Label>
               <Input
                 id="groupCode"
-                placeholder="ABCD1234"
+                placeholder="Davet kodunu girin"
                 value={groupCode}
                 onChange={(e) => setGroupCode(e.target.value.toUpperCase())}
-                className="mt-1.5 h-12 text-center text-lg font-mono uppercase tracking-widest"
-                maxLength={10}
+                className="mt-1.5 h-12 text-center text-base font-mono uppercase tracking-wider"
               />
             </div>
 
