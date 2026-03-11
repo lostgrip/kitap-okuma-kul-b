@@ -346,213 +346,70 @@ const LibraryTab = () => {
             )}
           </div>
         )}
-
-        <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) setIsFormVisible(false); }}>
-          <DialogTrigger asChild>
-            <Button
-              className="fixed bottom-24 right-4 w-14 h-14 rounded-full shadow-elevated"
-              size="icon"
-            >
-              <Plus className="w-6 h-6" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] mx-auto rounded-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
-            <DialogHeader>
-              <DialogTitle className="font-serif text-xl">
-                Yeni Kitap Ekle
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 mt-4">
-              {/* Search from combined sources */}
-              {!isFormVisible && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="py-4"
-                >
-                  <Button
-                    variant="outline"
-                    className="w-full h-14 rounded-xl text-base shadow-sm"
-                    onClick={() => setIsSearchDialogOpen(true)}
-                  >
-                    <Search className="w-5 h-5 mr-3" />
-                    Kitap Ara
-                  </Button>
-
-                  <div className="relative my-8">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border/60" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase tracking-wider font-medium">
-                      <span className="bg-background px-4 text-muted-foreground">
-                        veya
-                      </span>
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="ghost"
-                    className="w-full h-12 rounded-xl text-muted-foreground hover:bg-muted"
-                    onClick={() => setIsFormVisible(true)}
-                  >
-                    Bilgileri manuel gir
-                  </Button>
-                </motion.div>
-              )}
-
-              <AnimatePresence>
-                {isFormVisible && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="space-y-6 w-full max-w-full overflow-x-hidden overflow-y-visible px-1"
-                  >
-                    {/* Cover Focal Point */}
-                    <div className="flex justify-center mb-8 relative pt-4">
-                      <div className="relative w-32 sm:w-36 group">
-                        {coverPreview ? (
-                          <>
-                            {/* Blur/Glow Shadow */}
-                            <div className="absolute inset-0 -z-10 translate-y-4 scale-95 opacity-40 blur-2xl">
-                              <img src={coverPreview} alt="" className="w-full h-full object-cover rounded-2xl" />
-                            </div>
-                            <img src={coverPreview} alt="Kapak" className="relative w-full h-auto object-cover aspect-[2/3] rounded-2xl shadow-elevated border border-border/20" />
-                          </>
-                        ) : (
-                          <div className="w-full aspect-[2/3] bg-muted/40 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-border/60 text-muted-foreground/50 hover:bg-muted/60 transition-colors">
-                            <Image className="w-8 h-8 mb-2" />
-                            <span className="text-xs font-medium">Kapak Yok</span>
-                          </div>
-                        )}
-                        <label className="absolute -bottom-3 -right-3 cursor-pointer">
-                          <input type="file" accept="image/*" className="hidden" onChange={handleCoverFileChange} />
-                          <div className="bg-primary text-primary-foreground p-2.5 rounded-full shadow-elevated hover:bg-primary/90 transition-transform active:scale-95 text-xs flex items-center gap-1.5 font-medium">
-                            <Upload className="w-4 h-4" />
-                          </div>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-5">
-                      {/* Input Fields - Premium Styling */}
-                      <div className="space-y-1">
-                        <Label htmlFor="title" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Kitap Adı *</Label>
-                        <Input id="title" placeholder="Kitap adını girin..." value={newBook.title}
-                          onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
-                          className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-lg font-serif font-medium placeholder:text-muted-foreground/40 transition-colors" />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <Label htmlFor="author" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Yazar *</Label>
-                          <Input id="author" placeholder="Yazar adını girin..." value={newBook.author}
-                            onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
-                            className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition-colors" />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="publisher" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Yayınevi</Label>
-                          <Input id="publisher" placeholder="Yayınevi..." value={newBook.publisher}
-                            onChange={(e) => setNewBook({ ...newBook, publisher: e.target.value })}
-                            className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition-colors" />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <Label htmlFor="pages" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Sayfa *</Label>
-                          <Input id="pages" type="number" placeholder="0" value={newBook.pages}
-                            onChange={(e) => setNewBook({ ...newBook, pages: e.target.value })}
-                            className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition-colors" />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="genre" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Tür</Label>
-                          <Input id="genre" placeholder="Örn: Roman..." value={newBook.genre}
-                            onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
-                            className="h-auto py-2 bg-transparent border-0 border-b border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-none px-1 text-foreground text-base font-medium placeholder:text-muted-foreground/40 transition-colors" />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label htmlFor="description" className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Açıklama</Label>
-                        <Textarea id="description" placeholder="Kitap hakkında kısa açıklama..." value={newBook.description}
-                          onChange={(e) => setNewBook({ ...newBook, description: e.target.value })}
-                          className="mt-1 bg-transparent border border-border/40 focus-visible:border-primary focus-visible:ring-0 shadow-none rounded-xl resize-none min-h-24 text-sm px-3 py-2 placeholder:text-muted-foreground/40 transition-colors" />
-                      </div>
-
-                      {/* EPUB Upload - Ghost/Outline */}
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">EPUB Dosyası (İsteğe Bağlı)</Label>
-                        <div className="mt-1 flex items-center gap-3">
-                          <div className="flex-1 flex items-center gap-2 px-3 py-2.5 bg-muted/30 rounded-xl border border-border/40">
-                            <BookText className="w-4 h-4 text-muted-foreground shrink-0" />
-                            <span className="text-sm text-foreground truncate select-none flex-1">
-                              {epubFile ? epubFile.name : 'Dosya seçilmedi'}
-                            </span>
-                          </div>
-                          <label>
-                            <input type="file" accept=".epub" className="hidden" onChange={handleEpubFileChange} />
-                            <div className="flex items-center gap-2 px-4 py-2.5 border border-primary text-primary rounded-xl cursor-pointer hover:bg-primary/5 transition-colors text-sm font-medium shrink-0 shadow-sm">
-                              <Upload className="w-3.5 h-3.5" />
-                              {epubFile ? 'Değiştir' : 'Yükle'}
-                            </div>
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Destination Selection */}
-                      <div className="space-y-1 pb-2">
-                        <Label className="text-xs text-muted-foreground ml-1 uppercase tracking-wider">Nereye Eklensin?</Label>
-                        <Select value={selectedDestination} onValueChange={setSelectedDestination}>
-                          <SelectTrigger className="mt-1 h-12 bg-muted/40 border-0 rounded-xl shadow-sm">
-                            <SelectValue placeholder="Liste seçin" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">➖ Hiçbir yere ekleme</SelectItem>
-                            <SelectItem value="want_to_read">📚 Okumak İstiyorum</SelectItem>
-                            <SelectItem value="reading">📖 Okuyorum</SelectItem>
-                            <SelectItem value="read">✅ Okudum</SelectItem>
-                            <SelectItem value="dnf">❌ Yarıda Bıraktım</SelectItem>
-                            {userLists
-                              .filter(l => !l.is_default && !l.is_community)
-                              .map(list => (
-                                <SelectItem key={list.id} value={list.id}>
-                                  📋 {list.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <Button
-                        onClick={handleAddBook}
-                        className="w-full h-12 rounded-xl font-semibold mt-2 shadow-elevated"
-                        disabled={addBook.isPending || addToDefaultList.isPending || isUploading || !user}
-                      >
-                        {!user ? 'Giriş yapmalısınız' : (addBook.isPending || addToDefaultList.isPending || isUploading) ? (
-                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Ekleniyor...</>
-                        ) : 'Kütüphaneye Ekle'}
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Combined Book Search Dialog */}
-        <CombinedBookSearchDialog
-          open={isSearchDialogOpen}
-          onOpenChange={setIsSearchDialogOpen}
-          onSelectBook={handleBookFromSearch}
-        />
       </div>
     </div>
-  );
-};
 
-export default LibraryTab;
+    {/* FAB + Dialogs outside animated container */}
+    <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) setIsFormVisible(false); }}>
+      <DialogTrigger asChild>
+        <Button
+          className="fixed bottom-24 right-4 sm:right-6 w-14 h-14 rounded-full shadow-elevated z-40"
+          size="icon"
+        >
+          <Plus className="w-6 h-6" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] mx-auto rounded-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+        <DialogHeader>
+          <DialogTitle className="font-serif text-xl">
+            Yeni Kitap Ekle
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 mt-4">
+          {/* Search from combined sources */}
+          {!isFormVisible && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="py-4"
+            >
+              <Button
+                variant="outline"
+                className="w-full h-14 rounded-xl text-base shadow-sm"
+                onClick={() => setIsSearchDialogOpen(true)}
+              >
+                <Search className="w-5 h-5 mr-3" />
+                Kitap Ara
+              </Button>
+
+              <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/60" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase tracking-wider font-medium">
+                  <span className="bg-background px-4 text-muted-foreground">
+                    veya
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                variant="ghost"
+                className="w-full h-12 rounded-xl text-muted-foreground hover:bg-muted"
+                onClick={() => setIsFormVisible(true)}
+              >
+                Bilgileri manuel gir
+              </Button>
+            </motion.div>
+          )}
+
+          <AnimatePresence>
+            {isFormVisible && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="space-y-6 w-full max-w-full overflow-x-hidden overflow-y-visible px-1"
+              >
