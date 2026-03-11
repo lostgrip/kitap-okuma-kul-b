@@ -231,12 +231,12 @@ const Profile = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="goals" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50 p-1.5 rounded-2xl">
-            <TabsTrigger value="goals" className="text-sm rounded-xl py-2">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="goals">
               <Target className="h-4 w-4 mr-2" />
               Alışkanlıklar
             </TabsTrigger>
-            <TabsTrigger value="stats" className="text-sm rounded-xl py-2">
+            <TabsTrigger value="stats">
               <BarChart3 className="h-4 w-4 mr-2" />
               İstatistik
             </TabsTrigger>
