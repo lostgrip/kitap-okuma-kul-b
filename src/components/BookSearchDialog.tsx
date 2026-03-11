@@ -41,7 +41,7 @@ const BookSearchDialog = ({ open, onOpenChange, onSelectBook }: BookSearchDialog
       if (query.length >= 2) {
         searchBooks(query);
       }
-    }, 400);
+    }, 500);
     return () => clearTimeout(timer);
   }, [query, searchBooks]);
 

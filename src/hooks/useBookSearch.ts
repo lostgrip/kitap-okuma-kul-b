@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export interface OpenLibraryBook {
   key: string;
@@ -20,7 +20,7 @@ export const useBookSearch = () => {
   const [results, setResults] = useState<OpenLibraryBook[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const searchBooks = async (query: string) => {
+  const searchBooks = useCallback(async (query: string) => {
     if (!query.trim()) {
       setResults([]);
       return;
@@ -44,12 +44,14 @@ export const useBookSearch = () => {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, []);
 
   const getCoverUrl = (coverId: number | undefined, size: 'S' | 'M' | 'L' = 'M') => {
     if (!coverId) return null;
     return `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg`;
   };
+
+  const clearResults = useCallback(() => setResults([]), []);
 
   return {
     searchBooks,
@@ -57,6 +59,6 @@ export const useBookSearch = () => {
     isSearching,
     error,
     getCoverUrl,
-    clearResults: () => setResults([]),
+    clearResults,
   };
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export interface GoogleBook {
   id: string;
@@ -32,7 +32,7 @@ export const useGoogleBooks = () => {
   const [results, setResults] = useState<GoogleBook[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const searchBooks = async (query: string) => {
+  const searchBooks = useCallback(async (query: string) => {
     if (!query.trim()) {
       setResults([]);
       return;
@@ -57,7 +57,7 @@ export const useGoogleBooks = () => {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, []);
 
   const getCoverUrl = (book: GoogleBook, size: 'small' | 'medium' = 'medium') => {
     const imageLinks = book.volumeInfo.imageLinks;
@@ -71,12 +71,14 @@ export const useGoogleBooks = () => {
     return baseUrl.replace('zoom=1', 'zoom=2').replace('http:', 'https:');
   };
 
+  const clearResults = useCallback(() => setResults([]), []);
+
   return {
     searchBooks,
     results,
     isSearching,
     error,
     getCoverUrl,
-    clearResults: () => setResults([]),
+    clearResults,
   };
 };

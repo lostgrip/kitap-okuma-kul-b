@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 export interface CombinedBookResult {
   id: string;
@@ -19,12 +18,18 @@ export interface CombinedBookResult {
 export const useCombinedBookSearch = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<CombinedBookResult[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const searchBooks = async (query: string) => {
+  const searchBooks = useCallback(async (query: string) => {
     if (!query.trim() || query.length < 2) {
       setResults([]);
       return;
     }
+
+    // Cancel any in-flight request before starting a new one
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+    const { signal } = abortRef.current;
 
     setIsSearching(true);
 
@@ -32,16 +37,27 @@ export const useCombinedBookSearch = () => {
       // Detect if query looks like an ISBN (10 or 13 digits, optionally with dashes)
       const isbnClean = query.replace(/[-\s]/g, '');
       const isISBN = /^(\d{10}|\d{13})$/.test(isbnClean);
-      const googleQuery = isISBN ? `isbn:${isbnClean}` : query;
+
+      // Use intitle: for regular queries to focus on book titles; isbn: for ISBN lookups
+      const googleQuery = isISBN ? `isbn:${isbnClean}` : `intitle:${query}`;
+
+      // Only request the fields we actually use to reduce payload size
+      const googleFields =
+        'items(id,volumeInfo(title,authors,pageCount,imageLinks,categories,description,publishedDate,publisher,language,industryIdentifiers))';
 
       const [googleRes, olRes] = await Promise.allSettled([
         fetch(
-          `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(googleQuery)}&maxResults=15&printType=books`
+          `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(googleQuery)}&maxResults=15&printType=books&fields=${encodeURIComponent(googleFields)}`,
+          { signal }
         ).then(r => r.ok ? r.json() : Promise.reject()),
         fetch(
-          `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=5&fields=key,title,author_name,cover_i,number_of_pages_median,first_publish_year,subject,publisher`
+          `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=5&fields=key,title,author_name,cover_i,number_of_pages_median,first_publish_year,subject,publisher,isbn`,
+          { signal }
         ).then(r => r.ok ? r.json() : Promise.reject()),
       ]);
+
+      // If the request was aborted while awaiting, silently bail out
+      if (signal.aborted) return;
 
       const combined: CombinedBookResult[] = [];
       const seen = new Set<string>();
@@ -79,9 +95,9 @@ export const useCombinedBookSearch = () => {
           // Attempt to find a publisher that matches the user's query keywords
           let matchedPublisher = doc.publisher?.[0];
           if (doc.publisher && doc.publisher.length > 1) {
-            const tokens = lowerQuery.split(' ').filter(t => t.length > 2);
+            const tokens = lowerQuery.split(' ').filter((t: string) => t.length > 2);
             const found = doc.publisher.find((p: string) =>
-              tokens.some(token => p.toLowerCase().includes(token))
+              tokens.some((token: string) => p.toLowerCase().includes(token))
             );
             if (found) matchedPublisher = found;
           }
@@ -111,18 +127,24 @@ export const useCombinedBookSearch = () => {
       }
 
       setResults(combined);
-    } catch {
+    } catch (err) {
+      // Ignore AbortError — it's an intentional cancellation, not a real error
+      if (err instanceof Error && err.name === 'AbortError') return;
       toast.error('Sistem hatası: Arama yapılamadı');
       setResults([]);
     } finally {
-      setIsSearching(false);
+      if (!signal.aborted) {
+        setIsSearching(false);
+      }
     }
-  };
+  }, []);
+
+  const clearResults = useCallback(() => setResults([]), []);
 
   return {
     searchBooks,
     results,
     isSearching,
-    clearResults: () => setResults([]),
+    clearResults,
   };
 };

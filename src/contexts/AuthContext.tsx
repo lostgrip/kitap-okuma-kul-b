@@ -100,33 +100,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, username: string, displayName: string) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
+        data: {
+          username,
+          display_name: displayName,
+        },
       },
     });
 
-    if (error) {
-      return { error };
-    }
-
-    // Create profile after signup
-    if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        user_id: data.user.id,
-        username,
-        display_name: displayName,
-        avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-      });
-
-      if (profileError) {
-        return { error: profileError as Error };
-      }
-    }
-
-    return { error: null };
+    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
