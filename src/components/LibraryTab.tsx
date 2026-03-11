@@ -413,3 +413,112 @@ const LibraryTab = () => {
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
                 className="space-y-6 w-full max-w-full overflow-x-hidden overflow-y-visible px-1"
               >
+                {/* Cover Focal Point */}
+                <div className="flex justify-center mb-8 relative pt-4">
+                  <div className="relative w-32 sm:w-36 group">
+                    {coverPreview ? (
+                      <>
+                        <div className="absolute inset-0 -z-10 translate-y-4 scale-95 opacity-40 blur-2xl">
+                          <img src={coverPreview} alt="" className="w-full h-full object-cover rounded-2xl" />
+                        </div>
+                        <img src={coverPreview} alt="Kapak" className="relative w-full h-auto object-cover aspect-[2/3] rounded-2xl shadow-elevated border border-border/20" />
+                      </>
+                    ) : (
+                      <div className="w-full aspect-[2/3] bg-muted/50 rounded-2xl flex flex-col items-center justify-center gap-2 text-muted-foreground border-2 border-dashed border-border/60">
+                        <Image className="w-8 h-8 opacity-40" />
+                        <span className="text-xs">Kapak</span>
+                      </div>
+                    )}
+                    <label className="absolute bottom-2 right-2 w-8 h-8 bg-background/90 backdrop-blur-sm border border-border/50 rounded-full flex items-center justify-center cursor-pointer hover:bg-background transition-all shadow-sm">
+                      <Upload className="w-3.5 h-3.5" />
+                      <input type="file" accept="image/*" onChange={handleCoverFileChange} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="title" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Kitap Adı *</Label>
+                    <Input id="title" value={newBook.title} onChange={(e) => setNewBook({ ...newBook, title: e.target.value })} placeholder="Kitap adını girin" className="mt-1.5" />
+                  </div>
+                  <div>
+                    <Label htmlFor="author" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Yazar *</Label>
+                    <Input id="author" value={newBook.author} onChange={(e) => setNewBook({ ...newBook, author: e.target.value })} placeholder="Yazar adını girin" className="mt-1.5" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="pages" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Sayfa *</Label>
+                      <Input id="pages" type="number" value={newBook.pages} onChange={(e) => setNewBook({ ...newBook, pages: e.target.value })} placeholder="0" className="mt-1.5" />
+                    </div>
+                    <div>
+                      <Label htmlFor="genre" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tür</Label>
+                      <Input id="genre" value={newBook.genre} onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })} placeholder="Roman, Bilim..." className="mt-1.5" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="publisher" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Yayınevi</Label>
+                    <Input id="publisher" value={newBook.publisher} onChange={(e) => setNewBook({ ...newBook, publisher: e.target.value })} placeholder="Yayınevi adı" className="mt-1.5" />
+                  </div>
+                  <div>
+                    <Label htmlFor="description" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Açıklama</Label>
+                    <Textarea id="description" value={newBook.description} onChange={(e) => setNewBook({ ...newBook, description: e.target.value })} placeholder="Kitap hakkında kısa bir açıklama" className="mt-1.5 min-h-[80px]" />
+                  </div>
+
+                  {/* EPUB Upload */}
+                  <div>
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">EPUB Dosyası</Label>
+                    <div className="mt-1.5">
+                      <label className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-border/60 hover:border-primary/40 cursor-pointer transition-colors">
+                        <BookText className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {epubFile ? epubFile.name : 'EPUB dosyası seç (opsiyonel)'}
+                        </span>
+                        <input type="file" accept=".epub" onChange={handleEpubFileChange} className="hidden" />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Destination List */}
+                  <div>
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Listeye Ekle</Label>
+                    <Select value={selectedDestination} onValueChange={setSelectedDestination}>
+                      <SelectTrigger className="mt-1.5">
+                        <SelectValue placeholder="Liste seçin" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Listeye ekleme</SelectItem>
+                        <SelectItem value="want_to_read">Okumak İstediklerim</SelectItem>
+                        <SelectItem value="reading">Okuyorum</SelectItem>
+                        <SelectItem value="read">Okudum</SelectItem>
+                        <SelectItem value="dnf">Yarıda Bıraktım</SelectItem>
+                        {userLists.filter(l => !l.is_default && !l.is_community).map(list => (
+                          <SelectItem key={list.id} value={list.id}>{list.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <Button onClick={handleAddBook} className="w-full h-12 rounded-xl text-base mt-4" disabled={addBook.isPending || isUploading}>
+                  {(addBook.isPending || isUploading) ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : null}
+                  Kitap Ekle
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    <CombinedBookSearchDialog
+      open={isSearchDialogOpen}
+      onOpenChange={setIsSearchDialogOpen}
+      onSelectBook={handleBookFromSearch}
+    />
+    </>
+  );
+};
+
+export default LibraryTab;
