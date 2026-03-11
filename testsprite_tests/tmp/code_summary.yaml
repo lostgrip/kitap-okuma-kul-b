@@ -1,0 +1,84 @@
+version: "2"
+type: frontend
+tech_stack:
+  - typescript
+  - react
+  - vite
+  - tailwindcss
+  - supabase
+routes:
+  - path: /
+    file: src/pages/Index.tsx
+    auth_required: false
+    description: Home page / landing page
+  - path: /auth
+    file: src/pages/Auth.tsx
+    auth_required: false
+    description: User authentication (login/register)
+  - path: /profile
+    file: src/pages/Profile.tsx
+    auth_required: true
+    description: User profile page
+  - path: /book/:bookId
+    file: src/pages/BookDetail.tsx
+    auth_required: false
+    description: Book details page
+  - path: /reader/:bookId
+    file: src/pages/EpubReader.tsx
+    auth_required: true
+    description: EPUB reader for books
+  - path: /notifications
+    file: src/pages/Notifications.tsx
+    auth_required: true
+    description: User notifications
+  - path: /settings
+    file: src/pages/Settings.tsx
+    auth_required: true
+    description: User settings
+  - path: /join
+    file: src/pages/GroupGate.tsx
+    auth_required: false
+    description: Group join gate page
+  - path: /admin
+    file: src/pages/AdminPanel.tsx
+    auth_required: true
+    description: Admin panel
+  - path: /edit-profile
+    file: src/pages/EditProfile.tsx
+    auth_required: true
+    description: Edit user profile
+  - path: /members/:userId
+    file: src/pages/MemberProfile.tsx
+    auth_required: false
+    description: View member profile
+  - path: /privacy
+    file: src/pages/Privacy.tsx
+    auth_required: false
+    description: Privacy policy page
+features:
+  - name: User Authentication
+    description: Login and register with email/password
+    files:
+      - src/pages/Auth.tsx
+    entry_route: /auth
+    user_interactions:
+      - Fill email input
+      - Fill password input
+      - Click sign in or sign up
+    api_calls:
+      - method: POST
+        endpoint: /auth/v1/token
+    auth_required: false
+  - name: Book Library
+    description: View list of books on the home page
+    files:
+      - src/pages/Index.tsx
+    entry_route: /
+    user_interactions:
+      - Scroll through book list
+      - Click on a book to view details
+    api_calls:
+      - method: GET
+        endpoint: /rest/v1/books
+    auth_required: false
+known_limitations: []

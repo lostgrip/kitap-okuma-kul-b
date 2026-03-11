@@ -1,0 +1,2319 @@
+[
+  {
+    "id": "TC001",
+    "title": "Home page shows the book library list",
+    "description": "Verifies the home page loads and displays a visible list of books for browsing.",
+    "category": "Book Library (Home)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"BookClub\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Books\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the bottom of the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book list\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Scroll through the book list to discover additional books",
+    "description": "Verifies that the user can scroll the home page and continue to see book items in the library list.",
+    "category": "Book Library (Home)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the middle of the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the bottom of the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book list\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Open a book details page from the home library list",
+    "description": "Verifies that selecting a book from the home list navigates to a book details page showing metadata.",
+    "category": "Book Library (Home)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible book card in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/book/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book title\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book author\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book description\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Open a book details page after scrolling down the library list",
+    "description": "Verifies that selecting a book further down the list after scrolling still opens its details page.",
+    "category": "Book Library (Home)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the bottom of the page"
+      },
+      {
+        "type": "action",
+        "description": "Click on a visible book card near the bottom of the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/book/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book title\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book author\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Graceful handling when the library has no visible books",
+    "description": "Verifies that if the library list is empty, the home page shows a clear empty-state message instead of a broken layout.",
+    "category": "Book Library (Home)",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"BookClub\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"book list\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"No books\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Try again\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "View book details metadata on Book Detail page",
+    "description": "Verifies that a visitor can open a book detail page and see key metadata and the Read action.",
+    "category": "Book Detail",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Read\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible \"Read\" button on the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Read\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify at least one of these is visible: text \"Author\", text \"Description\", or text \"About\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Book title\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Start reading from Book Detail when already authenticated",
+    "description": "Verifies that an authenticated user can open a book detail page and enter the reader from the Read button.",
+    "category": "Book Detail",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email input field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password input field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible \"Read\" button on the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/reader/\""
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Authenticated user can reach reader repeatedly from Book Detail",
+    "description": "Verifies that an authenticated user can start reading again without being sent back to auth.",
+    "category": "Book Detail",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email input field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password input field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible \"Read\" button on the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/reader/\""
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Open EPUB reader from a book and verify content loads (authenticated)",
+    "description": "Verifies an authenticated user can open the reader for a book and see reading content load.",
+    "category": "EPUB Reader",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on a book card from the library/home list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Read\" or \"Open Reader\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"EPUB reader\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Next\" control is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Reader navigation: Next then Previous updates visible reading position (authenticated)",
+    "description": "Verifies next/previous reader controls are usable and the visible reading location changes.",
+    "category": "EPUB Reader",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on a book card from the library/home list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Read\" or \"Open Reader\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Next\" control"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Previous\" control is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Reader seek/navigation via table of contents (authenticated)",
+    "description": "Verifies a user can jump to a different section using a seek control such as table of contents.",
+    "category": "EPUB Reader",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on a book card from the library/home list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Read\" or \"Open Reader\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Table of contents\" or \"Chapters\" control"
+      },
+      {
+        "type": "action",
+        "description": "Click on a chapter/section item in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Close\" button is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Close reader returns to the book details page for the same book (authenticated)",
+    "description": "Verifies the Close action exits the reader and returns the user to the corresponding book details page.",
+    "category": "EPUB Reader",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on a book card from the library/home list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Read\" or \"Open Reader\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Close\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Book details\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Read\" or \"Open Reader\" button is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Reader UI shows core controls when content is loaded (authenticated)",
+    "description": "Verifies that key reader controls (next/previous/close) are visible once the reader is open.",
+    "category": "EPUB Reader",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on a book card from the library/home list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Read\" or \"Open Reader\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Next\" control is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Previous\" control is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Close\" button is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Reader remains usable after repeated Next navigation (authenticated)",
+    "description": "Verifies repeated use of Next does not break the reader UI and controls remain available.",
+    "category": "EPUB Reader",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on a book card from the library/home list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Read\" or \"Open Reader\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Next\" control"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Next\" control"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Close\" button is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "View profile details as an authenticated user",
+    "description": "Verifies a signed-in user can access the Profile page and see their profile details.",
+    "category": "Profile Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Profile\" link in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/profile\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Profile\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Edit profile and save changes successfully",
+    "description": "Verifies a signed-in user can edit profile fields on the Edit Profile page and see updates reflected back on the Profile page.",
+    "category": "Profile Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Profile\" link in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Edit profile and verify updated values appear on Profile page",
+    "description": "Verifies that after saving edits, the user is returned to Profile and can see the updated information displayed.",
+    "category": "Profile Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Profile\" link in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Updated Test Name\" into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Cancel out of Edit Profile without saving",
+    "description": "Verifies a signed-in user can leave the Edit Profile page using a cancel/back control without saving changes.",
+    "category": "Profile Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Profile\" link in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Cancel\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/profile\""
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Attempt to save profile with an empty required field",
+    "description": "Verifies the Edit Profile form shows a visible validation message when a required field is cleared and Save is clicked.",
+    "category": "Profile Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Profile\" link in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit\" button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"\" into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Save valid profile changes and return to Profile",
+    "description": "Verifies a user can save valid edits on Edit Profile, see success confirmation, and be redirected to the Profile page.",
+    "category": "Edit Profile Validation",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit Profile\" link or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Updated Display Name\" into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Profile updated\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/profile\""
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Invalid profile data shows validation message and remains on Edit Profile",
+    "description": "Verifies invalid edits are blocked with a visible validation error and the user stays on the Edit Profile page.",
+    "category": "Edit Profile Validation",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit Profile\" link or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill \" \" into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile\""
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Cancel editing returns to Profile without saving",
+    "description": "Verifies the user can abandon edits using Cancel/Back and return to Profile without seeing a save confirmation.",
+    "category": "Edit Profile Validation",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit Profile\" link or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Temporary Name Change\" into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Cancel\" or \"Back\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Profile updated\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Save button disabled or prevents submission when required field is empty",
+    "description": "Verifies the UI prevents submission when a required field is empty (either by disabling Save or showing immediate error).",
+    "category": "Edit Profile Validation",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit Profile\" link or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"\" into the display name field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Save\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile\""
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "Profile changes persist after successful save and reload of Profile view",
+    "description": "Verifies that after saving edits, the Profile page shows the updated value when revisited in the same session.",
+    "category": "Edit Profile Validation",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit Profile\" link or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Persistent Name\" into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Persistent Name\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Validation error clears after correcting the field and saving successfully",
+    "description": "Verifies a user can fix invalid input, see the validation error disappear, and then save successfully.",
+    "category": "Edit Profile Validation",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Edit Profile\" link or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/edit-profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"\" into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Corrected Name\" into the display name field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Profile updated\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/profile\""
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "View notifications list when authenticated",
+    "description": "Verifies an authenticated user can reach Notifications and see a list (or an empty-state message) rendered.",
+    "category": "Notifications",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL does not contain \"/auth\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Notifications\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/notifications\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Notifications\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "Open a notification and view its details",
+    "description": "Verifies a user can open a notification from the list and see a details view.",
+    "category": "Notifications",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Notifications\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/notifications\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first notification in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Notification details\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC028",
+    "title": "Mark a notification as read from the details view",
+    "description": "Verifies marking a notification as read updates the UI to show it is read.",
+    "category": "Notifications",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Notifications\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first notification in the list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Mark as read\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Read\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC029",
+    "title": "Mark as read is disabled or hidden for an already-read notification",
+    "description": "Verifies the UI prevents re-marking an already-read notification (no actionable 'Mark as read' control).",
+    "category": "Notifications",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Notifications\" in the main navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on a notification that is labeled \"Read\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Mark as read\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC030",
+    "title": "Notifications page supports empty state when user has no notifications",
+    "description": "Verifies an empty-state message is shown when there are zero notifications.",
+    "category": "Notifications",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Notifications\" in the main navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/notifications\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"No notifications\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC031",
+    "title": "Save settings successfully shows confirmation message",
+    "description": "Verifies an authenticated user can toggle a setting, save, and see a 'Settings saved' confirmation on the Settings page.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Settings\" link in the app navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Toggle a setting on the Settings page"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Settings saved\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC032",
+    "title": "Settings page loads for authenticated user",
+    "description": "Verifies an authenticated user can open the Settings page and sees expected page content.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Settings\" link in the app navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Settings\""
+      }
+    ]
+  },
+  {
+    "id": "TC033",
+    "title": "Saving without changing any setting still shows confirmation",
+    "description": "Verifies clicking Save without toggling any setting does not crash and shows a successful save confirmation (if supported).",
+    "category": "Settings",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Settings\" link in the app navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Settings saved\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC034",
+    "title": "Toggling a setting updates the UI state immediately",
+    "description": "Verifies a setting can be toggled and the new state is visually reflected before saving.",
+    "category": "Settings",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Settings\" link in the app navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"a settings toggle control\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Toggle a setting on the Settings page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"the same settings toggle control in its new state\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC035",
+    "title": "Multiple toggles can be changed and saved together",
+    "description": "Verifies a user can change more than one setting and save once with a single success confirmation.",
+    "category": "Settings",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Settings\" link in the app navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/settings\""
+      },
+      {
+        "type": "action",
+        "description": "Toggle a first setting on the Settings page"
+      },
+      {
+        "type": "action",
+        "description": "Toggle a second setting on the Settings page"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Settings saved\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC036",
+    "title": "Join group successfully from Group Join Gate and reach Profile",
+    "description": "Verifies an eligible user can join a group from /join, see confirmation, and be redirected to /profile.",
+    "category": "Group Join Gate",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /join"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Join\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Join group\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC037",
+    "title": "Group Join Gate shows confirmation after successful join",
+    "description": "Verifies the UI shows a visible confirmation state/message after a successful join attempt.",
+    "category": "Group Join Gate",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /join"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Join group\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"confirmation\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC038",
+    "title": "Successful join redirects from /join to /profile",
+    "description": "Verifies that after an allowed join, the user is redirected to the Profile page.",
+    "category": "Group Join Gate",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /join"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Join group\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/profile\""
+      }
+    ]
+  },
+  {
+    "id": "TC039",
+    "title": "Access denied message shown when join is not allowed",
+    "description": "Verifies the UI shows an access denied message when the join request is rejected.",
+    "category": "Group Join Gate",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /join"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Join group\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Access denied\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC040",
+    "title": "Access denied state provides a contact admin link",
+    "description": "Verifies that when access is denied, a visible link to contact an admin is shown.",
+    "category": "Group Join Gate",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /join"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Join group\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"contact admin\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC041",
+    "title": "Group gate information is visible on initial load of /join",
+    "description": "Verifies the Group Join Gate page renders informative content before any join action.",
+    "category": "Group Join Gate",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /join"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"group\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Join group\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC042",
+    "title": "Join group button is not duplicated after multiple clicks",
+    "description": "Verifies repeated clicking does not create duplicate visible join controls or multiple confirmation messages.",
+    "category": "Group Join Gate",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" or \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /join"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Join group\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Join group\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Join group\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC043",
+    "title": "Admin can access Admin Panel and see admin controls",
+    "description": "Verifies an authenticated admin user can open the Admin Panel and view available admin controls.",
+    "category": "Admin Panel",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Admin\" link in the main navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/admin"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Admin\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC044",
+    "title": "Admin performs an admin action and sees a success message",
+    "description": "Verifies an authenticated admin can perform an admin action (example: remove a book) and sees a success confirmation.",
+    "category": "Admin Panel",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Admin\" link in the main navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/admin"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Remove\" button for a book in the admin content list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Success\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC045",
+    "title": "Non-admin is denied access to Admin Panel and redirected home",
+    "description": "Verifies an authenticated non-admin user is shown an insufficient permissions message when attempting to access /admin and is redirected to home.",
+    "category": "Admin Panel",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"nonadmin_user@example.com\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"WrongPassword123!\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Invalid\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      }
+    ]
+  },
+  {
+    "id": "TC046",
+    "title": "Authenticated user who is not admin sees insufficient permissions when opening /admin from UI",
+    "description": "Verifies a signed-in user without admin rights is blocked when attempting to open the Admin Panel from navigation and is returned to home.",
+    "category": "Admin Panel",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Admin\" link in the main navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Insufficient permissions\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      }
+    ]
+  },
+  {
+    "id": "TC047",
+    "title": "Admin Panel page loads and shows user management section (if present)",
+    "description": "Verifies the Admin Panel renders expected management sections such as user management when accessed by an admin.",
+    "category": "Admin Panel",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Admin\" link in the main navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/admin"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Users\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Content\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC048",
+    "title": "Admin Panel shows a visible error when an admin action is attempted with missing required input (if applicable)",
+    "description": "Verifies validation/feedback appears when an admin tries to perform an action without providing required input (e.g., empty search/filter or missing selection).",
+    "category": "Admin Panel",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sign in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Admin\" link in the main navigation/menu"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Apply\" button for a filter/action without selecting any required options"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC049",
+    "title": "View a member public profile from Home and follow successfully",
+    "description": "Verifies a user can open a public member profile and follow the member with a visible confirmation.",
+    "category": "Member Profile (Public)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click on a visible member name or member link in the UI"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/members/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Follow\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Follow\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Following\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC050",
+    "title": "Follow confirmation persists on the member profile page after reload",
+    "description": "Verifies that after following a member, the profile continues to show the followed state after a page reload.",
+    "category": "Member Profile (Public)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click on a visible member name or member link in the UI"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/members/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Follow\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Following\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click on the same member name or member link used earlier"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Following\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC051",
+    "title": "Member profile page shows key public profile sections",
+    "description": "Verifies the public member profile page renders primary visible sections (name and public details area).",
+    "category": "Member Profile (Public)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click on a visible member name or member link in the UI"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/members/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Member profile header\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Public profile details section\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC052",
+    "title": "Member not found is handled with a back link to Home",
+    "description": "Verifies the app shows a \"Member not found\" style message and provides a visible back link to the home page.",
+    "category": "Member Profile (Public)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /members/this-user-id-should-not-exist-999999"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Member not found\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Back\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Back\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      }
+    ]
+  },
+  {
+    "id": "TC053",
+    "title": "Network or load error on member profile shows recoverable UI and back link",
+    "description": "Verifies that when the profile cannot be loaded, an error message is shown and the user can return home via a back link.",
+    "category": "Member Profile (Public)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /members/this-user-id-should-timeout-or-error-888888"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Error\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Back\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Back\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      }
+    ]
+  },
+  {
+    "id": "TC054",
+    "title": "Open Privacy page from direct URL and view policy content",
+    "description": "Verifies that a visitor can access the Privacy page and see privacy policy content.",
+    "category": "Privacy Page",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /privacy"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/privacy\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Privacy\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Privacy\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Privacy policy content\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC055",
+    "title": "Privacy page is accessible without logging in",
+    "description": "Verifies that the Privacy page is available to unauthenticated visitors and displays policy content.",
+    "category": "Privacy Page",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /privacy"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/privacy\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Privacy policy content\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Page failed to load\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC056",
+    "title": "Privacy page content is readable and not empty",
+    "description": "Verifies that the Privacy policy area renders substantive visible text rather than an empty state.",
+    "category": "Privacy Page",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /privacy"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Privacy policy content\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Information\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Privacy\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC057",
+    "title": "Navigate to Privacy page from Home page link",
+    "description": "Verifies that a visitor can reach the Privacy page via a UI link starting from the Home page.",
+    "category": "Privacy Page",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Scroll to \"Privacy\" link"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Privacy\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/privacy\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Privacy policy content\" is visible"
+      }
+    ]
+  }
+]

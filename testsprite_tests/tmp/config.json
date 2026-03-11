@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173",
+  "executionArgs": {
+    "projectName": "kitap-okuma-kul-b-main",
+    "projectPath": "c:\\Users\\AhmetAhmet\\.gemini\\antigravity\\scratch\\kitap-okuma-kul-b-main",
+    "testIds": [],
+    "additionalInstruction": "Try to establish a stable tunnel connection. Skip login if it persists in failing.",
+    "serverMode": "production",
+    "envs": {
+      "API_KEY": "sk-user-una6p7zkbEsfDbg4olGJComGDx5Dd7V4jne1xJUY-RWT7gVGMHESocUvyhfdiIVjylLWQ3mFLF5xzzp-UPuR6ADC_YxFFYOUV8nYOh4IdQdxk3nCilgEtjDzgGIwLYj3_DE"
+    }
+  },
+  "serverPort": 8587,
+  "proxy": "http://1d807cb3-624d-4162-bb8a-8a020c0112f7:fOXKuDQC9RRXgv1rBephRgzSTTcgehVe@tun.testsprite.com:8080"
+}
