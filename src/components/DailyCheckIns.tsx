@@ -22,8 +22,8 @@ export const DailyCheckIns = () => {
 
             const { data: profiles, error: profilesError } = await supabase
                 .from('profiles')
-                .select('id, username, display_name, avatar_url')
-                .in('id', userIds);
+                .select('user_id, username, display_name, avatar_url')
+                .in('user_id', userIds);
 
             if (profilesError) throw profilesError;
             return profiles;
@@ -43,9 +43,9 @@ export const DailyCheckIns = () => {
             {activeReaders.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                     {activeReaders.map((reader) => (
-                        <div key={reader.id} className="relative group">
+                        <div key={reader.user_id} className="relative group">
                             <Avatar
-                                src={reader.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${reader.id}`}
+                                src={reader.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${reader.user_id}`}
                                 name={reader.display_name || reader.username || 'Kullanıcı'}
                                 size="sm"
                             />
