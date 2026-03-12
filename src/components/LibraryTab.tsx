@@ -429,11 +429,10 @@ const LibraryTab = () => {
       {(activeLibraryTab === 'club_library' && !isAdmin) ? (
         <Button
           onClick={() => setIsSuggestSearchOpen(true)}
-          className="w-14 h-14 rounded-full shadow-elevated"
-          size="icon"
+          className="h-12 px-5 rounded-full shadow-elevated"
           aria-label="Kitap Öner"
         >
-          <FileText className="w-6 h-6" />
+          Öner
         </Button>
       ) : (
         <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) setIsFormVisible(false); }}>
