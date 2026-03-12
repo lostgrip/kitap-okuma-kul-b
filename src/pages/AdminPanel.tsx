@@ -192,7 +192,7 @@ const AdminPanel = () => {
 
       {/* Tabs */}
       <div className="max-w-lg mx-auto px-4 py-4">
-        <div className="flex gap-2 mb-6 overflow-x-auto">
+        <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-none">
           {[
             { id: 'members' as const, label: 'Üyeler', icon: Users, badge: members.length },
             { id: 'invites' as const, label: 'Davetler', icon: Link2, badge: inviteCodes.length },
