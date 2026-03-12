@@ -239,14 +239,24 @@ const LibraryTab = () => {
     }
     
     try {
-      await addSuggestion.mutateAsync({
-        user_id: user.id,
-        group_code: profile.group_code,
+      await addBook.mutateAsync({
         title: book.title,
         author: book.author,
         description: book.description || null,
         cover_url: book.cover_url || null,
+        page_count: 0,
+        added_by: user.id,
       });
+      const { data: newBooks } = await supabase
+        .from('books')
+        .select('id')
+        .eq('title', book.title)
+        .eq('added_by', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (newBooks && newBooks.length > 0) {
+        await submitToClub.mutateAsync(newBooks[0].id);
+      }
       toast.success('Kitap önerisi gönderildi, admin onayına sunuldu.');
     } catch (error) {
       toast.error('Öneri gönderilirken hata oluştu.');
