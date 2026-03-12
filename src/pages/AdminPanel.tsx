@@ -58,7 +58,7 @@ const AdminPanel = () => {
   const approveClubBook = useApproveClubBook();
   const deleteBook = useDeleteBook();
 
-  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'groups' | 'schedule'>('members');
+  const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'groups' | 'schedule' | 'suggestions'>('members');
   const [isCreateCodeDialogOpen, setIsCreateCodeDialogOpen] = useState(false);
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [isCreateScheduleDialogOpen, setIsCreateScheduleDialogOpen] = useState(false);
