@@ -10,6 +10,7 @@ import { ErrorFallback } from "@/components/ErrorBoundaryFallback";
 import { ThemeProvider } from "next-themes";
 import { Loader2 } from "lucide-react";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Lazy load route pages for optimal code-splitting performance
 const Index = lazy(() => import("./pages/Index"));
@@ -65,18 +66,24 @@ const App = () => (
             <AuthProvider>
               <Suspense fallback={<PageLoadingFallback />}>
                 <Routes>
+                  {/* Public or Semi-Public Routes */}
                   <Route path="/auth" element={<Auth />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/book/:bookId" element={<BookDetail />} />
-                  <Route path="/reader/:bookId" element={<EpubReader />} />
-                  <Route path="/notifications" element={<Notifications />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/join" element={<GroupGate />} />
-                  <Route path="/admin" element={<AdminPanel />} />
-                  <Route path="/edit-profile" element={<EditProfile />} />
-                  <Route path="/members/:userId" element={<MemberProfile />} />
-                  <Route path="/" element={<Index />} />
                   <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/join" element={<GroupGate />} />
+                  
+                  {/* Protected Routes - Require Authentication & Group Code */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/book/:bookId" element={<BookDetail />} />
+                    <Route path="/reader/:bookId" element={<EpubReader />} />
+                    <Route path="/notifications" element={<Notifications />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/admin" element={<AdminPanel />} />
+                    <Route path="/edit-profile" element={<EditProfile />} />
+                    <Route path="/members/:userId" element={<MemberProfile />} />
+                  </Route>
+
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
