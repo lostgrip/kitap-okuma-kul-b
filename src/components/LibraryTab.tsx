@@ -42,7 +42,8 @@ import BookSearchDialog from './BookSearchDialog';
 import AllMyBooksSection from './library/AllMyBooksSection';
 import MyLibrarySection from './library/MyLibrarySection';
 import SuggestBookSection from './library/SuggestBookSection';
-import { useBooks, useAddBook, useDeleteBook, useAddClubBookSuggestion, useClubBookSuggestions } from '@/hooks/useBooks';
+import { useBooks, useAddBook, useDeleteBook, useSubmitBookToClub } from '@/hooks/useBooks';
+import { supabase } from '@/integrations/supabase/client';
 import { useBookLists } from '@/hooks/useBookLists';
 import { useAddBookToDefaultList, useAddBookToCustomList } from '@/hooks/useBookListActions';
 import { useClubSchedule } from '@/hooks/useClubSchedule';
@@ -62,7 +63,7 @@ const LibraryTab = () => {
   const { data: schedule = [] } = useClubSchedule();
   const addBook = useAddBook();
   const deleteBook = useDeleteBook();
-  const addSuggestion = useAddClubBookSuggestion();
+  const submitToClub = useSubmitBookToClub();
   const addToDefaultList = useAddBookToDefaultList();
   const addToCustomList = useAddBookToCustomList();
   const { upload, isUploading } = useFileUpload();
@@ -238,14 +239,24 @@ const LibraryTab = () => {
     }
     
     try {
-      await addSuggestion.mutateAsync({
-        user_id: user.id,
-        group_code: profile.group_code,
+      await addBook.mutateAsync({
         title: book.title,
         author: book.author,
         description: book.description || null,
         cover_url: book.cover_url || null,
+        page_count: 0,
+        added_by: user.id,
       });
+      const { data: newBooks } = await supabase
+        .from('books')
+        .select('id')
+        .eq('title', book.title)
+        .eq('added_by', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (newBooks && newBooks.length > 0) {
+        await submitToClub.mutateAsync(newBooks[0].id);
+      }
       toast.success('Kitap önerisi gönderildi, admin onayına sunuldu.');
     } catch (error) {
       toast.error('Öneri gönderilirken hata oluştu.');
@@ -418,11 +429,10 @@ const LibraryTab = () => {
       {(activeLibraryTab === 'club_library' && !isAdmin) ? (
         <Button
           onClick={() => setIsSuggestSearchOpen(true)}
-          className="w-14 h-14 rounded-full shadow-elevated"
-          size="icon"
+          className="h-12 px-5 rounded-full shadow-elevated"
           aria-label="Kitap Öner"
         >
-          <FileText className="w-6 h-6" />
+          Öner
         </Button>
       ) : (
         <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) setIsFormVisible(false); }}>
