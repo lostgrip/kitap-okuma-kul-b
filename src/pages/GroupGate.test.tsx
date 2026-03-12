@@ -39,11 +39,11 @@ describe('GroupGate', () => {
 
     // Mock window.location for reload
     delete (window as any).location;
-    window.location = { ...originalLocation, href: '' } as Location;
+    window.location = { ...originalLocation, href: '' } as unknown as Location & string;
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    window.location = originalLocation as unknown as Location & string;
   });
 
   const renderComponent = () => render(
