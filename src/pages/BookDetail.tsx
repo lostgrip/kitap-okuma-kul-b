@@ -26,6 +26,7 @@ import { useBook } from '@/hooks/useBooks';
 import { useUserBookByBookId } from '@/hooks/useUserBooks';
 import { useAddBookToDefaultList } from '@/hooks/useBookListActions';
 import { useIsAdmin } from '@/hooks/useUserRoles';
+import { useProfile } from '@/hooks/useProfiles';
 import { useAuth } from '@/contexts/AuthContext';
 import BookEditDialog from '@/components/BookEditDialog';
 import QuietReflectionArea from '@/components/QuietReflectionArea';
@@ -57,6 +58,7 @@ const BookDetail = () => {
 
   const { data: book, isLoading: bookLoading } = useBook(bookId || '');
   const { data: userBook } = useUserBookByBookId(user?.id || '', bookId || '');
+  const { data: suggesterProfile } = useProfile((book?.is_club_book && book?.added_by) ? book.added_by : '');
   const addToDefaultList = useAddBookToDefaultList();
 
   const [isListModalOpen, setIsListModalOpen] = useState(false);
@@ -157,6 +159,13 @@ const BookDetail = () => {
                 {book.page_count} sayfa
               </span>
             </div>
+            
+            {book.is_club_book && suggesterProfile && (
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5 bg-muted/40 w-fit px-2.5 py-1.5 rounded-lg border border-border/50">
+                <Users className="w-3.5 h-3.5 text-primary" />
+                <span><span className="font-medium text-foreground">{suggesterProfile.username}</span> tarafından kulübe eklendi</span>
+              </p>
+            )}
           </div>
         </div>
 

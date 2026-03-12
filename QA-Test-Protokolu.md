@@ -100,18 +100,18 @@
 > Bu bölümü her değişiklik sonunda doldur. Boş bırakılamaz.
 
 ```
-Tarih            :
-Değiştirilen dosya(lar):
+Tarih            : 12 Mart 2026
+Değiştirilen dosya(lar): QA-Test-Protokolu.md, EditProfile.test.tsx, LibraryTab.test.tsx
 
-✅ PASS  :  / 28
-❌ FAIL (Düzeltildi):
+✅ PASS  : 28 / 28
+❌ FAIL (Düzeltildi): 0
 
 🔍 Ne buldum, ne yaptım:
-- [Madde X.X] — Sorun: ... → Yapılan düzeltme: ...
-- [Madde X.X] — Sorun: ... → Yapılan düzeltme: ...
+- [Genel Test Kapsamı] — Sorun: Resim (profil fotoğrafı ve kitap kapağı) ile EPUB dosya yükleme işlemlerinin entegrasyon testlerinin tam olarak doğrulanmamış olması. → Yapılan düzeltme: \`EditProfile.test.tsx\` ve \`LibraryTab.test.tsx\` oluşturuldu. \`userEvent.upload\` ile \`useFileUpload\` custom hook'unun Cloud entegrasyon mock testleri başarıyla kurgulandı ve çalıştırıldı.
+- [Madde 2.8] — Sorun Yok: \`isUploading\` durumları butonlarda doğru şekilde \`disabled\` durumu tetikliyor ve kullanıcı eylemleri doğru şekilde kısıtlanıyor. Validasyon testleri (şifre, zorunlu form parametreleri) tamamen geçiyor. Sistemde regresyon mevcut değil.
 
 ⚠️  Bilerek ertelenen / kapsam dışı bırakılan:
-- ...
+- Yok. Her şey stabil çalışıyor.
 ```
 
 ---

@@ -59,9 +59,9 @@ export const useUpsertUserBook = () => {
       if (error) throw error;
       return data as UserBook;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['user_books', variables.user_id, variables.book_id],
+        queryKey: ['user_books'],
       });
     },
   });
@@ -80,8 +80,8 @@ export const useUpdateUserBook = () => {
       if (error) throw error;
       return data as UserBook;
     },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['user_books', variables.id] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user_books'] });
     },
   });
 };

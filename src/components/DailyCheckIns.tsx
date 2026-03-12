@@ -2,8 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Leaf } from 'lucide-react';
 import Avatar from './Avatar';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const DailyCheckIns = () => {
+    const { user } = useAuth();
+    
     const { data: activeReaders = [], isLoading } = useQuery({
         queryKey: ['daily_checkins'],
         queryFn: async () => {
@@ -33,6 +36,11 @@ export const DailyCheckIns = () => {
     });
 
     if (isLoading) return null;
+
+    // Check if the current user has read today to determine visibility
+    const hasReadToday = activeReaders.some(reader => reader.user_id === user?.id);
+
+    if (!hasReadToday) return null;
 
     return (
         <div className="bg-card rounded-xl p-5 shadow-card border border-border/40 mb-6">

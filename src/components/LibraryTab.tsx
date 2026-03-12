@@ -42,7 +42,7 @@ import BookSearchDialog from './BookSearchDialog';
 import AllMyBooksSection from './library/AllMyBooksSection';
 import MyLibrarySection from './library/MyLibrarySection';
 import SuggestBookSection from './library/SuggestBookSection';
-import { useBooks, useAddBook, useDeleteBook } from '@/hooks/useBooks';
+import { useBooks, useAddBook, useDeleteBook, useAddClubBookSuggestion, useClubBookSuggestions } from '@/hooks/useBooks';
 import { useBookLists } from '@/hooks/useBookLists';
 import { useAddBookToDefaultList, useAddBookToCustomList } from '@/hooks/useBookListActions';
 import { useClubSchedule } from '@/hooks/useClubSchedule';
@@ -52,16 +52,17 @@ import { useAuth } from '@/contexts/AuthContext';
 
 import { toast } from 'sonner';
 
-type LibraryTabType = 'all_my_books' | 'my_lists' | 'club_library' | 'suggest_book';
+type LibraryTabType = 'all_my_books' | 'my_lists' | 'club_library';
 
 const LibraryTab = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { data: books = [], isLoading } = useBooks();
   const { data: userLists = [] } = useBookLists(user?.id);
   const { data: isAdmin } = useIsAdmin(user?.id);
   const { data: schedule = [] } = useClubSchedule();
   const addBook = useAddBook();
   const deleteBook = useDeleteBook();
+  const addSuggestion = useAddClubBookSuggestion();
   const addToDefaultList = useAddBookToDefaultList();
   const addToCustomList = useAddBookToCustomList();
   const { upload, isUploading } = useFileUpload();
@@ -73,6 +74,7 @@ const LibraryTab = () => {
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
+  const [isSuggestSearchOpen, setIsSuggestSearchOpen] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
   
   const [selectedDestination, setSelectedDestination] = useState<string>('none');
@@ -223,6 +225,35 @@ const LibraryTab = () => {
     setIsFormVisible(true);
   };
 
+  const handleBookSuggestFromSearch = async (book: { title: string; author: string; cover_url: string | null; description: string | null; }) => {
+    const exists = clubBooks.some(cb => cb.title.toLowerCase() === book.title.toLowerCase());
+    if (exists) {
+      toast.error('Kütüphanemizde mevcut');
+      return;
+    }
+
+    if (!user || !profile?.group_code) {
+      toast.error('Kullanıcı bilgisi bulunamadı');
+      return;
+    }
+    
+    try {
+      await addSuggestion.mutateAsync({
+        user_id: user.id,
+        group_code: profile.group_code,
+        title: book.title,
+        author: book.author,
+        description: book.description || null,
+        cover_url: book.cover_url || null,
+      });
+      toast.success('Kitap önerisi gönderildi, admin onayına sunuldu.');
+    } catch (error) {
+      toast.error('Öneri gönderilirken hata oluştu.');
+    } finally {
+      setIsSuggestSearchOpen(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="px-4 pt-6 pb-24 flex items-center justify-center min-h-[50vh]">
@@ -271,18 +302,9 @@ const LibraryTab = () => {
             <Library className="w-4 h-4" />
             Kulüp Kütüphanesi
           </button>
-          <button
-            onClick={() => handleTabChange('suggest_book')}
-            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'suggest_book' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
-              }`}
-          >
-            <FileText className="w-4 h-4" />
-            Kitap Öner
-          </button>
         </div>
 
-        {activeLibraryTab !== 'suggest_book' && (
-          <div className="relative">
+        <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchQuery}
@@ -295,7 +317,6 @@ const LibraryTab = () => {
               className="pl-9 bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:border-primary/30"
             />
           </div>
-        )}
 
         {/* --- Content Rendering based on Tab --- */}
         {activeLibraryTab === 'all_my_books' && (
@@ -384,27 +405,36 @@ const LibraryTab = () => {
                 <p className="text-muted-foreground text-sm max-w-[250px]">Henüz kulüp kütüphanesine kitap eklenmemiş veya aramanızla eşleşmiyor.</p>
               </motion.div>
             )}
+            
+            <SuggestBookSection />
           </div>
-        )}
-
-        {activeLibraryTab === 'suggest_book' && (
-          <SuggestBookSection />
         )}
 
       </div>
     </div>
 
     {/* FAB + Dialogs outside animated container */}
-    <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) setIsFormVisible(false); }}>
-      <DialogTrigger asChild>
+    <div className="fixed bottom-24 right-4 sm:right-6 z-40">
+      {(activeLibraryTab === 'club_library' && !isAdmin) ? (
         <Button
-          className="fixed bottom-24 right-4 sm:right-6 w-14 h-14 rounded-full shadow-elevated z-40"
+          onClick={() => setIsSuggestSearchOpen(true)}
+          className="w-14 h-14 rounded-full shadow-elevated"
           size="icon"
-          aria-label="Yeni Kitap Ekle"
+          aria-label="Kitap Öner"
         >
-          <Plus className="w-6 h-6" />
+          <FileText className="w-6 h-6" />
         </Button>
-      </DialogTrigger>
+      ) : (
+        <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) setIsFormVisible(false); }}>
+          <DialogTrigger asChild>
+            <Button
+              className="w-14 h-14 rounded-full shadow-elevated"
+              size="icon"
+              aria-label="Yeni Kitap Ekle"
+            >
+              <Plus className="w-6 h-6" />
+            </Button>
+          </DialogTrigger>
       <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] mx-auto rounded-xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">
@@ -571,11 +601,18 @@ const LibraryTab = () => {
         </div>
       </DialogContent>
     </Dialog>
+      )}
+    </div>
 
     <BookSearchDialog
       open={isSearchDialogOpen}
       onOpenChange={setIsSearchDialogOpen}
       onSelectBook={handleBookFromSearch}
+    />
+    <BookSearchDialog
+      open={isSuggestSearchOpen}
+      onOpenChange={setIsSuggestSearchOpen}
+      onSelectBook={handleBookSuggestFromSearch}
     />
     </>
   );

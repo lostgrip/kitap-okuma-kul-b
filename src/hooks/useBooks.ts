@@ -317,20 +317,38 @@ export const useUpdateClubBookSuggestion = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<ClubBookSuggestion> & { id: string }) => {
-      const { data, error } = await (supabase as any)
+    mutationFn: async ({ id, status }: Partial<ClubBookSuggestion> & { id: string }) => {
+      const { data: updatedSuggestion, error } = await (supabase as any)
         .from('club_book_suggestions')
-        .update(updates)
+        .update({ status })
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
-      return data as ClubBookSuggestion;
+
+      if (status === 'approved') {
+        const { error: insertError } = await (supabase as any)
+          .from('books')
+          .insert({
+            title: updatedSuggestion.title,
+            author: updatedSuggestion.author,
+            description: updatedSuggestion.description,
+            cover_url: updatedSuggestion.cover_url,
+            added_by: updatedSuggestion.user_id,
+            is_club_book: true,
+            page_count: 1, // Default fallback
+          });
+
+        if (insertError) {
+          console.error("Error inserting approved book into books table:", insertError);
+        }
+      }
+
+      return updatedSuggestion as ClubBookSuggestion;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['club_book_suggestions'] });
-      // If approved, it might have added a book, so invalidate books too
       queryClient.invalidateQueries({ queryKey: ['books'] });
     },
   });
