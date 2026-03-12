@@ -283,9 +283,13 @@ export const useClubBookSuggestions = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase Error (club_book_suggestions):', error);
+        throw error;
+      }
       return data as ClubBookSuggestion[];
     },
+    retry: false, // Don't retry if the DB table is missing, fail fast
   });
 };
 

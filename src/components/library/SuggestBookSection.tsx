@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 const SuggestBookSection = () => {
   const { user, profile } = useAuth();
-  const { data: suggestions = [], isLoading } = useClubBookSuggestions();
+  const { data: suggestions = [], isLoading, isError } = useClubBookSuggestions();
   const { data: isAdmin } = useIsAdmin(user?.id);
   const addSuggestion = useAddClubBookSuggestion();
   const updateSuggestion = useUpdateClubBookSuggestion();
@@ -50,6 +50,18 @@ const SuggestBookSection = () => {
     return (
       <div className="py-12 flex justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 bg-red-50/50 dark:bg-red-950/20 rounded-xl border border-red-100 dark:border-red-900/30">
+        <XCircle className="w-8 h-8 text-red-500" />
+        <p className="text-red-800 dark:text-red-300 font-medium">Öneriler yüklenemedi.</p>
+        <p className="text-sm text-red-600/80 dark:text-red-400/80 max-w-[280px]">
+          Lütfen veritabanı kurulumlarının (migration) tamamlandığından emin olun.
+        </p>
       </div>
     );
   }

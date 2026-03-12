@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, BookOpen, Loader2, Upload, Image, Trash2, BookText, MoreVertical, Library, FileText } from 'lucide-react';
+import { Plus, Search, BookOpen, Loader2, Upload, Image, Trash2, BookText, MoreVertical, Library, FileText, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -39,6 +39,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import BookCard from './BookCard';
 import BookSearchDialog from './BookSearchDialog';
+import AllMyBooksSection from './library/AllMyBooksSection';
 import MyLibrarySection from './library/MyLibrarySection';
 import SuggestBookSection from './library/SuggestBookSection';
 import { useBooks, useAddBook, useDeleteBook } from '@/hooks/useBooks';
@@ -51,7 +52,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 import { toast } from 'sonner';
 
-type LibraryTabType = 'my_library' | 'club_library' | 'suggest_book';
+type LibraryTabType = 'all_my_books' | 'my_lists' | 'club_library' | 'suggest_book';
 
 const LibraryTab = () => {
   const { user } = useAuth();
@@ -67,7 +68,7 @@ const LibraryTab = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeLibraryTab, setActiveLibraryTab] = useState<LibraryTabType>(() => {
-    return (sessionStorage.getItem('activeLibraryTab') as LibraryTabType) || 'my_library';
+    return (sessionStorage.getItem('activeLibraryTab') as LibraryTabType) || 'all_my_books';
   });
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -247,12 +248,20 @@ const LibraryTab = () => {
       <div className="space-y-5">
         <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-none rounded-xl bg-muted/30 p-1">
           <button
-            onClick={() => handleTabChange('my_library')}
-            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+            onClick={() => handleTabChange('all_my_books')}
+            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'all_my_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
               }`}
           >
             <BookOpen className="w-4 h-4" />
-            Kitaplarım
+            Tüm Kitaplarım
+          </button>
+          <button
+            onClick={() => handleTabChange('my_lists')}
+            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'my_lists' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+              }`}
+          >
+            <List className="w-4 h-4" />
+            Listelerim
           </button>
           <button
             onClick={() => handleTabChange('club_library')}
@@ -278,14 +287,22 @@ const LibraryTab = () => {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={activeLibraryTab === 'my_library' ? 'Kendi kitaplarında ara...' : 'Kulüp kütüphanesinde ara...'}
+              placeholder={
+                activeLibraryTab === 'club_library' ? 'Kulüp kütüphanesinde ara...' :
+                activeLibraryTab === 'my_lists' ? 'Listelerde ara...' :
+                'Kitaplarımda ara...'
+              }
               className="pl-9 bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:border-primary/30"
             />
           </div>
         )}
 
         {/* --- Content Rendering based on Tab --- */}
-        {activeLibraryTab === 'my_library' && (
+        {activeLibraryTab === 'all_my_books' && (
+          <AllMyBooksSection searchQuery={searchQuery} />
+        )}
+
+        {activeLibraryTab === 'my_lists' && (
           <MyLibrarySection searchQuery={searchQuery} />
         )}
 
