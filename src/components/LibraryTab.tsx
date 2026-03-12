@@ -288,30 +288,30 @@ const LibraryTab = () => {
 
       {/* Main Content */}
       <div className="space-y-5">
-        <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-none rounded-xl bg-muted/30 p-1">
+        <div className="flex gap-1 rounded-xl bg-muted/30 p-1">
           <button
             onClick={() => handleTabChange('all_my_books')}
-            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'all_my_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+            className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-1.5 ${activeLibraryTab === 'all_my_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            <BookOpen className="w-4 h-4" />
-            Tüm Kitaplarım
+            <BookOpen className="w-4 h-4 shrink-0" />
+            <span className="truncate">Kitaplarım</span>
           </button>
           <button
             onClick={() => handleTabChange('my_lists')}
-            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'my_lists' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+            className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-1.5 ${activeLibraryTab === 'my_lists' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            <List className="w-4 h-4" />
-            Listelerim
+            <List className="w-4 h-4 shrink-0" />
+            <span className="truncate">Listelerim</span>
           </button>
           <button
             onClick={() => handleTabChange('club_library')}
-            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'club_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+            className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all duration-200 flex items-center justify-center gap-1.5 ${activeLibraryTab === 'club_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            <Library className="w-4 h-4" />
-            Kulüp Kütüphanesi
+            <Library className="w-4 h-4 shrink-0" />
+            <span className="truncate">Kulüp</span>
           </button>
         </div>
 
