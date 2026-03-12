@@ -63,7 +63,7 @@ const LibraryTab = () => {
   const { data: schedule = [] } = useClubSchedule();
   const addBook = useAddBook();
   const deleteBook = useDeleteBook();
-  const addSuggestion = useAddClubBookSuggestion();
+  const submitToClub = useSubmitBookToClub();
   const addToDefaultList = useAddBookToDefaultList();
   const addToCustomList = useAddBookToCustomList();
   const { upload, isUploading } = useFileUpload();
