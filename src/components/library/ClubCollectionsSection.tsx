@@ -136,30 +136,30 @@ const ClubCollectionsSection = ({ searchQuery }: ClubCollectionsSectionProps) =>
   return (
     <div className="space-y-6">
       {/* Club Sub-tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-1 rounded-xl bg-muted/30 p-1">
         <button
           onClick={() => setActiveClubTab('library')}
           className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all',
+            'flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg font-medium text-sm transition-all',
             activeClubTab === 'library'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:bg-accent'
+              ? 'bg-background text-foreground shadow-soft'
+              : 'text-muted-foreground hover:text-foreground'
           )}
         >
-          <BookOpen className="w-4 h-4" />
-          Kulüp Kütüphanesi
+          <BookOpen className="w-4 h-4 shrink-0" />
+          Kütüphane
         </button>
         <button
           onClick={() => setActiveClubTab('lists')}
           className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all',
+            'flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg font-medium text-sm transition-all',
             activeClubTab === 'lists'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:bg-accent'
+              ? 'bg-background text-foreground shadow-soft'
+              : 'text-muted-foreground hover:text-foreground'
           )}
         >
-          <Users className="w-4 h-4" />
-          Kulüp Listeleri
+          <Users className="w-4 h-4 shrink-0" />
+          Listeler
         </button>
       </div>
 

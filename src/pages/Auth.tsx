@@ -75,7 +75,7 @@ const Auth = () => {
               <BookOpen className="h-10 w-10 text-primary" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Kitap Kulübü</CardTitle>
+          <CardTitle className="text-2xl font-serif">Kitap İmecesi</CardTitle>
           <CardDescription>Arkadaşlarınızla birlikte okuyun</CardDescription>
         </CardHeader>
         <CardContent>

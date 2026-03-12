@@ -113,6 +113,15 @@
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.5rem);
   }
 
+  /* Hide scrollbar */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Spoiler blur effect */
   .spoiler-blur {
     filter: blur(8px);
