@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, BookOpen, Loader2, Upload, Image, Trash2, BookText, MoreVertical } from 'lucide-react';
+import { Plus, Search, BookOpen, Loader2, Upload, Image, Trash2, BookText, MoreVertical, Library, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,9 +36,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import BookCard from './BookCard';
 import BookSearchDialog from './BookSearchDialog';
 import MyLibrarySection from './library/MyLibrarySection';
+import SuggestBookSection from './library/SuggestBookSection';
 import { useBooks, useAddBook, useDeleteBook } from '@/hooks/useBooks';
 import { useBookLists } from '@/hooks/useBookLists';
 import { useAddBookToDefaultList, useAddBookToCustomList } from '@/hooks/useBookListActions';
@@ -48,6 +50,8 @@ import { useIsAdmin } from '@/hooks/useUserRoles';
 import { useAuth } from '@/contexts/AuthContext';
 
 import { toast } from 'sonner';
+
+type LibraryTabType = 'my_library' | 'club_library' | 'suggest_book';
 
 const LibraryTab = () => {
   const { user } = useAuth();
@@ -62,13 +66,17 @@ const LibraryTab = () => {
   const { upload, isUploading } = useFileUpload();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeLibraryTab, setActiveLibraryTab] = useState<'my_library' | 'all_books'>(() => {
-    return (sessionStorage.getItem('activeLibraryTab') as 'my_library' | 'all_books') || 'my_library';
+  const [activeLibraryTab, setActiveLibraryTab] = useState<LibraryTabType>(() => {
+    return (sessionStorage.getItem('activeLibraryTab') as LibraryTabType) || 'my_library';
   });
+  
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  
   const [selectedDestination, setSelectedDestination] = useState<string>('none');
+  const [isClubBookToggle, setIsClubBookToggle] = useState(false);
+
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [epubFile, setEpubFile] = useState<File | null>(null);
@@ -82,15 +90,24 @@ const LibraryTab = () => {
     cover_url: '',
   });
 
-  const filteredBooks = books.filter(
-    (book) =>
-      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const clubBooks = useMemo(() => books.filter(b => b.is_club_book), [books]);
+  const filteredClubBooks = useMemo(() => {
+    return clubBooks.filter(
+      (book) =>
+        book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [clubBooks, searchQuery]);
 
   const activeClubBookIds = useMemo(() => {
     return schedule.filter(s => s.status === 'active').map(s => s.book_id);
   }, [schedule]);
+
+  const handleTabChange = (tab: LibraryTabType) => {
+    setActiveLibraryTab(tab);
+    sessionStorage.setItem('activeLibraryTab', tab);
+    setSearchQuery('');
+  };
 
   const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -124,7 +141,6 @@ const LibraryTab = () => {
       let finalCoverUrl = newBook.cover_url || `https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop&t=${Date.now()}`;
       let finalEpubUrl = null;
 
-      // Upload cover file if selected
       if (coverFile) {
         const uploadedCoverUrl = await upload('covers', coverFile, user.id);
         if (uploadedCoverUrl) {
@@ -132,7 +148,6 @@ const LibraryTab = () => {
         }
       }
 
-      // Upload epub file if selected
       if (epubFile) {
         const uploadedEpubUrl = await upload('book-files', epubFile);
         if (uploadedEpubUrl) {
@@ -140,26 +155,21 @@ const LibraryTab = () => {
         }
       }
 
-      // TODO: 'books' tablosunda 'publisher' adında ayrı bir sütun bulunmuyor.
-      // Şimdilik description içine string birleştirme yapıyoruz. İleride DB migration eklenecek.
-      const descriptionPayload = newBook.publisher
-        ? (newBook.description ? newBook.description + '\n\nYayınevi: ' + newBook.publisher : 'Yayınevi: ' + newBook.publisher)
-        : newBook.description || null;
-
       const payload = {
         title: newBook.title,
         author: newBook.author,
-        page_count: parseInt(newBook.pages),
+        page_count: parseInt(newBook.pages) || 0,
         genre: newBook.genre || null,
-        description: descriptionPayload,
+        publisher: newBook.publisher || null,
+        description: newBook.description || null,
         cover_url: finalCoverUrl,
         epub_url: finalEpubUrl,
         added_by: user.id,
+        is_club_book: isAdmin ? isClubBookToggle : false,
       };
 
       const createdBook = await addBook.mutateAsync(payload);
 
-      // Add to selected destination list (skip if 'none')
       if (selectedDestination !== 'none') {
         const defaultTypes = ['want_to_read', 'reading', 'read', 'dnf'];
         if (defaultTypes.includes(selectedDestination)) {
@@ -180,6 +190,7 @@ const LibraryTab = () => {
       setCoverPreview(null);
       setEpubFile(null);
       setSelectedDestination('none');
+      setIsClubBookToggle(false);
       setIsAddDialogOpen(false);
       setIsFormVisible(false);
       toast.success('Kitap eklendi!');
@@ -217,7 +228,7 @@ const LibraryTab = () => {
     <>
     <div className="px-5 pt-8 pb-24 animate-fade-in overflow-x-hidden">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-xl font-serif font-bold text-foreground">
           Kütüphane
         </h1>
@@ -228,50 +239,56 @@ const LibraryTab = () => {
 
       {/* Main Content */}
       <div className="space-y-5">
-        <div className="flex items-center gap-1 rounded-xl bg-muted/60 p-1">
+        <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-none rounded-xl bg-muted/30 p-1">
           <button
-            onClick={() => {
-              setActiveLibraryTab('my_library');
-              sessionStorage.setItem('activeLibraryTab', 'my_library');
-            }}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+            onClick={() => handleTabChange('my_library')}
+            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'my_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            Kütüphanem
+            <BookOpen className="w-4 h-4" />
+            Kitaplarım
           </button>
           <button
-            onClick={() => {
-              setActiveLibraryTab('all_books');
-              sessionStorage.setItem('activeLibraryTab', 'all_books');
-            }}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${activeLibraryTab === 'all_books' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+            onClick={() => handleTabChange('club_library')}
+            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'club_library' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            <span className="inline-flex items-center gap-1.5">
-              <BookOpen className="h-4 w-4" />
-              Tüm Kitaplar
-            </span>
+            <Library className="w-4 h-4" />
+            Kulüp Kütüphanesi
+          </button>
+          <button
+            onClick={() => handleTabChange('suggest_book')}
+            className={`flex-none rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeLibraryTab === 'suggest_book' ? 'bg-background text-foreground shadow-soft' : 'text-muted-foreground hover:text-foreground'
+              }`}
+          >
+            <FileText className="w-4 h-4" />
+            Kitap Öner
           </button>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={activeLibraryTab === 'my_library' ? 'Listelerde kitap ara...' : 'Tüm kitaplarda ara...'}
-            className="pl-9"
-          />
-        </div>
+        {activeLibraryTab !== 'suggest_book' && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={activeLibraryTab === 'my_library' ? 'Kendi kitaplarında ara...' : 'Kulüp kütüphanesinde ara...'}
+              className="pl-9 bg-background/50 border-border/50 focus-visible:ring-1 focus-visible:border-primary/30"
+            />
+          </div>
+        )}
 
-        {activeLibraryTab === 'my_library' ? (
+        {/* --- Content Rendering based on Tab --- */}
+        {activeLibraryTab === 'my_library' && (
           <MyLibrarySection searchQuery={searchQuery} />
-        ) : (
+        )}
+
+        {activeLibraryTab === 'club_library' && (
           <div>
-            <h2 className="text-xl font-serif font-semibold text-foreground mb-4">Tüm Kitaplar</h2>
+            <h2 className="text-lg font-serif font-semibold text-foreground mb-4">Kulüp Kütüphanesi</h2>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {filteredBooks.map((book) => (
-                <div key={book.id} className="relative h-full flex flex-col">
+              {filteredClubBooks.map((book) => (
+                <div key={book.id} className="relative h-full flex flex-col group">
                   <BookCard
                     book={{
                       id: book.id,
@@ -285,11 +302,11 @@ const LibraryTab = () => {
                     className="bg-card rounded-xl shadow-soft flex-1 overflow-hidden"
                   />
                   {(isAdmin || book.added_by === user?.id) && (
-                    <div className="absolute top-2 right-2 z-10">
+                    <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="w-10 h-10 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all shadow-sm">
-                            <MoreVertical className="w-5 h-5" />
+                          <button aria-label="Seçenekler" className="w-8 h-8 bg-black/40 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-black/60 transition-colors shadow-sm">
+                            <MoreVertical className="w-4 h-4" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40">
@@ -330,7 +347,7 @@ const LibraryTab = () => {
                 </div>
               ))}
             </div>
-            {filteredBooks.length === 0 && (
+            {filteredClubBooks.length === 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -338,14 +355,19 @@ const LibraryTab = () => {
                 className="text-center py-16 bg-card rounded-xl border border-border/40 shadow-card flex flex-col items-center mt-4 col-span-2"
               >
                 <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
-                  <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+                  <Library className="w-8 h-8 text-muted-foreground/50" />
                 </div>
-                <p className="text-foreground font-medium mb-1">Kitap bulunamadı</p>
-                <p className="text-muted-foreground text-sm max-w-[250px]">Arama kriterinize uygun kitap yok veya henüz kütüphanenize kitap eklemediniz.</p>
+                <p className="text-foreground font-medium mb-1">Kulüp kitabı bulunamadı</p>
+                <p className="text-muted-foreground text-sm max-w-[250px]">Henüz kulüp kütüphanesine kitap eklenmemiş veya aramanızla eşleşmiyor.</p>
               </motion.div>
             )}
           </div>
         )}
+
+        {activeLibraryTab === 'suggest_book' && (
+          <SuggestBookSection />
+        )}
+
       </div>
     </div>
 
@@ -355,6 +377,7 @@ const LibraryTab = () => {
         <Button
           className="fixed bottom-24 right-4 sm:right-6 w-14 h-14 rounded-full shadow-elevated z-40"
           size="icon"
+          aria-label="Yeni Kitap Ekle"
         >
           <Plus className="w-6 h-6" />
         </Button>
@@ -376,10 +399,10 @@ const LibraryTab = () => {
             >
               <Button
                 variant="outline"
-                className="w-full h-14 rounded-xl text-base shadow-sm"
+                className="w-full h-14 rounded-xl text-base shadow-sm group hover:border-primary/50"
                 onClick={() => setIsSearchDialogOpen(true)}
               >
-                <Search className="w-5 h-5 mr-3" />
+                <Search className="w-5 h-5 mr-3 text-muted-foreground group-hover:text-primary transition-colors" />
                 Kitap Ara
               </Button>
 
@@ -480,7 +503,7 @@ const LibraryTab = () => {
 
                   {/* Destination List */}
                   <div>
-                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Listeye Ekle</Label>
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Kişisel Listeye Ekle</Label>
                     <Select value={selectedDestination} onValueChange={setSelectedDestination}>
                       <SelectTrigger className="mt-1.5">
                         <SelectValue placeholder="Liste seçin" />
@@ -497,9 +520,23 @@ const LibraryTab = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  
+                  {isAdmin && (
+                    <div className="flex items-center justify-between p-4 mt-2 bg-muted/40 rounded-xl border border-border/50">
+                      <div className="space-y-0.5">
+                        <Label>Kulüp Kütüphanesi</Label>
+                        <p className="text-xs text-muted-foreground">Bu kitabı herkesin görebildiği kulüp kütüphanesine ekle</p>
+                      </div>
+                      <Switch 
+                        checked={isClubBookToggle} 
+                        onCheckedChange={setIsClubBookToggle} 
+                      />
+                    </div>
+                  )}
+
                 </div>
 
-                <Button onClick={handleAddBook} className="w-full h-12 rounded-xl text-base mt-4" disabled={addBook.isPending || isUploading}>
+                <Button onClick={handleAddBook} className="w-full h-12 rounded-xl text-base mt-6 text-white font-medium shadow-elevated" disabled={addBook.isPending || isUploading}>
                   {(addBook.isPending || isUploading) ? (
                     <Loader2 className="h-5 w-5 animate-spin mr-2" />
                   ) : null}

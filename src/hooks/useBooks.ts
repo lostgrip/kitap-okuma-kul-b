@@ -8,10 +8,12 @@ export interface Book {
   cover_url: string | null;
   page_count: number;
   genre: string | null;
+  publisher: string | null;
   description: string | null;
   epub_url: string | null;
   added_by: string | null;
   club_status: string | null;
+  is_club_book: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -23,8 +25,23 @@ export interface NewBook {
   epub_url?: string | null;
   page_count: number;
   genre?: string | null;
+  publisher?: string | null;
   description?: string | null;
   added_by: string;
+  is_club_book?: boolean;
+}
+
+export interface ClubBookSuggestion {
+  id: string;
+  user_id: string;
+  group_code: string;
+  title: string;
+  author: string;
+  description: string | null;
+  cover_url: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at: string;
 }
 
 export const useBooks = () => {
@@ -84,9 +101,11 @@ export const useAddBook = () => {
         ...newBook,
         id: `temp-${Date.now()}`,
         club_status: null,
+        is_club_book: newBook.is_club_book ?? false,
         cover_url: newBook.cover_url ?? null,
         epub_url: newBook.epub_url ?? null,
         genre: newBook.genre ?? null,
+        publisher: newBook.publisher ?? null,
         description: newBook.description ?? null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -202,7 +221,7 @@ export const useApproveClubBook = () => {
     mutationFn: async (bookId: string) => {
       const { error } = await supabase
         .from('books')
-        .update({ club_status: 'approved' })
+        .update({ club_status: 'approved', is_club_book: true })
         .eq('id', bookId);
 
       if (error) throw error;
@@ -212,8 +231,6 @@ export const useApproveClubBook = () => {
     },
   });
 };
-
-
 
 export const useRemoveClubGoal = () => {
   const queryClient = useQueryClient();
@@ -242,7 +259,7 @@ export const useAddClubBook = () => {
     mutationFn: async (newBook: NewBook) => {
       const { data, error } = await supabase
         .from('books')
-        .insert({ ...newBook, club_status: 'approved' })
+        .insert({ ...newBook, club_status: 'approved', is_club_book: true })
         .select()
         .single();
 
@@ -251,6 +268,65 @@ export const useAddClubBook = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books', 'club'] });
+      queryClient.invalidateQueries({ queryKey: ['books'] });
+    },
+  });
+};
+
+// Club Book Suggestions Hooks
+export const useClubBookSuggestions = () => {
+  return useQuery({
+    queryKey: ['club_book_suggestions'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('club_book_suggestions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as ClubBookSuggestion[];
+    },
+  });
+};
+
+export const useAddClubBookSuggestion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (suggestion: Omit<ClubBookSuggestion, 'id' | 'status' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await (supabase as any)
+        .from('club_book_suggestions')
+        .insert(suggestion)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as ClubBookSuggestion;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['club_book_suggestions'] });
+    },
+  });
+};
+
+export const useUpdateClubBookSuggestion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<ClubBookSuggestion> & { id: string }) => {
+      const { data, error } = await (supabase as any)
+        .from('club_book_suggestions')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as ClubBookSuggestion;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['club_book_suggestions'] });
+      // If approved, it might have added a book, so invalidate books too
       queryClient.invalidateQueries({ queryKey: ['books'] });
     },
   });
