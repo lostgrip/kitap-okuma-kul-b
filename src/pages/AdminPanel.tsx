@@ -198,6 +198,7 @@ const AdminPanel = () => {
             { id: 'invites' as const, label: 'Davetler', icon: Link2, badge: inviteCodes.length },
             { id: 'groups' as const, label: 'Gruplar', icon: FolderPlus, badge: groups.length },
             { id: 'schedule' as const, label: 'Takvim', icon: Calendar, badge: schedule.filter(s => s.status === 'active').length },
+            { id: 'suggestions' as const, label: 'Öneriler', icon: BookOpen, badge: pendingBooks.length },
           ].map(tab => (
             <button
               key={tab.id}
