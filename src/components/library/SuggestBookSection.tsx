@@ -30,15 +30,7 @@ const SuggestBookSection = () => {
   }
 
   if (isError) {
-    return (
-      <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 bg-red-50/50 dark:bg-red-950/20 rounded-xl border border-red-100 dark:border-red-900/30 mt-8">
-        <XCircle className="w-8 h-8 text-red-500" />
-        <p className="text-red-800 dark:text-red-300 font-medium">Öneriler yüklenemedi.</p>
-        <p className="text-sm text-red-600/80 dark:text-red-400/80 max-w-[280px]">
-          Lütfen veritabanı kurulumlarının (migration) tamamlandığından emin olun.
-        </p>
-      </div>
-    );
+    return null;
   }
 
   // Sadece ilgili kullanıcı eklediyse VEYA admin ise görsün mu? 
