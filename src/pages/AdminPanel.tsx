@@ -619,6 +619,72 @@ const AdminPanel = () => {
             )}
           </div>
         )}
+
+        {/* Suggestions Tab */}
+        {activeTab === 'suggestions' && (
+          <div className="space-y-3">
+            <h2 className="font-serif font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+              Kitap Önerileri ({pendingBooks.length})
+            </h2>
+            {pendingLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : pendingBooks.length === 0 ? (
+              <div className="text-center py-12 bg-card rounded-xl border border-border/40">
+                <BookOpen className="w-8 h-8 text-muted-foreground/50 mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">Bekleyen öneri yok</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingBooks.map((book) => (
+                  <div key={book.id} className="flex items-center gap-3 p-4 bg-card rounded-xl border-2 border-border">
+                    <img
+                      src={book.cover_url || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop'}
+                      alt={book.title}
+                      className="w-12 h-16 object-cover rounded-lg"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{book.title}</p>
+                      <p className="text-xs text-muted-foreground truncate">{book.author}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            await approveClubBook.mutateAsync(book.id);
+                            toast.success(`"${book.title}" onaylandı!`);
+                          } catch {
+                            toast.error('Onaylama başarısız');
+                          }
+                        }}
+                        disabled={approveClubBook.isPending}
+                      >
+                        Onayla
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={async () => {
+                          try {
+                            await deleteBook.mutateAsync(book.id);
+                            toast.success('Öneri reddedildi');
+                          } catch {
+                            toast.error('Silme başarısız');
+                          }
+                        }}
+                        disabled={deleteBook.isPending}
+                      >
+                        Reddet
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
