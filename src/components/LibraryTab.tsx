@@ -132,6 +132,12 @@ const LibraryTab = () => {
       return;
     }
 
+    const pagesCount = parseInt(newBook.pages);
+    if (isNaN(pagesCount) || pagesCount <= 0) {
+      toast.error('Lütfen geçerli bir sayfa sayısı girin');
+      return;
+    }
+
     if (!user) {
       toast.error('Kitap eklemek için giriş yapmalısınız');
       return;
@@ -158,7 +164,7 @@ const LibraryTab = () => {
       const payload = {
         title: newBook.title,
         author: newBook.author,
-        page_count: parseInt(newBook.pages) || 0,
+        page_count: pagesCount,
         genre: newBook.genre || null,
         publisher: newBook.publisher || null,
         description: newBook.description || null,
