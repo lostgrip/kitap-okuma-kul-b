@@ -54,6 +54,9 @@ const AdminPanel = () => {
   const updateSchedule = useUpdateClubSchedule();
   const deleteSchedule = useDeleteClubSchedule();
   const { data: books = [] } = useBooks();
+  const { data: pendingBooks = [], isLoading: pendingLoading } = usePendingClubBooks();
+  const approveClubBook = useApproveClubBook();
+  const deleteBook = useDeleteBook();
 
   const [activeTab, setActiveTab] = useState<'members' | 'invites' | 'groups' | 'schedule'>('members');
   const [isCreateCodeDialogOpen, setIsCreateCodeDialogOpen] = useState(false);
