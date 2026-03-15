@@ -94,7 +94,7 @@ const LibraryTab = () => {
     cover_url: '',
   });
 
-  const clubBooks = useMemo(() => books.filter(b => b.is_club_book), [books]);
+  const clubBooks = useMemo(() => books.filter(b => b.club_status && ['approved', 'active_goal'].includes(b.club_status)), [books]);
   const filteredClubBooks = useMemo(() => {
     return clubBooks.filter(
       (book) =>
@@ -165,17 +165,20 @@ const LibraryTab = () => {
         }
       }
 
+      const descriptionPayload = newBook.publisher
+        ? (newBook.description ? newBook.description + '\n\nYayınevi: ' + newBook.publisher : 'Yayınevi: ' + newBook.publisher)
+        : newBook.description || null;
+
       const payload = {
         title: newBook.title,
         author: newBook.author,
         page_count: pagesCount,
         genre: newBook.genre || null,
-        publisher: newBook.publisher || null,
-        description: newBook.description || null,
+        description: descriptionPayload,
         cover_url: finalCoverUrl,
         epub_url: finalEpubUrl,
         added_by: user.id,
-        is_club_book: isAdmin ? isClubBookToggle : false,
+        ...(isAdmin && isClubBookToggle ? { club_status: 'approved' } : {}),
       };
 
       const createdBook = await addBook.mutateAsync(payload);

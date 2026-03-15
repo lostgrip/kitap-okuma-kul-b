@@ -13,8 +13,8 @@ vi.mock('@/integrations/supabase/client', () => ({
 
 // Mock data
 const mockBooks = [
-  { id: '1', title: 'Book 1', author: 'Author 1', is_club_book: false },
-  { id: '2', title: 'Book 2', author: 'Author 2', is_club_book: true },
+  { id: '1', title: 'Book 1', author: 'Author 1', club_status: null },
+  { id: '2', title: 'Book 2', author: 'Author 2', club_status: 'approved' },
 ];
 
 describe('useBooks hooks', () => {

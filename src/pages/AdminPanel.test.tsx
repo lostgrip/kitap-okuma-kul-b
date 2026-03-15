@@ -43,6 +43,9 @@ vi.mock('@/hooks/useClubSchedule', () => ({
 
 vi.mock('@/hooks/useBooks', () => ({
   useBooks: vi.fn(),
+  usePendingClubBooks: vi.fn(),
+  useApproveClubBook: vi.fn(),
+  useDeleteBook: vi.fn(),
 }));
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,7 +53,7 @@ import { useIsAdmin, useGroupMembers, useAddUserRole, useRemoveUserRole } from '
 import { useInviteCodes, useCreateInviteCode, useDeactivateInviteCode } from '@/hooks/useInviteCodes';
 import { useGroups, useCreateGroup } from '@/hooks/useGroups';
 import { useClubSchedule, useAddClubSchedule, useUpdateClubSchedule, useDeleteClubSchedule } from '@/hooks/useClubSchedule';
-import { useBooks } from '@/hooks/useBooks';
+import { useBooks, usePendingClubBooks, useApproveClubBook, useDeleteBook } from '@/hooks/useBooks';
 
 describe('AdminPanel Integration', () => {
 
@@ -107,6 +110,12 @@ describe('AdminPanel Integration', () => {
       data: [{ id: 'book1', title: 'Test Book' }],
       isLoading: false,
     } as any);
+    vi.mocked(usePendingClubBooks).mockReturnValue({
+      data: [],
+      isLoading: false,
+    } as any);
+    vi.mocked(useApproveClubBook).mockReturnValue({ mutateAsync: vi.fn() } as any);
+    vi.mocked(useDeleteBook).mockReturnValue({ mutateAsync: vi.fn() } as any);
   });
 
   const renderComponent = () => render(
