@@ -58,7 +58,7 @@ const BookDetail = () => {
 
   const { data: book, isLoading: bookLoading } = useBook(bookId || '');
   const { data: userBook } = useUserBookByBookId(user?.id || '', bookId || '');
-  const { data: suggesterProfile } = useProfile((book?.is_club_book && book?.added_by) ? book.added_by : '');
+  const { data: suggesterProfile } = useProfile((book?.club_status && book?.added_by) ? book.added_by : '');
   const addToDefaultList = useAddBookToDefaultList();
 
   const [isListModalOpen, setIsListModalOpen] = useState(false);
