@@ -175,7 +175,7 @@ const LibraryTab = () => {
         cover_url: finalCoverUrl,
         epub_url: finalEpubUrl,
         added_by: user.id,
-        is_club_book: isAdmin ? isClubBookToggle : false,
+        ...(isAdmin && isClubBookToggle ? { club_status: 'approved' } : {}),
       };
 
       const createdBook = await addBook.mutateAsync(payload);

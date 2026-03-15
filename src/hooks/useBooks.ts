@@ -8,12 +8,10 @@ export interface Book {
   cover_url: string | null;
   page_count: number;
   genre: string | null;
-  publisher: string | null;
   description: string | null;
   epub_url: string | null;
   added_by: string | null;
   club_status: string | null;
-  is_club_book: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -25,23 +23,8 @@ export interface NewBook {
   epub_url?: string | null;
   page_count: number;
   genre?: string | null;
-  publisher?: string | null;
   description?: string | null;
   added_by: string;
-  is_club_book?: boolean;
-}
-
-export interface ClubBookSuggestion {
-  id: string;
-  user_id: string;
-  group_code: string;
-  title: string;
-  author: string;
-  description: string | null;
-  cover_url: string | null;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  updated_at: string;
 }
 
 export const useBooks = () => {
@@ -56,7 +39,6 @@ export const useBooks = () => {
       if (error) throw error;
       return data as Book[];
     },
-    // Books rarely change mid-session — keep cached for 10 min
     staleTime: 10 * 60 * 1000,
   });
 };
@@ -93,7 +75,6 @@ export const useAddBook = () => {
       if (error) throw error;
       return data as Book;
     },
-    // Optimistic update: show book immediately in list
     onMutate: async (newBook) => {
       await queryClient.cancelQueries({ queryKey: ['books'] });
       const previous = queryClient.getQueryData<Book[]>(['books']);
@@ -101,11 +82,9 @@ export const useAddBook = () => {
         ...newBook,
         id: `temp-${Date.now()}`,
         club_status: null,
-        is_club_book: newBook.is_club_book ?? false,
         cover_url: newBook.cover_url ?? null,
         epub_url: newBook.epub_url ?? null,
         genre: newBook.genre ?? null,
-        publisher: newBook.publisher ?? null,
         description: newBook.description ?? null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -114,7 +93,6 @@ export const useAddBook = () => {
       return { previous };
     },
     onError: (_err, _vars, ctx) => {
-      // Rollback on failure
       if (ctx?.previous) queryClient.setQueryData(['books'], ctx.previous);
     },
     onSettled: () => {
@@ -162,7 +140,7 @@ export const useDeleteBook = () => {
   });
 };
 
-// Club library hooks
+// Club library hooks — club books are those with club_status = 'approved' or 'active_goal'
 export const useClubBooks = () => {
   return useQuery({
     queryKey: ['books', 'club', 'approved'],
@@ -221,7 +199,7 @@ export const useApproveClubBook = () => {
     mutationFn: async (bookId: string) => {
       const { error } = await supabase
         .from('books')
-        .update({ club_status: 'approved', is_club_book: true })
+        .update({ club_status: 'approved' })
         .eq('id', bookId);
 
       if (error) throw error;
@@ -237,7 +215,6 @@ export const useRemoveClubGoal = () => {
 
   return useMutation({
     mutationFn: async (bookId: string) => {
-      // Demote active_goal back to simply approved
       const { error } = await supabase
         .from('books')
         .update({ club_status: 'approved' })
@@ -259,7 +236,7 @@ export const useAddClubBook = () => {
     mutationFn: async (newBook: NewBook) => {
       const { data, error } = await supabase
         .from('books')
-        .insert({ ...newBook, club_status: 'approved', is_club_book: true })
+        .insert({ ...newBook, club_status: 'approved' })
         .select()
         .single();
 
@@ -268,87 +245,6 @@ export const useAddClubBook = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books', 'club'] });
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-    },
-  });
-};
-
-// Club Book Suggestions Hooks
-export const useClubBookSuggestions = () => {
-  return useQuery({
-    queryKey: ['club_book_suggestions'],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from('club_book_suggestions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Supabase Error (club_book_suggestions):', error);
-        throw error;
-      }
-      return data as ClubBookSuggestion[];
-    },
-    retry: false, // Don't retry if the DB table is missing, fail fast
-  });
-};
-
-export const useAddClubBookSuggestion = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (suggestion: Omit<ClubBookSuggestion, 'id' | 'status' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await (supabase as any)
-        .from('club_book_suggestions')
-        .insert(suggestion)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data as ClubBookSuggestion;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['club_book_suggestions'] });
-    },
-  });
-};
-
-export const useUpdateClubBookSuggestion = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, status }: Partial<ClubBookSuggestion> & { id: string }) => {
-      const { data: updatedSuggestion, error } = await (supabase as any)
-        .from('club_book_suggestions')
-        .update({ status })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      if (status === 'approved') {
-        const { error: insertError } = await (supabase as any)
-          .from('books')
-          .insert({
-            title: updatedSuggestion.title,
-            author: updatedSuggestion.author,
-            description: updatedSuggestion.description,
-            cover_url: updatedSuggestion.cover_url,
-            added_by: updatedSuggestion.user_id,
-            is_club_book: true,
-            page_count: 1, // Default fallback
-          });
-
-        if (insertError) {
-          console.error("Error inserting approved book into books table:", insertError);
-        }
-      }
-
-      return updatedSuggestion as ClubBookSuggestion;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['club_book_suggestions'] });
       queryClient.invalidateQueries({ queryKey: ['books'] });
     },
   });
