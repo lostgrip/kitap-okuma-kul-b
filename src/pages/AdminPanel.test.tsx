@@ -43,6 +43,9 @@ vi.mock('@/hooks/useClubSchedule', () => ({
 
 vi.mock('@/hooks/useBooks', () => ({
   useBooks: vi.fn(),
+  usePendingClubBooks: vi.fn(),
+  useApproveClubBook: vi.fn(),
+  useDeleteBook: vi.fn(),
 }));
 
 import { useAuth } from '@/contexts/AuthContext';
