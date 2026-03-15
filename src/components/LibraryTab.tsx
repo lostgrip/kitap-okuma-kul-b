@@ -94,7 +94,7 @@ const LibraryTab = () => {
     cover_url: '',
   });
 
-  const clubBooks = useMemo(() => books.filter(b => b.is_club_book), [books]);
+  const clubBooks = useMemo(() => books.filter(b => b.club_status && ['approved', 'active_goal'].includes(b.club_status)), [books]);
   const filteredClubBooks = useMemo(() => {
     return clubBooks.filter(
       (book) =>
