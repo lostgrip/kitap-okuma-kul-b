@@ -13,8 +13,7 @@ vi.mock('@/hooks/useBooks', () => ({
   useBooks: vi.fn(),
   useAddBook: vi.fn(),
   useDeleteBook: vi.fn(),
-  useAddClubBookSuggestion: vi.fn(),
-  useClubBookSuggestions: vi.fn(),
+  useSubmitBookToClub: vi.fn(),
 }));
 
 vi.mock('@/hooks/useBookLists', () => ({

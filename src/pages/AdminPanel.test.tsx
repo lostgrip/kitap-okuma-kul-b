@@ -110,6 +110,12 @@ describe('AdminPanel Integration', () => {
       data: [{ id: 'book1', title: 'Test Book' }],
       isLoading: false,
     } as any);
+    vi.mocked(usePendingClubBooks).mockReturnValue({
+      data: [],
+      isLoading: false,
+    } as any);
+    vi.mocked(useApproveClubBook).mockReturnValue({ mutateAsync: vi.fn() } as any);
+    vi.mocked(useDeleteBook).mockReturnValue({ mutateAsync: vi.fn() } as any);
   });
 
   const renderComponent = () => render(
