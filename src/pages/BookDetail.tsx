@@ -160,7 +160,7 @@ const BookDetail = () => {
               </span>
             </div>
             
-            {book.is_club_book && suggesterProfile && (
+            {book.club_status && suggesterProfile && (
               <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1.5 bg-muted/40 w-fit px-2.5 py-1.5 rounded-lg border border-border/50">
                 <Users className="w-3.5 h-3.5 text-primary" />
                 <span><span className="font-medium text-foreground">{suggesterProfile.username}</span> tarafından kulübe eklendi</span>
