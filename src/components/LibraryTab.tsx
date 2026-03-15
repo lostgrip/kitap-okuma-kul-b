@@ -165,13 +165,16 @@ const LibraryTab = () => {
         }
       }
 
+      const descriptionPayload = newBook.publisher
+        ? (newBook.description ? newBook.description + '\n\nYayınevi: ' + newBook.publisher : 'Yayınevi: ' + newBook.publisher)
+        : newBook.description || null;
+
       const payload = {
         title: newBook.title,
         author: newBook.author,
         page_count: pagesCount,
         genre: newBook.genre || null,
-        publisher: newBook.publisher || null,
-        description: newBook.description || null,
+        description: descriptionPayload,
         cover_url: finalCoverUrl,
         epub_url: finalEpubUrl,
         added_by: user.id,
