@@ -53,7 +53,7 @@ import { useIsAdmin, useGroupMembers, useAddUserRole, useRemoveUserRole } from '
 import { useInviteCodes, useCreateInviteCode, useDeactivateInviteCode } from '@/hooks/useInviteCodes';
 import { useGroups, useCreateGroup } from '@/hooks/useGroups';
 import { useClubSchedule, useAddClubSchedule, useUpdateClubSchedule, useDeleteClubSchedule } from '@/hooks/useClubSchedule';
-import { useBooks } from '@/hooks/useBooks';
+import { useBooks, usePendingClubBooks, useApproveClubBook, useDeleteBook } from '@/hooks/useBooks';
 
 describe('AdminPanel Integration', () => {
 
