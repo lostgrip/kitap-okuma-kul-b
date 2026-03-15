@@ -93,7 +93,7 @@ describe('LibraryTab Book Upload Integration', () => {
     vi.mocked(useIsAdmin).mockReturnValue({ data: true } as any);
 
     vi.mocked(useBooks).mockReturnValue({
-      data: [{ id: 'b1', title: 'Test', author: 'Test', page_count: 100, is_club_book: true, added_by: 'user1' }],
+      data: [{ id: 'b1', title: 'Test', author: 'Test', page_count: 100, club_status: 'approved', added_by: 'user1' }],
       isLoading: false,
     } as any);
 
