@@ -155,6 +155,7 @@ const SocialFeedTab = () => {
       userName: profile?.display_name || profile?.username || 'Anonim',
       userAvatar: profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username || 'user'}`,
       bookTitle: book?.title,
+      feed_post_likes: Array.isArray(post.feed_post_likes) ? post.feed_post_likes as { user_id: string }[] : [],
     };
   };
 

@@ -136,6 +136,8 @@ export const useDeleteBook = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
+      queryClient.invalidateQueries({ queryKey: ['books', 'club', 'approved'] });
+      queryClient.invalidateQueries({ queryKey: ['books', 'club', 'pending'] });
     },
   });
 };
@@ -188,6 +190,7 @@ export const useSubmitBookToClub = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
+      queryClient.invalidateQueries({ queryKey: ['books', 'club', 'pending'] });
     },
   });
 };
@@ -206,6 +209,8 @@ export const useApproveClubBook = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
+      queryClient.invalidateQueries({ queryKey: ['books', 'club', 'approved'] });
+      queryClient.invalidateQueries({ queryKey: ['books', 'club', 'pending'] });
     },
   });
 };

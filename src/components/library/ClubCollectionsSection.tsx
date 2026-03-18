@@ -265,7 +265,7 @@ const ClubCollectionsSection = ({ searchQuery }: ClubCollectionsSectionProps) =>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Kitabı Kaldır</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  "{book.title}" kitabını kulüp kütüphanesinden kaldırmak istediğinize emin misiniz?
+                                  &ldquo;{book.title}&rdquo; kitabını kulüp kütüphanesinden kaldırmak istediğinize emin misiniz?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

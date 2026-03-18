@@ -21,6 +21,14 @@ export interface NewFeedPost {
   image_url?: string;
 }
 
+export interface PollVote {
+  id: string;
+  post_id: string;
+  user_id: string;
+  option_index: number;
+  created_at: string;
+}
+
 export const useFeedPosts = () => {
   return useQuery({
     queryKey: ['feed_posts'],
@@ -95,19 +103,100 @@ export const useDeleteFeedPost = () => {
   });
 };
 
+// ─── Poll votes ──────────────────────────────────────────────────────────────
+
+export const usePollVotes = (postId: string) => {
+  return useQuery({
+    queryKey: ['poll_votes', postId],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('feed_poll_votes')
+        .select('*')
+        .eq('post_id', postId);
+      if (error) {
+        // Table may not exist on older deployments — return empty gracefully
+        if (error.code === '42P01') return [] as PollVote[];
+        throw error;
+      }
+      return (data ?? []) as PollVote[];
+    },
+    enabled: !!postId,
+    staleTime: 60 * 1000,
+  });
+};
+
+export const useVotePoll = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ postId, userId, optionIndex }: { postId: string; userId: string; optionIndex: number }) => {
+      // Check existing vote
+      const { data: existing } = await (supabase as any)
+        .from('feed_poll_votes')
+        .select('id, option_index')
+        .eq('post_id', postId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (existing) {
+        if (existing.option_index === optionIndex) {
+          // Remove vote (toggle off)
+          const { error } = await (supabase as any)
+            .from('feed_poll_votes')
+            .delete()
+            .eq('id', existing.id);
+          if (error) throw error;
+          return null;
+        } else {
+          // Change vote
+          const { error } = await (supabase as any)
+            .from('feed_poll_votes')
+            .update({ option_index: optionIndex })
+            .eq('id', existing.id);
+          if (error) throw error;
+          return optionIndex;
+        }
+      } else {
+        const { error } = await (supabase as any)
+          .from('feed_poll_votes')
+          .insert({ post_id: postId, user_id: userId, option_index: optionIndex });
+        if (error) throw error;
+        return optionIndex;
+      }
+    },
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['poll_votes', vars.postId] });
+    },
+  });
+};
+
+// ─── Likes with notification ──────────────────────────────────────────────────
+
 export const useLikePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ postId, userId }: { postId: string; userId: string }) => {
-      const { error } = await (supabase as unknown as { from: (table: string) => { insert: (data: unknown) => Promise<{ error: unknown }>, delete: () => { eq: (field: string, val: unknown) => { eq: (field: string, val: unknown) => Promise<{ error: unknown }> } } } })
+    mutationFn: async ({ postId, userId, postOwnerId }: { postId: string; userId: string; postOwnerId: string }) => {
+      const { error } = await (supabase as unknown as { from: (table: string) => { insert: (data: unknown) => Promise<{ error: unknown }> } })
         .from('feed_post_likes')
         .insert({ post_id: postId, user_id: userId });
 
       if (error) throw error;
+
+      // Send notification to post owner (not to self)
+      if (postOwnerId && postOwnerId !== userId) {
+        await supabase.from('notifications').insert({
+          user_id: postOwnerId,
+          type: 'like',
+          title: 'Gönderinizi beğendi',
+          message: 'Birisi gönderinizi beğendi.',
+          data: { post_id: postId },
+          is_read: false,
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed_posts'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 };
