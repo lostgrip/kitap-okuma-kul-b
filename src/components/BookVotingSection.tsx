@@ -12,7 +12,7 @@ import { useBookVotes, useAddBookVote, useRemoveBookVote } from '@/hooks/useBook
 import { useVotingNominations, useAddNomination, useRemoveNomination } from '@/hooks/useVotingNominations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfiles } from '@/hooks/useProfiles';
-import { useUserBooks } from '@/hooks/useUserBooks';
+import { useUserProgress } from '@/hooks/useProgress';
 import { useBooks } from '@/hooks/useBooks';
 import { toast } from 'sonner';
 
@@ -21,7 +21,7 @@ const BookVotingSection = () => {
   const { data: votes = [] } = useBookVotes();
   const { data: nominations = [], isLoading } = useVotingNominations();
   const { data: profiles = [] } = useProfiles();
-  const { data: userBooks = [] } = useUserBooks(user?.id);
+  const { data: userProgress = [] } = useUserProgress(user?.id || '');
   const { data: allBooks = [] } = useBooks();
   const addVote = useAddBookVote();
   const removeVote = useRemoveBookVote();
@@ -35,11 +35,11 @@ const BookVotingSection = () => {
   const userNomination = nominations.find(n => n.user_id === user?.id);
   const effectiveGroupCode = userProfile?.group_code || 'ZENHUB';
 
-  // Get user's library books with details
+  // Get user's library books from reading_progress (same source as MyLibrarySection)
   const myLibraryBooks = useMemo(() => {
-    const myBookIds = userBooks.map(ub => ub.book_id);
+    const myBookIds = userProgress.map(rp => rp.book_id);
     return allBooks.filter(b => myBookIds.includes(b.id));
-  }, [userBooks, allBooks]);
+  }, [userProgress, allBooks]);
 
   // Filter by search query
   const filteredBooks = useMemo(() => {
