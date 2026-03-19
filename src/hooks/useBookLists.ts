@@ -238,3 +238,42 @@ export const usePendingListProposals = () => {
     },
   });
 };
+
+/**
+ * Kullanıcının "Kitaplarım" sekmesindeki tüm kitapların ID'lerini döner.
+ * book_lists → book_list_items üzerinden tek sorguda tüm personal liste kitapları.
+ * MyLibrarySection ile aynı veri kaynağı.
+ */
+export const useMyLibraryBookIds = (userId?: string) => {
+  return useQuery({
+    queryKey: ['my_library_book_ids', userId],
+    queryFn: async () => {
+      // Önce kullanıcının personal (community olmayan) listelerini al
+      const { data: lists, error: listError } = await supabase
+        .from('book_lists')
+        .select('id')
+        .eq('user_id', userId!)
+        .eq('is_community', false);
+
+      if (listError) throw listError;
+      if (!lists || lists.length === 0) return [] as string[];
+
+      const listIds = lists.map((l: { id: string }) => l.id);
+
+      // Sonra o listelerdeki tüm kitapları al (unique)
+      const { data: items, error: itemsError } = await supabase
+        .from('book_list_items')
+        .select('book_id')
+        .in('list_id', listIds);
+
+      if (itemsError) throw itemsError;
+
+      // Unique book_id'leri döndür
+      const unique = [...new Set((items ?? []).map((i: { book_id: string }) => i.book_id))];
+      return unique as string[];
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+

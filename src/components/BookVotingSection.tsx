@@ -12,7 +12,7 @@ import { useBookVotes, useAddBookVote, useRemoveBookVote } from '@/hooks/useBook
 import { useVotingNominations, useAddNomination, useRemoveNomination } from '@/hooks/useVotingNominations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfiles } from '@/hooks/useProfiles';
-import { useUserProgress } from '@/hooks/useProgress';
+import { useMyLibraryBookIds } from '@/hooks/useBookLists';
 import { useBooks } from '@/hooks/useBooks';
 import { toast } from 'sonner';
 
@@ -21,7 +21,7 @@ const BookVotingSection = () => {
   const { data: votes = [] } = useBookVotes();
   const { data: nominations = [], isLoading } = useVotingNominations();
   const { data: profiles = [] } = useProfiles();
-  const { data: userProgress = [] } = useUserProgress(user?.id || '');
+  const { data: myBookIds = [] } = useMyLibraryBookIds(user?.id);
   const { data: allBooks = [] } = useBooks();
   const addVote = useAddBookVote();
   const removeVote = useRemoveBookVote();
@@ -35,13 +35,16 @@ const BookVotingSection = () => {
   const userNomination = nominations.find(n => n.user_id === user?.id);
   const effectiveGroupCode = userProfile?.group_code || 'ZENHUB';
 
-  // Get user's library books from reading_progress (same source as MyLibrarySection)
+  // Kullanıcının tüm kişisel listelerindeki kitaplar (MyLibrarySection ile aynı kaynak)
+  // Kural: club_status === 'approved' olan kitaplar (geçmiş + şimdiki kulüp kitapları) önerilemez
   const myLibraryBooks = useMemo(() => {
-    const myBookIds = userProgress.map(rp => rp.book_id);
-    return allBooks.filter(b => myBookIds.includes(b.id));
-  }, [userProgress, allBooks]);
+    return allBooks.filter(b =>
+      myBookIds.includes(b.id) &&
+      (b as any).club_status !== 'approved'
+    );
+  }, [myBookIds, allBooks]);
 
-  // Filter by search query
+  // Arama filtresi
   const filteredBooks = useMemo(() => {
     if (!searchQuery.trim()) return myLibraryBooks;
     const q = searchQuery.toLowerCase();
