@@ -72,13 +72,22 @@ const AdminPanel = () => {
   const [scheduleEndDate, setScheduleEndDate] = useState('');
   const [scheduleNotes, setScheduleNotes] = useState('');
 
-  // Redirect non-admins
-  if (!isAdminLoading && !isAdmin) {
+  // Redirect non-admins. Render nothing while the role check is in flight
+  // to prevent any flash of admin UI before the gate resolves.
+  if (isAdminLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     navigate('/');
     return null;
   }
 
-  if (isAdminLoading || membersLoading) {
+  if (membersLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
