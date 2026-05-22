@@ -40,7 +40,7 @@ const BookVotingSection = () => {
   const myLibraryBooks = useMemo(() => {
     return allBooks.filter(b =>
       myBookIds.includes(b.id) &&
-      (b as any).club_status !== 'approved'
+      b.club_status !== 'approved'
     );
   }, [myBookIds, allBooks]);
 

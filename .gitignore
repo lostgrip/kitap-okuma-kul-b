@@ -27,3 +27,17 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Vite build artifacts
+vite.config.ts.timestamp-*
+
+# Local scratch / dev-only files
+test_db.*
+check_lists.*
+deno.lock
+
+# Alternative package manager lockfiles (this project uses npm)
+bun.lock
+bun.lockb
+yarn.lock
+pnpm-lock.yaml
